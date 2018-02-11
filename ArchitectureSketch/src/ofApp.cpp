@@ -11,6 +11,12 @@ void ofApp::setup()
 	// use normalized tex coords
 	ofEnableNormalizedTexCoords();
 
+	light.enable();
+	light.setDirectional();
+	light.setAmbientColor(ofColor(75, 75, 100));
+	light.setDiffuseColor(ofColor(200, 200, 180));
+	light.setOrientation(ofPoint(-4, -6, -1));
+
 	ofSetLineWidth(2);
 
 	camera.setDistance(30);
@@ -27,6 +33,7 @@ void ofApp::draw()
 	ofBackgroundGradient(ofColor(150, 150, 150), ofColor(100, 100, 100));
 
 	camera.begin();
+	ofEnableLighting();
 
 	ofEnableDepthTest();
 	ofSetColor(255);
@@ -37,18 +44,19 @@ void ofApp::draw()
 		ofDrawBox(4);
 	}
 	ofPopMatrix();
+	ofDisableLighting();
 
 	ofPushMatrix();
 	{
 		ofRotateZ(90);
-		ofSetColor(50);
+		ofSetColor(80);
 		ofDrawGridPlane(1);
 	}
 	ofPopMatrix();
 
 	ofDisableDepthTest();
 
-	ofDrawAxis(5);
+	//ofDrawAxis(5);
 
 	camera.end();
 
