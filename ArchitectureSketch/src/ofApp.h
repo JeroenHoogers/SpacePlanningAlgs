@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxStateMachine.h"
+#include "ofxEasyCam.h"
 
 class ofApp : public ofBaseApp{
 
@@ -24,5 +26,5 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
 		ofLight light;
-		ofEasyCam camera;
+		ofxEasyCam camera;
 };

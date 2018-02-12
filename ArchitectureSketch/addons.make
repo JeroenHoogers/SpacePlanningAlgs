@@ -1,2 +1,3 @@
+ofxEasyCam
 ofxGui
 ofxStateMachine

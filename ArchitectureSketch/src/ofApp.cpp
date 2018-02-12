@@ -13,17 +13,20 @@ void ofApp::setup()
 
 	light.enable();
 	light.setDirectional();
-	light.setAmbientColor(ofColor(75, 75, 100));
-	light.setDiffuseColor(ofColor(200, 200, 180));
-	light.setOrientation(ofPoint(-4, -6, -1));
+	light.setAmbientColor(ofColor(75, 75, 90));
+	light.setDiffuseColor(ofColor(220, 210, 150));
+	light.setOrientation(ofPoint(4, 1, -6));
 
-	ofSetLineWidth(2);
+	ofSetLineWidth(1);
 
 	camera.setDistance(30);
+	camera.disableRoll();
+
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update()
+{
 
 }
 
@@ -39,9 +42,14 @@ void ofApp::draw()
 	ofSetColor(255);
 	ofPushMatrix();
 	{
-		ofTranslate(0, 2);
-	//	ofNoFill();
-		ofDrawBox(4);
+		ofTranslate(0, 4);
+		ofFill();
+		ofDrawBox(8);
+
+		// outline pass
+		ofNoFill();
+		ofSetColor(50);
+		ofDrawBox(8);
 	}
 	ofPopMatrix();
 	ofDisableLighting();
@@ -50,7 +58,8 @@ void ofApp::draw()
 	{
 		ofRotateZ(90);
 		ofSetColor(80);
-		ofDrawGridPlane(1);
+		
+		ofDrawGridPlane(1, 32);
 	}
 	ofPopMatrix();
 
@@ -70,8 +79,8 @@ void ofApp::drawGui()
 
 	ofPushMatrix();
 	{
-		ofTranslate(10, 10);
-		ofDrawBitmapStringHighlight("fps:" + ofToString(ofFpsCounter().getFps()), ofPoint());
+		ofTranslate(10, 20);
+		ofDrawBitmapStringHighlight("fps: " + ofToString(ofGetFrameRate()), ofPoint());
 	}
 	ofPopMatrix();
 }
