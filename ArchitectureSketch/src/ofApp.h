@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "ofxStateMachine.h"
 #include "ofxEasyCam.h"
+#include "ofFbo.h"
+#include "ofxPostProcessing.h"
 
 class ofApp : public ofBaseApp{
 
@@ -27,4 +29,5 @@ class ofApp : public ofBaseApp{
 		
 		ofLight light;
 		ofxEasyCam camera;
+		ofxPostProcessing post;
 };

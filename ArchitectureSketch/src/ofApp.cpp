@@ -14,13 +14,17 @@ void ofApp::setup()
 	light.enable();
 	light.setDirectional();
 	light.setAmbientColor(ofColor(75, 75, 90));
-	light.setDiffuseColor(ofColor(220, 210, 150));
-	light.setOrientation(ofPoint(4, 1, -6));
+	light.setDiffuseColor(ofColor(220, 210, 180));
+	light.setGlobalOrientation(ofQuaternion(55, ofVec3f(1,0.4,0.4)));
 
-	ofSetLineWidth(1);
+	ofSetLineWidth(2);
 
 	camera.setDistance(30);
 	camera.disableRoll();
+
+	post.init(ofGetWidth(), ofGetHeight());
+	post.createPass<FxaaPass>();
+	post.createPass<SSAOPass>();
 
 }
 
@@ -35,37 +39,71 @@ void ofApp::draw()
 {
 	ofBackgroundGradient(ofColor(150, 150, 150), ofColor(100, 100, 100));
 
-	camera.begin();
 	ofEnableLighting();
-
 	ofEnableDepthTest();
+
+	//post.begin(camera);
+	camera.begin();
+
+	// draw shapes
 	ofSetColor(255);
+	ofFill();
+
 	ofPushMatrix();
 	{
 		ofTranslate(0, 4);
-		ofFill();
-		ofDrawBox(8);
+		ofDrawBox(8, 8, 12);
 
-		// outline pass
-		ofNoFill();
-		ofSetColor(50);
-		ofDrawBox(8);
+		ofTranslate(0, 7);
+		ofDrawBox(6, 6, 6);
 	}
 	ofPopMatrix();
+
 	ofDisableLighting();
+
+	// draw outlines
+	ofNoFill();
+	ofSetColor(50);
+
+
+	ofPushMatrix();
+	{
+		ofTranslate(0, 4);
+		ofDrawBox(8, 8, 12);
+
+		ofTranslate(0, 7);
+		ofDrawBox(6, 6, 6);
+	}
+	ofPopMatrix();
+
+
+
+	//ofPushMatrix();
+	//{
+	//	ofRotateX(90);
+	//	ofSetColor(255);
+	//	ofFill();
+	//	ofDrawPlane(20, 20);
+
+	//}
+	//ofPopMatrix();
 
 	ofPushMatrix();
 	{
 		ofRotateZ(90);
-		ofSetColor(80);
 		
-		ofDrawGridPlane(1, 32);
+		ofSetColor(80);
+		ofDrawGridPlane(2, 16);
 	}
 	ofPopMatrix();
 
+	//post.end();
+
+
 	ofDisableDepthTest();
 
-	//ofDrawAxis(5);
+
+	ofDrawAxis(5);
 
 	camera.end();
 
@@ -86,8 +124,24 @@ void ofApp::drawGui()
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key)
+{
+	float dist = camera.getDistance();
+	if (key == 't')
+	{
+		camera.setPosition(0, dist, 0);
+		camera.lookAt(ofPoint(0, 0, 0));
+		//camera.enableOrtho();
+		//camera.setScale(0.5);
 
+	}
+	if (key == 'f')
+	{
+		camera.setPosition(dist, 0, 0);
+		camera.lookAt(ofPoint(0, 0, 0));
+	//	camera.enableOrtho();
+
+	}
 }
 
 //--------------------------------------------------------------
