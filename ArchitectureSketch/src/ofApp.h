@@ -30,4 +30,6 @@ class ofApp : public ofBaseApp{
 		ofLight light;
 		ofxEasyCam camera;
 		ofxPostProcessing post;
+
+		ofShader phong;
 };

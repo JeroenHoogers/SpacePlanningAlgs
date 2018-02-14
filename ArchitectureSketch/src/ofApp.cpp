@@ -11,20 +11,34 @@ void ofApp::setup()
 	// use normalized tex coords
 	ofEnableNormalizedTexCoords();
 
+	//glFrontFace(GL_CW);
+	//glEnable(GL_CULL_FACE);
+	// use AA
+	ofEnableAntiAliasing();
+
+	ofSetCoordHandedness(ofHandednessType::OF_RIGHT_HANDED);
+
+	// load shader
+	//phong.load("shaders/phong.vert", "shaders/phong.frag");
+
+	// setup light
 	light.enable();
 	light.setDirectional();
-	light.setAmbientColor(ofColor(75, 75, 90));
+	light.setAmbientColor(ofColor(65, 65, 80));
 	light.setDiffuseColor(ofColor(220, 210, 180));
-	light.setGlobalOrientation(ofQuaternion(55, ofVec3f(1,0.4,0.4)));
 
-	ofSetLineWidth(2);
+	light.setPosition(-150, -200, -400);
+	light.lookAt(ofVec3f(0, 0, 0));
+
+	ofSetLineWidth(1.5);
 
 	camera.setDistance(30);
 	camera.disableRoll();
 
-	post.init(ofGetWidth(), ofGetHeight());
-	post.createPass<FxaaPass>();
-	post.createPass<SSAOPass>();
+	//post.init(ofGetWidth(), ofGetHeight());
+	//post.createPass<FxaaPass>();
+	////post.createPass<BloomPass>();
+	//post.createPass<SSAOPass>();
 
 }
 
@@ -37,13 +51,36 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-	ofBackgroundGradient(ofColor(150, 150, 150), ofColor(100, 100, 100));
+	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(150, 150, 150));
 
 	ofEnableLighting();
 	ofEnableDepthTest();
 
 	//post.begin(camera);
+
+	light.setPosition(-camera.getGlobalPosition());
+	light.lookAt(ofVec3f(0, 0, 0));
+
 	camera.begin();
+
+	// draw outlines
+	ofNoFill();
+	ofSetColor(50);
+
+
+	ofPushMatrix();
+	{
+		ofTranslate(0, 4);
+		ofDrawBox(8, 8, 12);
+
+		ofTranslate(0, 7);
+		ofDrawBox(6, 6, 6);
+
+	}
+	ofPopMatrix();
+
+
+	//phong.begin();
 
 	// draw shapes
 	ofSetColor(255);
@@ -61,21 +98,7 @@ void ofApp::draw()
 
 	ofDisableLighting();
 
-	// draw outlines
-	ofNoFill();
-	ofSetColor(50);
-
-
-	ofPushMatrix();
-	{
-		ofTranslate(0, 4);
-		ofDrawBox(8, 8, 12);
-
-		ofTranslate(0, 7);
-		ofDrawBox(6, 6, 6);
-	}
-	ofPopMatrix();
-
+	//phong.end();
 
 
 	//ofPushMatrix();
@@ -92,19 +115,19 @@ void ofApp::draw()
 	{
 		ofRotateZ(90);
 		
-		ofSetColor(80);
+		ofSetColor(120);
 		ofDrawGridPlane(2, 16);
 	}
 	ofPopMatrix();
-
-	//post.end();
 
 
 	ofDisableDepthTest();
 
 
 	ofDrawAxis(5);
+	//post.end();
 
+	//camera.begin();
 	camera.end();
 
 	drawGui();
@@ -131,7 +154,6 @@ void ofApp::keyPressed(int key)
 	{
 		camera.setPosition(0, dist, 0);
 		camera.lookAt(ofPoint(0, 0, 0));
-		//camera.enableOrtho();
 		//camera.setScale(0.5);
 
 	}
@@ -139,8 +161,19 @@ void ofApp::keyPressed(int key)
 	{
 		camera.setPosition(dist, 0, 0);
 		camera.lookAt(ofPoint(0, 0, 0));
-	//	camera.enableOrtho();
-
+	}
+	if (key == 'o')
+	{
+		if (!camera.getOrtho())
+		{
+			camera.setScale(0.05, 0.05, 0.05);
+			camera.enableOrtho();
+		}
+		else
+		{
+			//camera.setScale(0.1, 0.1, 0.1);
+			camera.disableOrtho();
+		}
 	}
 }
 
@@ -181,7 +214,8 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-
+	post.init(w, h);
+	//post.createPass<FxaaPass>();
 }
 
 //--------------------------------------------------------------
