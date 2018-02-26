@@ -11,6 +11,7 @@ struct SelectionRect
 	ofRectangle rect = ofRectangle();
 	bool mouseover = false;
 	bool selected = false;
+	bool prevSelected = false;
 };
 
 #pragma once
@@ -25,8 +26,9 @@ private:
 	GeneticAlgorithm geneticAlg;
 
 	ofParameter<int> mDimensions = ofParameter<int>("Nr of Params", 5, 1, 20);
-	ofParameter<float> mMutationRange = ofParameter<float>("Mutation amount", 0.1, 0.01, 0.5);
-	ofParameter<float> mMutationProbability = ofParameter<float>("Mutation deviation", 0.1, 0.01, 0.5);
+	ofParameter<int> mPopulationSize = ofParameter<int>("Population size", 20, 10, 40);
+	ofParameter<float> mMutationRate = ofParameter<float>("Mutation rate", 0.3, 0.0, 1.0);
+	ofParameter<float> mMutationAmount = ofParameter<float>("Mutation amount", 0.4, 0.0, 1.0);
 
 	vector<SelectionRect> mSelectionRectangles;
 
@@ -48,6 +50,9 @@ public:
 	void setupEvolution();
 
 	void generateButtonPressed();
+
+	void minorParameterChanged(float &val);
+	void majorParameterChanged(int &val);
 
 	void drawGenotype(vector<float> values);
 

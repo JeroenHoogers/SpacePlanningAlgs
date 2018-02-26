@@ -12,17 +12,19 @@ class GeneticAlgorithm
 private:
 	MatingStrategy matingStrat;
 	MutationStrategy mutationStrat;
-	
+								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
+	bool allowSurvival = true; // survival 
+
+public:
+	vector<Genotype> population;
+	vector<int> selectedIndices;
+
 	int populationSize = 20;
-	
+
 	int numGenes; // parameters
 
 	float mutationRate = 0.3; // probability of mutating a single gene
 	float mutationAmount = 0.4; // maximum mutation amount compared to original gene value (offset) 
-								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
-public:
-	vector<Genotype> population;
-	vector<int> selectedIndices;
 
 	int currentGeneration = 0;
 	
@@ -45,5 +47,5 @@ public:
 	// select a single individual from the population for offspring
 	void select(int index);
 
-	Genotype mate(Genotype parent1, Genotype parent2);
+	Genotype mate(Genotype parent1, Genotype parent2, float probability);
 };

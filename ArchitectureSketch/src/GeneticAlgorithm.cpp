@@ -15,6 +15,8 @@ GeneticAlgorithm::~GeneticAlgorithm()
 //--------------------------------------------------------------
 void GeneticAlgorithm::setup(int popSize, int n)
 {
+	currentGeneration = 0; 
+
 	populationSize = popSize;
 	numGenes = n;
 
@@ -26,6 +28,8 @@ void GeneticAlgorithm::setup(int popSize, int n)
 //--------------------------------------------------------------
 void GeneticAlgorithm::setup(int popSize, int n, float mutRate, float mutAmount)
 {
+	currentGeneration = 0;
+
 	populationSize = popSize;
 	numGenes = n;
 
@@ -87,7 +91,10 @@ void GeneticAlgorithm::generateOffspring()
 		population.clear();
 
 		// add selected individual (optional)
-		population.push_back(selected);
+		if (allowSurvival)
+		{
+			population.push_back(selected);
+		}
 
 		// populate the rest with mutations of the selected genotype
 		for (int i = population.size(); i < populationSize; i++)
@@ -105,15 +112,56 @@ void GeneticAlgorithm::generateOffspring()
 		population.clear();
 
 		// add selected individuals (optional)
-		population.push_back(parent1);
-		population.push_back(parent2);
+		if (allowSurvival)
+		{
+			population.push_back(parent1);
+			population.push_back(parent2);
+		}
 
 		// populate the rest with mutations of the selected genotype
 		for (int i = population.size(); i < populationSize; i++)
 		{
-			Genotype child = mate(parent1, parent2);
+			Genotype child = mate(parent1, parent2, 0.5f);
 			//population.push_back(child);
 			population.push_back(mutate(child));
+		}
+	}
+	else if (selectedIndices.size() > 2)
+	{
+		vector<Genotype> parents;
+
+		for (int i = 0; i < selectedIndices.size(); i++)
+		{
+			parents.push_back(population[selectedIndices[i]]);
+		}
+
+		// clear population
+		population.clear();
+
+		// add selected individuals (optional)
+		if (allowSurvival)
+		{
+			for (int i = 0; i < parents.size(); i++)
+			{
+				population.push_back(parents[i]);
+			}
+		}
+
+		float prob = 1.0f / selectedIndices.size();
+
+		// populate the rest with mutations of the selected genotype
+		for (int i = population.size(); i < populationSize; i++)
+		{
+			// TODO: this is not a probabilistically fair approach
+			Genotype child = parents[0];
+
+			for (size_t j = 1; j < parents.size(); j++)
+			{
+				child = mate(child, parents[j], prob);
+			}
+
+			population.push_back(child);
+			//population.push_back(mutate(child));
 		}
 	}
 	
@@ -146,16 +194,14 @@ Genotype GeneticAlgorithm::mutate(Genotype genotype)
 }
 
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::mate(Genotype parent1, Genotype parent2)
+Genotype GeneticAlgorithm::mate(Genotype parent1, Genotype parent2, float probability)
 {
-	float prob = 0.5f;
-
 	Genotype child = parent1;
 
 	// 2^N possible values and randomly select a few to be in the new population, also add the original parents
 	for (size_t i = 0; i < child.size(); i++)
 	{
-		bool useOtherGene = ofRandom(1) < prob;
+		bool useOtherGene = ofRandom(1) < probability;
 
 		if (useOtherGene)
 			child[i] = parent2[i];

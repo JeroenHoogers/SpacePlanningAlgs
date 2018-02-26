@@ -69,8 +69,8 @@ void ProjectState::update()
 //--------------------------------------------------------------
 void ProjectState::draw()
 {
+	ofSetLineWidth(1.5);
 	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
-
 
 	ofEnableDepthTest();
 
@@ -153,13 +153,12 @@ void ProjectState::drawGUI()
 {
 	ofSetColor(255);
 
-	ofPushMatrix();
-	{
-		ofTranslate(10, 20);
-		string controls = "Controls: \n(o) Toggle Othographic camera\n(t): top view \n(f): Front view";
-		ofDrawBitmapStringHighlight("fps: " + ofToString(ofGetFrameRate()) + "\n" + controls, ofPoint());
-	}
-	ofPopMatrix();
+	string controls = "Controls: \n(o): toggle orthographic\n(t): top view \n(f): front view \n(s): side view";
+	ofDrawBitmapStringHighlight(controls, ofPoint(10, 20));
+
+	//ofTranslate(10, ofGetWidth() - 140);
+
+	ofDrawBitmapStringHighlight("fps: " + ofToString(ofGetFrameRate()), ofPoint(ofGetWidth() - 110, 20));
 }
 
 //--------------------------------------------------------------
@@ -181,9 +180,15 @@ void ProjectState::keyPressed(int key)
 	}
 	if (key == 'f')
 	{
+		camera.setPosition(0, 0, dist);
+		camera.lookAt(ofPoint(0, 0, 0));
+	}
+	if (key == 's')
+	{
 		camera.setPosition(dist, 0, 0);
 		camera.lookAt(ofPoint(0, 0, 0));
 	}
+
 	if (key == 'o')
 	{
 		if (!camera.getOrtho())

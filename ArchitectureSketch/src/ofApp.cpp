@@ -12,7 +12,7 @@ void ofApp::setup()
 	mStateMachine->addState(new EvolutionState());
 	mStateMachine->addState(new ProjectState());
 
-	mStateMachine->changeState(EvolutionState_StateName);
+	mStateMachine->changeState(ProjectState_StateName);
 }
 
 //--------------------------------------------------------------

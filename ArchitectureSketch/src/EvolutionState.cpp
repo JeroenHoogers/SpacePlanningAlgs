@@ -25,12 +25,22 @@ void EvolutionState::stateExit()
 //--------------------------------------------------------------
 void EvolutionState::setup()
 {	
+	// button events
 	generateNextGenButton.addListener(this, &EvolutionState::generateButtonPressed);
 
-	gui.setup();
+	// major parameters (require genetic algorithm reset)
+	mDimensions.addListener(this, &EvolutionState::majorParameterChanged);
+	mPopulationSize.addListener(this, &EvolutionState::majorParameterChanged);
+
+	// minor parameters (do not require GA reset)
+	mMutationRate.addListener(this, &EvolutionState::minorParameterChanged);
+	mMutationAmount.addListener(this, &EvolutionState::minorParameterChanged);
+
+	gui.setup("GA Settings");
 	gui.add(mDimensions);
-	gui.add(mMutationRange);
-	gui.add(mMutationProbability);
+	gui.add(mPopulationSize);
+	gui.add(mMutationRate);
+	gui.add(mMutationAmount);
 	gui.add(generateNextGenButton.setup("Generate offspring"));
 
 	setupEvolution();
@@ -38,11 +48,11 @@ void EvolutionState::setup()
 //--------------------------------------------------------------
 void EvolutionState::setupEvolution()
 {
-	geneticAlg.setup(20, 5);
+	geneticAlg.setup(mPopulationSize.get(), mDimensions.get(), mMutationRate.get(), mMutationAmount.get());
 
 	mTargets = geneticAlg.generateRandomDna();
 
-	ofPoint offset = ofPoint(10, 30);
+	ofPoint offset = ofPoint(10, 60);
 
 	mSelectionRectangles.clear();
 
@@ -66,17 +76,46 @@ void EvolutionState::generateButtonPressed()
 {
 	cout << "current generation: " << geneticAlg.currentGeneration << endl;
 
+	int nrSelected = 0;
+
 	// find selected indices
 	for (int i = 0; i < mSelectionRectangles.size(); i++)
 	{
 		if (mSelectionRectangles[i].selected)
+		{
 			geneticAlg.select(mSelectionRectangles[i].index);
+			nrSelected++;
+		}
 
 		mSelectionRectangles[i].selected = false;
 	}
 
 	// let the genetic algorithm generate offspring based on the selection
 	geneticAlg.generateOffspring();
+
+	// mark survivors from the last generation
+	for (int i = 0; i < mSelectionRectangles.size(); i++)
+	{
+		if (i < nrSelected)
+			mSelectionRectangles[i].prevSelected = true;
+		else
+			mSelectionRectangles[i].prevSelected = false;
+	}
+}
+
+//--------------------------------------------------------------
+void EvolutionState::majorParameterChanged(int& val)
+{
+	setupEvolution();
+
+	//geneticAlg.setup(mPopulationSize.get(), mDimensions.get(), mMutationRate.get(), mMutationAmount.get());
+}
+
+//--------------------------------------------------------------
+void EvolutionState::minorParameterChanged(float& val)
+{
+	geneticAlg.mutationRate = mMutationRate.get();
+	geneticAlg.mutationAmount = mMutationAmount.get();
 }
 
 //--------------------------------------------------------------
@@ -91,7 +130,9 @@ void EvolutionState::draw()
 
 	// TODO: draw all phenotypes
 	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
-	
+
+	ofSetColor(10);
+	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlg.currentGeneration), 15, 25);
 	
 	for (int i = 0; i < mSelectionRectangles.size(); i++)
 	{
@@ -104,8 +145,18 @@ void EvolutionState::draw()
 		if(sr.selected)
 			ofSetColor(50, 100, 50);
 
+		ofFill();
 		ofDrawRectangle(sr.rect);
 
+		if (sr.prevSelected)
+		{
+			ofSetColor(50, 50, 50);
+			ofNoFill();
+			ofSetLineWidth(2.0);
+
+			ofDrawRectangle(sr.rect);
+		}
+		
 		ofPushMatrix();
 		{
 			ofSetColor(255);
@@ -157,6 +208,11 @@ void EvolutionState::drawGenotype(vector<float> values)
 			ofDrawLine(ofPoint(100, 0), ofPoint(100, 20));
 			ofDrawLine(ofPoint(0, 10), ofPoint(100, 10));
 
+			// grey line inbetween
+			ofSetColor(50, 50, 50);
+			ofDrawLine(ofPoint(mTargets[i] * 100, 10), ofPoint(values[i] * 100, 10));
+
+
 			// draw single param
 			ofSetColor(50, 50, 255);
 			ofDrawLine(ofPoint(values[i] * 100, 0), ofPoint(values[i] * 100, 20));
@@ -165,9 +221,6 @@ void EvolutionState::drawGenotype(vector<float> values)
 			ofDrawLine(ofPoint(mTargets[i] * 100, 0), ofPoint(mTargets[i] * 100, 20));
 
 			ofSetLineWidth(6.0);
-			ofSetColor(50, 50, 50);
-
-			ofDrawLine(ofPoint(mTargets[i] * 100, 10), ofPoint(values[i] * 100, 10));
 
 			ofTranslate(0, 30);
 		}
