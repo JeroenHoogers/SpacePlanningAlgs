@@ -171,6 +171,8 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EvolutionState.cpp" />
+    <ClCompile Include="src\GeneticAlgorithm.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxEasyCam\src\ofxEasyCam.cpp" />
@@ -207,8 +209,11 @@
     <ClCompile Include="..\..\..\..\addons\ofxPostProcessing\src\ToonPass.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxPostProcessing\src\VerticalTiltShifPass.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxPostProcessing\src\ZoomBlurPass.cpp" />
+    <ClCompile Include="src\ProjectState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\EvolutionState.h" />
+    <ClInclude Include="src\GeneticAlgorithm.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="..\..\..\..\addons\ofxEasyCam\src\ofxEasyCam.h" />
     <ClInclude Include="..\..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
@@ -248,6 +253,8 @@
     <ClInclude Include="..\..\..\..\addons\ofxPostProcessing\src\ZoomBlurPass.h" />
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxState.h" />
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxStateMachine.h" />
+    <ClInclude Include="src\ProjectState.h" />
+    <ClInclude Include="src\SharedData.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
