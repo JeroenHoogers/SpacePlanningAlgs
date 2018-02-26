@@ -33,6 +33,8 @@ public:
 	void setup(int popSize, int n);
 	void setup(int popSize, int n, float mutRate, float mutAmount);
 
+	float absDifference(int index, Genotype target);
+
 	void generateRandomPopulation();
 	Genotype generateRandomDna();
 
@@ -43,5 +45,5 @@ public:
 	// select a single individual from the population for offspring
 	void select(int index);
 
-	void mate();
+	Genotype mate(Genotype parent1, Genotype parent2);
 };
