@@ -160,8 +160,8 @@ void GeneticAlgorithm::generateOffspring()
 				child = mate(child, parents[j], prob);
 			}
 
-			population.push_back(child);
-			//population.push_back(mutate(child));
+			//population.push_back(child);
+			population.push_back(mutate(child));
 		}
 	}
 	

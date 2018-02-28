@@ -25,9 +25,9 @@ private:
 
 	GeneticAlgorithm geneticAlg;
 
-	ofParameter<int> mDimensions = ofParameter<int>("Nr of Params", 5, 1, 20);
+	ofParameter<int> mDimensions = ofParameter<int>("Nr of params", 5, 1, 20);
 	ofParameter<int> mPopulationSize = ofParameter<int>("Population size", 20, 10, 40);
-	ofParameter<float> mMutationRate = ofParameter<float>("Mutation rate", 0.3, 0.0, 1.0);
+	ofParameter<float> mMutationRate = ofParameter<float>("Mutation rate", 0.25, 0.0, 1.0);
 	ofParameter<float> mMutationAmount = ofParameter<float>("Mutation amount", 0.4, 0.0, 1.0);
 
 	vector<SelectionRect> mSelectionRectangles;

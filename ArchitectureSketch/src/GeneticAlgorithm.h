@@ -23,7 +23,7 @@ public:
 
 	int numGenes; // parameters
 
-	float mutationRate = 0.3; // probability of mutating a single gene
+	float mutationRate = 0.25; // probability of mutating a single gene
 	float mutationAmount = 0.4; // maximum mutation amount compared to original gene value (offset) 
 
 	int currentGeneration = 0;

@@ -107,8 +107,6 @@ void EvolutionState::generateButtonPressed()
 void EvolutionState::majorParameterChanged(int& val)
 {
 	setupEvolution();
-
-	//geneticAlg.setup(mPopulationSize.get(), mDimensions.get(), mMutationRate.get(), mMutationAmount.get());
 }
 
 //--------------------------------------------------------------
@@ -126,10 +124,12 @@ void EvolutionState::update()
 //--------------------------------------------------------------
 void EvolutionState::draw()
 {
+	// disable depth testing
 	ofDisableDepthTest();
 
 	// TODO: draw all phenotypes
-	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
+	//ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
+	ofBackground(ofColor(190, 190, 190));
 
 	ofSetColor(10);
 	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlg.currentGeneration), 15, 25);
@@ -137,13 +137,17 @@ void EvolutionState::draw()
 	for (int i = 0; i < mSelectionRectangles.size(); i++)
 	{
 		SelectionRect sr = mSelectionRectangles[i];
-		ofSetColor(100);
+		ofSetColor(120);
 
 		if(sr.mouseover)
-			ofSetColor(120);
+			ofSetColor(150);
 
 		if(sr.selected)
-			ofSetColor(50, 100, 50);
+			ofSetColor(50, 160, 50);
+
+
+		float diff = geneticAlg.absDifference(sr.index, mTargets);
+		diff = roundf(diff * 100) / 100;
 
 		ofFill();
 		ofDrawRectangle(sr.rect);
@@ -152,7 +156,7 @@ void EvolutionState::draw()
 		{
 			ofSetColor(50, 50, 50);
 			ofNoFill();
-			ofSetLineWidth(2.0);
+			ofSetLineWidth(4.0);
 
 			ofDrawRectangle(sr.rect);
 		}
@@ -163,7 +167,7 @@ void EvolutionState::draw()
 			ofTranslate(sr.rect.x + 5, sr.rect.y + 5);
 
 			ofSetColor(255);
-			ofDrawBitmapStringHighlight(ofToString(i), 0, -10);
+			ofDrawBitmapStringHighlight(ofToString(i) + " | " + ofToString(diff), 0, -10);
 
 			drawGenotype(geneticAlg.population[mSelectionRectangles[i].index]);
 		}
@@ -208,10 +212,10 @@ void EvolutionState::drawGenotype(vector<float> values)
 			ofDrawLine(ofPoint(100, 0), ofPoint(100, 20));
 			ofDrawLine(ofPoint(0, 10), ofPoint(100, 10));
 
+			ofSetLineWidth(3.0);
 			// grey line inbetween
 			ofSetColor(50, 50, 50);
 			ofDrawLine(ofPoint(mTargets[i] * 100, 10), ofPoint(values[i] * 100, 10));
-
 
 			// draw single param
 			ofSetColor(50, 50, 255);
@@ -220,7 +224,7 @@ void EvolutionState::drawGenotype(vector<float> values)
 			ofSetColor(255, 50, 50);
 			ofDrawLine(ofPoint(mTargets[i] * 100, 0), ofPoint(mTargets[i] * 100, 20));
 
-			ofSetLineWidth(6.0);
+		//	ofSetLineWidth(6.0);
 
 			ofTranslate(0, 30);
 		}
