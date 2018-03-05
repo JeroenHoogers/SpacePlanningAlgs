@@ -1,29 +1,29 @@
-#include "ProjectState.h"
+#include "ArchitectureState.h"
 
 //--------------------------------------------------------------
-ProjectState::ProjectState()
+ArchitectureState::ArchitectureState()
 {
 }
 
 //--------------------------------------------------------------
-ProjectState::~ProjectState()
+ArchitectureState::~ArchitectureState()
 {
 }
 
 //--------------------------------------------------------------
-void ProjectState::stateEnter()
-{
-
-}
-
-//--------------------------------------------------------------
-void ProjectState::stateExit()
+void ArchitectureState::stateEnter()
 {
 
 }
 
 //--------------------------------------------------------------
-void ProjectState::setup()
+void ArchitectureState::stateExit()
+{
+
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::setup()
 {
 	// use AA
 	ofEnableAntiAliasing();
@@ -61,46 +61,86 @@ void ProjectState::setup()
 }
 
 //--------------------------------------------------------------
-void ProjectState::update()
+void ArchitectureState::update()
 {
 
 }
 
 //--------------------------------------------------------------
-void ProjectState::draw()
+void ArchitectureState::draw()
 {
-	ofSetLineWidth(1.5);
 	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
 
-	ofEnableDepthTest();
+	int tilew = (ofGetWidth() / tilesHorizontal);
+	int tileh = (ofGetHeight() / tilesVertical);
 
-	//post.begin(camera);
-
-	light.setPosition(-camera.getGlobalPosition());
-	light.lookAt(ofVec3f(0, 0, 0));
-
-	camera.begin();
-
-	// draw outlines
-	if (drawOutlines)
+	for (int i = 0; i < (tilesHorizontal * tilesVertical); i++)
 	{
-		ofNoFill();
-		ofSetColor(140);
+		int x = (i % tilesHorizontal) * tilew;
+		int y = (i / tilesVertical) * tileh;
 
 		ofPushMatrix();
 		{
-			ofTranslate(0, 6);
-			ofDrawBox(16, 12, 16);
-		}
-		ofPopMatrix();
+			ofTranslate(x, y);
+			//ofScale(1.0f / tilew, 1.0f / tileh);
 
-		ofPushMatrix();
-		{
-			ofTranslate(12, 3);
-			ofDrawBox(8, 6, 12);
+			//ofRectangle rect = ofRectangle(0, 0, tilew, tileh);
+			ofRectangle rect = ofRectangle(x, y, tilew, tileh);
+			
+			drawTile(rect);
 		}
 		ofPopMatrix();
 	}
+
+	// draw tiles
+	ofSetLineWidth(2);
+	ofNoFill();
+	ofSetColor(50);
+
+	for (int i = 0; i < (tilesHorizontal * tilesVertical); i++)
+	{
+		// draw tiles
+		int x = (i % tilesHorizontal) * tilew;
+		int y = (i / tilesVertical) * tileh;
+
+		ofDrawRectangle(x, y, 0, x + tilew, y + tileh);
+	}
+	//drawGUI();
+
+	camera.begin();
+	camera.end();
+}
+
+
+void ArchitectureState::drawTile(ofRectangle viewport)
+{
+	ofSetLineWidth(1.5);
+	ofEnableDepthTest();
+
+	//post.begin(camera);
+	light.setPosition(-camera.getGlobalPosition());
+	light.lookAt(ofVec3f(0, 0, 0));
+
+	camera.begin(viewport);
+
+	// draw outlines
+	ofNoFill();
+	ofSetColor(140);
+
+	ofPushMatrix();
+	{
+		ofTranslate(0, 6);
+		ofDrawBox(16, 12, 16);
+	}
+	ofPopMatrix();
+
+	ofPushMatrix();
+	{
+		ofTranslate(12, 3);
+		ofDrawBox(8, 6, 12);
+	}
+	ofPopMatrix();
+
 	ofEnableLighting();
 	//phong.begin();
 
@@ -123,14 +163,15 @@ void ProjectState::draw()
 	ofPopMatrix();
 
 	ofDisableLighting();
-
 	//phong.end();
 
 	ofPushMatrix();
 	{
+		//ofRotateX(-90);
 		ofRotateZ(90);
 
 		ofSetColor(120);
+		//ofDrawPlane(0, 0, 50, 50);
 		ofDrawGridPlane(2, 16);
 	}
 	ofPopMatrix();
@@ -138,18 +179,14 @@ void ProjectState::draw()
 
 	ofDisableDepthTest();
 
-
-	ofDrawAxis(5);
+	//ofDrawAxis(5);
 	//post.end();
 
-	//camera.begin();
 	camera.end();
-
-	drawGUI();
 }
 
 //--------------------------------------------------------------
-void ProjectState::drawGUI()
+void ArchitectureState::drawGUI()
 {
 	ofSetColor(255);
 
@@ -162,15 +199,16 @@ void ProjectState::drawGUI()
 }
 
 //--------------------------------------------------------------
-string ProjectState::getName()
+string ArchitectureState::getName()
 {
-	return ProjectState_StateName;
+	return ArchitectureState_StateName;
 }
 
 //--------------------------------------------------------------
-void ProjectState::keyPressed(int key)
+void ArchitectureState::keyPressed(int key)
 {
 	float dist = camera.getDistance();
+
 	if (key == 't')
 	{
 		camera.setPosition(0, dist, 0);
@@ -202,15 +240,10 @@ void ProjectState::keyPressed(int key)
 			camera.disableOrtho();
 		}
 	}
-
-	if (key == 'l')
-	{
-		drawOutlines = !drawOutlines;
-	}
 }
 
 //--------------------------------------------------------------
-void ProjectState::mousePressed(int x, int y, int button)
+void ArchitectureState::mousePressed(int x, int y, int button)
 {
 
 }

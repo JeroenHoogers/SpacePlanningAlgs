@@ -5,6 +5,7 @@
 #include "SharedData.h"
 #include "EvolutionState.h"
 #include "ProjectState.h"
+#include "ArchitectureState.h"
 
 class ofApp : public ofBaseApp
 {

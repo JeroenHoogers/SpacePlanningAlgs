@@ -171,6 +171,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ArchitectureState.cpp" />
     <ClCompile Include="src\EvolutionState.cpp" />
     <ClCompile Include="src\GeneticAlgorithm.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -212,6 +213,7 @@
     <ClCompile Include="src\ProjectState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ArchitectureState.h" />
     <ClInclude Include="src\EvolutionState.h" />
     <ClInclude Include="src\GeneticAlgorithm.h" />
     <ClInclude Include="src\ofApp.h" />

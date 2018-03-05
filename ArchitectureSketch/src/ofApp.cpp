@@ -11,8 +11,9 @@ void ofApp::setup()
 	mStateMachine = new itg::ofxStateMachine<SharedData>();
 	mStateMachine->addState(new EvolutionState());
 	mStateMachine->addState(new ProjectState());
+	mStateMachine->addState(new ArchitectureState());
 
-	mStateMachine->changeState(ProjectState_StateName);
+	mStateMachine->changeState(ArchitectureState_StateName);
 }
 
 //--------------------------------------------------------------
@@ -61,6 +62,11 @@ void ofApp::keyPressed(int key)
 	if (key == 'p')
 	{
 		mStateMachine->changeState(ProjectState_StateName);
+	}
+
+	if (key == 'a')
+	{
+		mStateMachine->changeState(ArchitectureState_StateName);
 	}
 }
 
