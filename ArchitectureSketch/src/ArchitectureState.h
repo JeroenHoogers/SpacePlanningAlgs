@@ -63,8 +63,8 @@ private:
 
 	bool mShowGui;
 
-	int tilesHorizontal = 3;
-	int tilesVertical = 3;
+	int tilesHorizontal = 4;
+	int tilesVertical = 4;
 
 	ofPoint mousePos;
 

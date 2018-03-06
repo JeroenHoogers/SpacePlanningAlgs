@@ -95,7 +95,7 @@ void ArchitectureState::setup()
 void ArchitectureState::setupEvolution()
 {
 	// setup genetic algorithm
-	geneticAlgorithm.setup(9, 15, mMutationRate.get(), mMutationAmount.get());
+	geneticAlgorithm.setup(16, 15, mMutationRate.get(), mMutationAmount.get());
 
 	massModels.clear();
 
@@ -187,6 +187,7 @@ void ArchitectureState::draw()
 	}
 	//drawGUI();
 
+	///
 	camera.begin();
 	camera.end();
 
@@ -260,6 +261,11 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	ofSetColor(60, 190, 60, 255);
 	ofDrawBox(pos, sz.x, sz.y, sz.z);
 
+	// Scale model
+	ofSetColor(30);
+	ofDrawCylinder(0, 0.9f, 0, 0.3f, 1.8f);
+	//ofDrawBox(0, 0.85f, 0, 0.5f, 1.7f, 0.5f);
+
 
 	//}
 	//ofPopMatrix();
@@ -287,14 +293,15 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	{
 		//ofRotateX(-90);
 		ofRotateZ(90);
-
+		ofSetLineWidth(1);
 		ofSetColor(120);
 		//ofDrawPlane(0, 0, 50, 50);
-		ofDrawGridPlane(2, 8);
+		ofDrawGridPlane(0.4, 32);
 	}
 	ofPopMatrix();
 
 	ofDisableDepthTest();
+
 
 	//ofDrawAxis(5);
 	//post.end();
@@ -392,7 +399,7 @@ void ArchitectureState::mouseReleased(int x, int y, int button)
 		int tileh = (ofGetHeight() / tilesVertical);
 
 		// calculate index based on mouse position
-		int index = (x / tilew) + (y / tileh) * 3;
+		int index = (x / tilew) + (y / tileh) * tilesHorizontal;
 		bool removed = false;
 
 		if (index < geneticAlgorithm.populationSize)
