@@ -72,8 +72,7 @@ void GeneticAlgorithm::select(int index)
 
 //--------------------------------------------------------------
 void GeneticAlgorithm::generateOffspring()
-{
-	
+{	
 	if (selectedIndices.size() == 0) // no selection 
 	{
 		// clear population
@@ -176,10 +175,23 @@ void GeneticAlgorithm::generateOffspring()
 Genotype GeneticAlgorithm::mutate(Genotype genotype)
 {
 	//vector<float> genotype;
+	bool mutateGene = false;
+
 	for (size_t i = 0; i < genotype.size(); i++)
 	{
-		// mutate this gene with probability equal to the mutation rate
-		bool mutateGene = ofRandom(1) < mutationRate;
+		if (groupGenes)
+		{
+			// group mutation
+			if(i % groupSize == 0)
+				mutateGene = ofRandom(1) < mutationRate;
+		}
+		else
+		{	
+			// mutate this gene with probability equal to the mutation rate
+			mutateGene = ofRandom(1) < mutationRate;
+		}
+		
+		
 		if (mutateGene)
 		{
 			// adjust 
@@ -198,14 +210,32 @@ Genotype GeneticAlgorithm::mate(Genotype parent1, Genotype parent2, float probab
 {
 	Genotype child = parent1;
 
+	bool useOtherGene = false;
+
 	// 2^N possible values and randomly select a few to be in the new population, also add the original parents
 	for (size_t i = 0; i < child.size(); i++)
 	{
-		bool useOtherGene = ofRandom(1) < probability;
+		if (groupGenes)
+		{
+			// use the same genes for the entire group
+			if (i % groupSize == 0)
+				useOtherGene = ofRandom(1) < probability;
+		}
+		else
+		{
+			// crossover genes independently
+			useOtherGene = ofRandom(1) < probability;
+		}
+
+		//useOtherGene = ofRandom(1) < probability;
 
 		if (useOtherGene)
 			child[i] = parent2[i];
 	}
+
+
+
+
 
 	return child;
 }

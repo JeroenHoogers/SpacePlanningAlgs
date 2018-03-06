@@ -74,15 +74,21 @@ void ArchitectureState::setup()
 	mMutationRate.addListener(this, &ArchitectureState::minorParameterChanged);
 	mMutationAmount.addListener(this, &ArchitectureState::minorParameterChanged);
 
+	mGroupGenes.addListener(this, &ArchitectureState::boolParameterChanged);
+
 	// setup gui 
 	gui.setup("GA Settings");
 	//gui.add(mDimensions);
 	//gui.add(mPopulationSize);
 	gui.add(mMutationRate);
 	gui.add(mMutationAmount);
+	gui.add(mGroupGenes);
+	gui.add(mDiversify);
 	gui.add(generateNextGenButton.setup("Generate offspring"));
 
 	setupEvolution();
+
+	mShowGui = true;
 }
 
 //--------------------------------------------------------------
@@ -112,7 +118,7 @@ MassModel ArchitectureState::convertGenotype(Genotype genotype)
 		(genotype[1] - 0.5f) * max,
 		(genotype[2] - 0.5f) * max,
 		(genotype[3] - 0.5f) * max,
-		floorf(genotype[4] * h + 0.99f)
+		fminf(floorf(genotype[4] * h + 1.0f), 3)
 	);
 
 	mm.m2 = Mass(
@@ -120,7 +126,7 @@ MassModel ArchitectureState::convertGenotype(Genotype genotype)
 		(genotype[6] - 0.5f) * max,
 		(genotype[7] - 0.5f) * max,
 		(genotype[8] - 0.5f) * max,
-		floorf(genotype[9] * h + 0.99f)
+		fminf(floorf(genotype[9] * h + 1.0f), 3)
 	);
 
 	mm.m3 = Mass(
@@ -128,7 +134,7 @@ MassModel ArchitectureState::convertGenotype(Genotype genotype)
 		(genotype[11] - 0.5f) * max,
 		(genotype[12] - 0.5f) * max,
 		(genotype[13] - 0.5f) * max,
-		floorf(genotype[14] * h + 0.99f)
+		fminf(floorf(genotype[14] * h + 1.0f), 3)
 	);
 
 	return mm;
@@ -187,8 +193,10 @@ void ArchitectureState::draw()
 	// show generation
 	ofSetColor(10);
 	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlgorithm.currentGeneration), 15, 25);
+	ofDrawBitmapStringHighlight("H: Hide Gui", 15, 40);
 
-	gui.draw();
+	if(mShowGui)
+		gui.draw();
 }
 
 //--------------------------------------------------------------
@@ -235,21 +243,21 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	pos = massModels[index].m1.getPoint();
 	sz = massModels[index].m1.getSize();
 
-	ofSetColor(180, 180, 80, 255);
+	ofSetColor(190, 190, 60, 255);
 	ofDrawBox(pos, sz.x, sz.y, sz.z);
 
 	// draw mass 2
 	pos = massModels[index].m2.getPoint();
 	sz = massModels[index].m2.getSize();
 
-	ofSetColor(80, 80, 180, 255);
+	ofSetColor(60, 60, 190, 255);
 	ofDrawBox(pos, sz.x, sz.y, sz.z);
 
 	// draw mass 3
 	pos = massModels[index].m3.getPoint();
 	sz = massModels[index].m3.getSize();
 
-	ofSetColor(80, 180, 80, 255);
+	ofSetColor(60, 190, 60, 255);
 	ofDrawBox(pos, sz.x, sz.y, sz.z);
 
 
@@ -294,100 +302,6 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	camera.end();
 }
 
-//void ArchitectureState::drawTile(ofRectangle viewport)
-//{
-//	ofSetLineWidth(1.5);
-//	ofEnableDepthTest();
-//
-//	//post.begin(camera);
-//	light.setPosition(-camera.getGlobalPosition());
-//	light.lookAt(ofVec3f(0, 0, 0));
-//
-//	camera.begin(viewport);
-//
-//	//// draw outlines
-//	ofNoFill();
-//	//ofSetColor(140);
-//
-//	ofPushMatrix();
-//	{
-//		ofSetColor(180 * 0.8f, 180 * 0.8f, 80 * 0.8f, 255);
-//		ofTranslate(0, 6);
-//		ofDrawBox(16, 12, 16);
-//	}
-//	ofPopMatrix();
-//
-//	ofPushMatrix();
-//	{
-//		ofSetColor(80 * 0.8f, 80 * 0.8f, 180 * 0.8f, 255);
-//		ofTranslate(12, 3);
-//		ofDrawBox(8, 6, 12);
-//	}
-//	ofPopMatrix();
-//
-//	ofPushMatrix();
-//	{
-//		ofSetColor(80 * 0.8f, 180 * 0.8f, 80 * 0.8f, 255);
-//		ofTranslate(-12, 3);
-//		ofDrawBox(8, 6, 12);
-//	}
-//	ofPopMatrix();
-//
-//	ofEnableLighting();
-//	//phong.begin();
-//
-//	// draw shapes
-//	ofSetColor(220);
-//	ofFill();
-//
-//	ofPushMatrix();
-//	{
-//		ofSetColor(180, 180, 80, 255);
-//		ofTranslate(0, 6);
-//		ofDrawBox(16, 12, 16);
-//	}
-//	ofPopMatrix();
-//
-//	ofPushMatrix();
-//	{
-//		ofSetColor(80, 80, 180, 255);
-//		ofTranslate(12, 3);
-//		ofDrawBox(8, 6, 12);
-//	}
-//	ofPopMatrix();
-//
-//	ofPushMatrix();
-//	{
-//		ofSetColor(80, 180, 80, 255);
-//		ofTranslate(-12, 3);
-//		ofDrawBox(8, 6, 12);
-//	}
-//	ofPopMatrix();
-//
-//	ofDisableLighting();
-//	//phong.end();
-//
-//	ofPushMatrix();
-//	{
-//		//ofRotateX(-90);
-//		ofRotateZ(90);
-//
-//		ofSetColor(120);
-//		//ofDrawPlane(0, 0, 50, 50);
-//		ofDrawGridPlane(2, 16);
-//	}
-//	ofPopMatrix();
-//
-//
-//	ofDisableDepthTest();
-//
-//	//ofDrawAxis(5);
-//	//post.end();
-//
-//	camera.end();
-//}
-
-
 //--------------------------------------------------------------
 void ArchitectureState::drawGUI()
 {
@@ -412,6 +326,7 @@ void ArchitectureState::keyPressed(int key)
 {
 	float dist = camera.getDistance();
 
+	// top view
 	if (key == 't')
 	{
 		camera.setPosition(0, dist, 0);
@@ -419,17 +334,22 @@ void ArchitectureState::keyPressed(int key)
 		//camera.setScale(0.5);
 
 	}
+
+	// front view
 	if (key == 'f')
 	{
 		camera.setPosition(0, 0, dist);
 		camera.lookAt(ofPoint(0, 0, 0));
 	}
+
+	// side view
 	if (key == 's')
 	{
 		camera.setPosition(dist, 0, 0);
 		camera.lookAt(ofPoint(0, 0, 0));
 	}
 
+	// toggle orthographic
 	if (key == 'o')
 	{
 		if (!camera.getOrtho())
@@ -442,6 +362,12 @@ void ArchitectureState::keyPressed(int key)
 			//camera.setScale(0.1, 0.1, 0.1);
 			camera.disableOrtho();
 		}
+	}
+
+	// toggle gui
+	if (key == 'h')
+	{
+		mShowGui = !mShowGui;
 	}
 }
 
@@ -539,4 +465,10 @@ void ArchitectureState::minorParameterChanged(float& val)
 {
 	geneticAlgorithm.mutationRate = mMutationRate.get();
 	geneticAlgorithm.mutationAmount = mMutationAmount.get();
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::boolParameterChanged(bool &val)
+{
+	geneticAlgorithm.groupGenes = mGroupGenes.get();
 }

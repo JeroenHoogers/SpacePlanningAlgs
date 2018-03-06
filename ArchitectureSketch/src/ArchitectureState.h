@@ -61,6 +61,8 @@ private:
 	ofLight light;
 	ofxEasyCam camera;
 
+	bool mShowGui;
+
 	int tilesHorizontal = 3;
 	int tilesVertical = 3;
 
@@ -72,6 +74,8 @@ private:
 	ofParameter<int> mPopulationSize = ofParameter<int>("Population size", 20, 10, 40);
 	ofParameter<float> mMutationRate = ofParameter<float>("Mutation rate", 0.2, 0.0, 1.0);
 	ofParameter<float> mMutationAmount = ofParameter<float>("Mutation amount", 0.4, 0.0, 1.0);
+	ofParameter<bool> mGroupGenes = ofParameter<bool>("Group mass genes", false, false, true);
+	ofParameter<bool> mDiversify = ofParameter<bool>("Diversify", false, false, true);
 	ofxButton generateNextGenButton;
 
 	vector<MassModel> massModels;
@@ -110,6 +114,8 @@ public:
 
 	void minorParameterChanged(float &val);
 	void majorParameterChanged(int &val);
+
+	void boolParameterChanged(bool &val);
 
 };
 

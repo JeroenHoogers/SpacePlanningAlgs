@@ -25,6 +25,9 @@ public:
 
 	float mutationRate = 0.25; // probability of mutating a single gene
 	float mutationAmount = 0.4; // maximum mutation amount compared to original gene value (offset) 
+	
+	bool groupGenes = false;
+	int groupSize = 5;
 
 	int currentGeneration = 0;
 	
