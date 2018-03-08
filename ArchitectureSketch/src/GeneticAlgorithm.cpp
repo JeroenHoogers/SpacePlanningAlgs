@@ -120,7 +120,7 @@ void GeneticAlgorithm::generateOffspring()
 		// populate the rest with mutations of the selected genotype
 		for (int i = population.size(); i < populationSize; i++)
 		{
-			Genotype child = mate(parent1, parent2, 0.5f);
+			Genotype child = crossover(parent1, parent2, 0.5f);
 			//population.push_back(child);
 			population.push_back(mutate(child));
 		}
@@ -156,7 +156,7 @@ void GeneticAlgorithm::generateOffspring()
 
 			for (size_t j = 1; j < parents.size(); j++)
 			{
-				child = mate(child, parents[j], prob);
+				child = crossover(child, parents[j], prob);
 			}
 
 			//population.push_back(child);
@@ -206,11 +206,12 @@ Genotype GeneticAlgorithm::mutate(Genotype genotype)
 }
 
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::mate(Genotype parent1, Genotype parent2, float probability)
+Genotype GeneticAlgorithm::crossover(Genotype parent1, Genotype parent2, float probability)
 {
 	Genotype child = parent1;
 
 	bool useOtherGene = false;
+
 
 	// 2^N possible values and randomly select a few to be in the new population, also add the original parents
 	for (size_t i = 0; i < child.size(); i++)
@@ -232,10 +233,6 @@ Genotype GeneticAlgorithm::mate(Genotype parent1, Genotype parent2, float probab
 		if (useOtherGene)
 			child[i] = parent2[i];
 	}
-
-
-
-
 
 	return child;
 }

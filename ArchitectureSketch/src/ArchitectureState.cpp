@@ -70,6 +70,9 @@ void ArchitectureState::setup()
 	//mDimensions.addListener(this, &ArchitectureState::majorParameterChanged);
 	//mPopulationSize.addListener(this, &ArchitectureState::majorParameterChanged);
 
+	mTilesHorizontal.addListener(this, &ArchitectureState::majorParameterChanged);
+	mTilesVertical.addListener(this, &ArchitectureState::majorParameterChanged);
+
 	// minor parameters (do not require GA reset)
 	mMutationRate.addListener(this, &ArchitectureState::minorParameterChanged);
 	mMutationAmount.addListener(this, &ArchitectureState::minorParameterChanged);
@@ -80,6 +83,10 @@ void ArchitectureState::setup()
 	gui.setup("GA Settings");
 	//gui.add(mDimensions);
 	//gui.add(mPopulationSize);
+
+	gui.add(mTilesHorizontal);
+	gui.add(mTilesVertical);
+
 	gui.add(mMutationRate);
 	gui.add(mMutationAmount);
 	gui.add(mGroupGenes);
@@ -95,7 +102,7 @@ void ArchitectureState::setup()
 void ArchitectureState::setupEvolution()
 {
 	// setup genetic algorithm
-	geneticAlgorithm.setup(16, 15, mMutationRate.get(), mMutationAmount.get());
+	geneticAlgorithm.setup(mTilesHorizontal.get() * mTilesVertical.get(), 15, mMutationRate.get(), mMutationAmount.get());
 
 	massModels.clear();
 
@@ -151,13 +158,13 @@ void ArchitectureState::draw()
 {
 	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
 
-	int tilew = (ofGetWidth() / tilesHorizontal);
-	int tileh = (ofGetHeight() / tilesVertical);
+	int tilew = (ofGetWidth() / mTilesHorizontal.get());
+	int tileh = (ofGetHeight() / mTilesVertical.get());
 
-	for (int i = 0; i < (tilesHorizontal * tilesVertical); i++)
+	for (int i = 0; i < (mTilesHorizontal.get() * mTilesVertical.get()); i++)
 	{
-		int x = (i % tilesHorizontal) * tilew;
-		int y = (i / tilesVertical) * tileh;
+		int x = (i % mTilesHorizontal.get()) * tilew;
+		int y = (i / mTilesHorizontal.get()) * tileh;
 
 		ofPushMatrix();
 		{
@@ -177,11 +184,11 @@ void ArchitectureState::draw()
 	ofNoFill();
 	ofSetColor(50);
 
-	for (int i = 0; i < (tilesHorizontal * tilesVertical); i++)
+	for (int i = 0; i < (mTilesHorizontal.get() * mTilesVertical.get()); i++)
 	{
 		// draw tiles
-		int x = (i % tilesHorizontal) * tilew;
-		int y = (i / tilesVertical) * tileh;
+		int x = (i % mTilesHorizontal.get()) * tilew;
+		int y = (i / mTilesHorizontal.get()) * tileh;
 
 		ofDrawRectangle(x, y, 0, x + tilew, y + tileh);
 	}
@@ -395,11 +402,11 @@ void ArchitectureState::mouseReleased(int x, int y, int button)
 			return;
 
 		// calculate tile dimensions
-		int tilew = (ofGetWidth() / tilesHorizontal);
-		int tileh = (ofGetHeight() / tilesVertical);
+		int tilew = (ofGetWidth() / mTilesHorizontal.get());
+		int tileh = (ofGetHeight() / mTilesVertical.get());
 
 		// calculate index based on mouse position
-		int index = (x / tilew) + (y / tileh) * tilesHorizontal;
+		int index = (x / tilew) + (y / tileh) * mTilesHorizontal.get();
 		bool removed = false;
 
 		if (index < geneticAlgorithm.populationSize)

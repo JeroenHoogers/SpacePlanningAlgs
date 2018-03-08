@@ -63,9 +63,6 @@ private:
 
 	bool mShowGui;
 
-	int tilesHorizontal = 4;
-	int tilesVertical = 4;
-
 	ofPoint mousePos;
 
 	ofxPanel gui;
@@ -76,6 +73,10 @@ private:
 	ofParameter<float> mMutationAmount = ofParameter<float>("Mutation amount", 0.4, 0.0, 1.0);
 	ofParameter<bool> mGroupGenes = ofParameter<bool>("Group mass genes", false, false, true);
 	ofParameter<bool> mDiversify = ofParameter<bool>("Diversify", false, false, true);
+
+	ofParameter<int> mTilesHorizontal = ofParameter<int>("Horizontal Tiles", 4, 2, 5);
+	ofParameter<int> mTilesVertical = ofParameter<int>("Vertical Tiles", 3, 2, 5);
+
 	ofxButton generateNextGenButton;
 
 	vector<MassModel> massModels;

@@ -1,7 +1,12 @@
 #pragma once
 #include "ofMain.h"
 
-enum class MatingStrategy{ Crossover, Corners, Interpolation };
+enum class MatingStrategy { 
+	SwitchSource,	// switch source parent at some frequency
+	Gene,			// 
+	Interpolate		// generate a percentage p per gene and interpolate the gene value based on this percentage v = p1(p) + p2(1-p)
+};
+
 enum class MutationStrategy { Combinatorial, Elitism };
 
 typedef vector<float> Genotype;
@@ -50,5 +55,8 @@ public:
 	// select a single individual from the population for offspring
 	void select(int index);
 
-	Genotype mate(Genotype parent1, Genotype parent2, float probability);
+	Genotype crossover(Genotype parent1, Genotype parent2, float probability);
+	//Genotype crossoverInterpolation(Genotype parent1, Genotype parent2);
+	//Genotype crossoverSwitchSource(Genotype parent1, Genotype parent2);
+
 };
