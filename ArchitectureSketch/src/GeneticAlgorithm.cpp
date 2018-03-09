@@ -45,7 +45,7 @@ void GeneticAlgorithm::generateRandomPopulation()
 {
 	population.clear();
 
-	for (int i = 0; i < populationSize; i++)
+	for (size_t i = 0; i < populationSize; i++)
 	{
 		population.push_back(generateRandomDna());
 	}
@@ -55,7 +55,7 @@ void GeneticAlgorithm::generateRandomPopulation()
 Genotype GeneticAlgorithm::generateRandomDna()
 {
 	Genotype genotype = Genotype();
-	for (int i = 0; i < numGenes; i++)
+	for (size_t i = 0; i < numGenes; i++)
 	{
 		genotype.push_back(ofRandom(1));
 	}
@@ -120,9 +120,12 @@ void GeneticAlgorithm::generateOffspring()
 		// populate the rest with mutations of the selected genotype
 		for (int i = population.size(); i < populationSize; i++)
 		{
-			Genotype child = crossover(parent1, parent2, 0.5f);
-			//population.push_back(child);
+			//Genotype child = crossover(parent1, parent2, 0.5f);
+			//Genotype child = crossoverSwitchGenotype(parent1, parent2, 3);
+			Genotype child = crossoverInterpolation(parent1, parent2);
+
 			population.push_back(mutate(child));
+			
 		}
 	}
 	else if (selectedIndices.size() > 2)
@@ -212,7 +215,6 @@ Genotype GeneticAlgorithm::crossover(Genotype parent1, Genotype parent2, float p
 
 	bool useOtherGene = false;
 
-
 	// 2^N possible values and randomly select a few to be in the new population, also add the original parents
 	for (size_t i = 0; i < child.size(); i++)
 	{
@@ -236,6 +238,62 @@ Genotype GeneticAlgorithm::crossover(Genotype parent1, Genotype parent2, float p
 
 	return child;
 }
+
+//--------------------------------------------------------------
+Genotype GeneticAlgorithm::crossoverInterpolation(Genotype parent1, Genotype parent2)
+{
+	Genotype child = parent1;
+
+	float p = 0;
+
+	for (size_t i = 0; i < parent1.size(); i++)
+	{
+		// random percentage
+		p = ofRandom(1);
+		
+		// interpolate gene value
+		child[i] = parent1[i] * p + (1.0f - p) * parent2[i];
+	}
+
+	return child;
+}
+
+//--------------------------------------------------------------
+Genotype GeneticAlgorithm::crossoverSwitchGenotype(Genotype parent1, Genotype parent2, int frequency)
+{
+	Genotype child = parent1;
+
+	vector<int> crossoverPoints = vector<int>();
+	bool useOtherGene = false;
+
+	// generate random crossover points
+	for (size_t i = 0; i < frequency; i++)
+	{
+		crossoverPoints.push_back((int)ofRandom(numGenes));
+	}
+
+	// sort in descending order
+	unique(crossoverPoints.begin(), crossoverPoints.end());
+	sort(crossoverPoints.begin(), crossoverPoints.end());
+	reverse(crossoverPoints.begin(), crossoverPoints.end());
+
+	for (size_t i = 0; i < parent1.size(); i++)
+	{
+		// crossover genes
+		if (crossoverPoints.size() >= 1 && i == crossoverPoints[crossoverPoints.size() - 1])
+		{
+			// do crossover
+			useOtherGene = !useOtherGene;
+			crossoverPoints.pop_back();
+		}
+	
+		if (useOtherGene)
+			child[i] = parent2[i];
+	}
+
+	return child;
+}
+
 
 //--------------------------------------------------------------
 float GeneticAlgorithm::absDifference(int index, Genotype target)

@@ -56,7 +56,7 @@ public:
 	void select(int index);
 
 	Genotype crossover(Genotype parent1, Genotype parent2, float probability);
-	//Genotype crossoverInterpolation(Genotype parent1, Genotype parent2);
-	//Genotype crossoverSwitchSource(Genotype parent1, Genotype parent2);
+	Genotype crossoverInterpolation(Genotype parent1, Genotype parent2);
+	Genotype crossoverSwitchGenotype(Genotype parent1, Genotype parent2, int frequency);
 
 };
