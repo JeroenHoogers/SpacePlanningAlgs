@@ -1,4 +1,3 @@
 ofxEasyCam
 ofxGui
-ofxPostProcessing
 ofxStateMachine

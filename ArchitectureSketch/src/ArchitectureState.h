@@ -2,8 +2,6 @@
 #include "ofxState.h"
 #include "ofxGui.h"
 #include "ofxEasyCam.h"
-#include "ofFbo.h"
-#include "ofxPostProcessing.h"
 #include "GeneticAlgorithm.h"
 
 #define ArchitectureState_StateName "ArchitectureState"
