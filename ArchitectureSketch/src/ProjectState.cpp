@@ -58,6 +58,8 @@ void ProjectState::setup()
 	//post.createPass<FxaaPass>();
 	////post.createPass<BloomPass>();
 	//post.createPass<SSAOPass>();
+
+	building.GenerateBuilding();
 }
 
 //--------------------------------------------------------------
@@ -87,19 +89,19 @@ void ProjectState::draw()
 		ofNoFill();
 		ofSetColor(140);
 
-		ofPushMatrix();
-		{
-			ofTranslate(0, 6);
-			ofDrawBox(16, 12, 16);
-		}
-		ofPopMatrix();
+		//ofPushMatrix();
+		//{
+		//	ofTranslate(0, 6);
+		//	ofDrawBox(16, 12, 16);
+		//}
+		//ofPopMatrix();
 
-		ofPushMatrix();
-		{
-			ofTranslate(12, 3);
-			ofDrawBox(8, 6, 12);
-		}
-		ofPopMatrix();
+		//ofPushMatrix();
+		//{
+		//	ofTranslate(12, 3);
+		//	ofDrawBox(8, 6, 12);
+		//}
+		//ofPopMatrix();
 	}
 	ofEnableLighting();
 	//phong.begin();
@@ -108,19 +110,21 @@ void ProjectState::draw()
 	ofSetColor(255);
 	ofFill();
 
-	ofPushMatrix();
-	{
-		ofTranslate(0, 6);
-		ofDrawBox(16, 12, 16);
-	}
-	ofPopMatrix();
+	building.draw();
 
-	ofPushMatrix();
-	{
-		ofTranslate(12, 3);
-		ofDrawBox(8, 6, 12);
-	}
-	ofPopMatrix();
+	//ofPushMatrix();
+	//{
+	//	ofTranslate(0, 6);
+	//	ofDrawBox(16, 12, 16);
+	//}
+	//ofPopMatrix();
+
+	//ofPushMatrix();
+	//{
+	//	ofTranslate(12, 3);
+	//	ofDrawBox(8, 6, 12);
+	//}
+	//ofPopMatrix();
 
 	ofDisableLighting();
 

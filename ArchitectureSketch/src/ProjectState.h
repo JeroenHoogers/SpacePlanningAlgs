@@ -2,6 +2,7 @@
 #include "ofxState.h"
 #include "ofxGui.h"
 #include "ofxEasyCam.h"
+#include "Building.h"
 
 #define ProjectState_StateName "ProjectState"
 
@@ -14,6 +15,8 @@ private:
 
 	ofLight light;
 	ofxEasyCam camera;
+
+	Building building;
 
 public:
 	ProjectState();

@@ -1,5 +1,6 @@
 #pragma once
 #include "ofMain.h"
+#include "Building.h"
 
 enum class MatingStrategy { 
 	SwitchSource,	// switch source parent at some frequency
