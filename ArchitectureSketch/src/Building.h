@@ -32,6 +32,18 @@ struct Extrusion
 	float angle;			// angle of extrusion (limited between -45 and + 45 degrees) 
 };
 
+//struct Lin
+//{
+//	Line(ofPoint _p1, ofPoint _p2)
+//	{
+//		p1 = _p1;
+//		p2 = _p2;
+//	}
+//
+//	ofPoint p1;
+//	ofPoint p2;
+//};
+
 class Building
 {
 private:
@@ -42,7 +54,7 @@ private:
 	vector<ofPolyline> floorShapes;
 	ofMesh buildingMesh;
 
-	//vector<ofPoin> lines;
+	vector<ofPolyline> lines;
 
 	ofPolyline parcel;
 
@@ -144,7 +156,7 @@ private:
 		// empty mesh
 		buildingMesh.clear();
 
-		//lines.clear();
+		lines.clear();
 
 		int verts = 0;
 
@@ -159,6 +171,9 @@ private:
 			ofVec3f bottomHeightOffset = ofVec3f(0, currentHeight);
 			ofVec3f topHeightOffset = ofVec3f(0, currentHeight + floorHeight);
 
+			ofPolyline floorOutline;
+			ofPolyline ceilingOutline;
+
 			// add floor vertices
 			for (size_t j = 0; j < floorShapes[i].size(); j++)
 			{
@@ -170,7 +185,22 @@ private:
 					mat * floorShapes[i][j2] + bottomHeightOffset,
 					mat * floorShapes[i][j2] + topHeightOffset,
 					mat * floorShapes[i][j] + topHeightOffset);
-			}
+
+				floorOutline.addVertex(mat * floorShapes[i][j] + bottomHeightOffset);
+				ceilingOutline.addVertex(mat * floorShapes[i][j] + topHeightOffset);
+
+				ofPolyline wallEdge;
+				wallEdge.addVertex(mat * floorShapes[i][j] + bottomHeightOffset);
+				wallEdge.addVertex(mat * floorShapes[i][j] + topHeightOffset);
+
+				lines.push_back(wallEdge);
+			} 
+
+			floorOutline.close();
+			ceilingOutline.close();
+
+			lines.push_back(floorOutline);
+			lines.push_back(ceilingOutline);
 
 			// add flat roof
 			//if (i == floorShapes.size() - 1)
@@ -179,15 +209,8 @@ private:
 			// create cap between floors (only where the floor differs)
 			MeshHelper::AddCap(buildingMesh, floorShapes[i], topHeightOffset);
 
-			if (i == 0)
-			{
+			//if (i == 0)
 				MeshHelper::AddCap(buildingMesh, floorShapes[i], bottomHeightOffset);
-				//for (size_t j = 0; j < floorShapes[i-1].size(); j++)
-				//{
-				//	buildingMesh.addVertex(floorShapes[i-1][j]);
-				//	buildingMesh.addVertex(floorShapes[i-1][j] + ofVec3f(0, floorHeight));
-				//}
-			}
 		}
 	};
 
@@ -296,8 +319,8 @@ public:
 		//ofSetColor(200);
 
 		// draw parcel
-		ofSetColor(10);
-		parcel.draw();
+		//ofSetColor(10);
+		//parcel.draw();
 
 		//ofSetColor(255, 0, 0);
 		//ofDrawLine(parcel[0], parcel[0] + ofVec3f(0, 1, 0));
@@ -312,18 +335,20 @@ public:
 		// draw vertices
 		//buildingMesh.drawVertices();
 
-		ofSetColor(80, 80, 80);
+
+
 		//ofPushMatrix();
 		//{
-		//	
-		//	for (size_t i = 0; i < floorShapes.size(); i++)
-		//	{
-		//		floorShapes[i].draw();
-		//	}
+		ofSetColor(50);
+		ofSetLineWidth(1.5f);
+		for (size_t i = 0; i < lines.size(); i++)
+		{
+			lines[i].draw();
+		}
 		//}
 		
 		// draw wireframe
-		buildingMesh.drawWireframe();
+		//buildingMesh.drawWireframe();
 
 		//buildingMesh.re
 	};

@@ -108,7 +108,6 @@ public:
 
 	string getName();
 	void keyPressed(int key);
-	
 
 	void toggleSelected(int index);
 

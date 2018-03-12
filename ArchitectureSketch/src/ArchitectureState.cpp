@@ -218,32 +218,12 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 
 	buildings[index].draw();
 
-	// draw mass 1
-	//pos = massModels[index].m1.getPoint();
-	//sz = massModels[index].m1.getSize();
-
-	//ofSetColor(190, 190, 60, 255);
-	//ofDrawBox(pos, sz.x, sz.y, sz.z);
-
-	//// draw mass 2
-	//pos = massModels[index].m2.getPoint();
-	//sz = massModels[index].m2.getSize();
-
-	//ofSetColor(60, 60, 190, 255);
-	//ofDrawBox(pos, sz.x, sz.y, sz.z);
-
-	//// draw mass 3
-	//pos = massModels[index].m3.getPoint();
-	//sz = massModels[index].m3.getSize();
-
-	//ofSetColor(60, 190, 60, 255);
-	//ofDrawBox(pos, sz.x, sz.y, sz.z);
-
-
 	// draw scale model
 	ofSetColor(30);
 	ofDrawCylinder(buildings[index].boundingBox.getMinX() - 1.0f, 0.9f, 0, 0.3f, 1.8f);
-
+	ofDrawCylinder(buildings[index].boundingBox.getMaxX() + 1.0f, 0.9f, 0, 0.3f, 1.8f);
+	ofDrawCylinder(0, 0.9f, buildings[index].boundingBox.getMinY() - 1.0f, 0.3f, 1.8f);
+	ofDrawCylinder(0, 0.9f, buildings[index].boundingBox.getMaxY() + 1.0f, 0.3f, 1.8f);
 
 	//ofDrawBox(0, 0.85f, 0, 0.5f, 1.7f, 0.5f);
 
