@@ -59,9 +59,9 @@ void ArchitectureState::setup()
 	////post.createPass<BloomPass>();
 	//post.createPass<SSAOPass>();
 
-	testModel.m1 = Mass(-8, 8, -6, 6, 2);
-	testModel.m2 = Mass(-16, -8, -5, 5, 1);
-	testModel.m3 = Mass(8, 16, -5, 5, 1);
+	//testModel.m1 = Mass(-8, 8, -6, 6, 2);
+	//testModel.m2 = Mass(-16, -8, -5, 5, 1);
+	//testModel.m3 = Mass(8, 16, -5, 5, 1);
 
 	// button events
 	generateNextGenButton.addListener(this, &ArchitectureState::generateButtonPressed);
@@ -77,7 +77,7 @@ void ArchitectureState::setup()
 	mMutationRate.addListener(this, &ArchitectureState::minorParameterChanged);
 	mMutationAmount.addListener(this, &ArchitectureState::minorParameterChanged);
 
-	mGroupGenes.addListener(this, &ArchitectureState::boolParameterChanged);
+	//mGroupGenes.addListener(this, &ArchitectureState::boolParameterChanged);
 
 	// setup gui 
 	gui.setup("GA Settings");
@@ -89,8 +89,8 @@ void ArchitectureState::setup()
 
 	gui.add(mMutationRate);
 	gui.add(mMutationAmount);
-	gui.add(mGroupGenes);
-	gui.add(mDiversify);
+	//gui.add(mGroupGenes);
+	//gui.add(mDiversify);
 	gui.add(generateNextGenButton.setup("Generate offspring"));
 
 	setupEvolution();
@@ -104,47 +104,16 @@ void ArchitectureState::setupEvolution()
 	// setup genetic algorithm
 	geneticAlgorithm.setup(mTilesHorizontal.get() * mTilesVertical.get(), 15, mMutationRate.get(), mMutationAmount.get());
 
-	massModels.clear();
+	buildings.clear();
 
 	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
 	{
-		massModels.push_back(convertGenotype(geneticAlgorithm.population[i]));
+		Building building = Building();
+		building.LoadFromGenotype(geneticAlgorithm.population[i]);
+		building.GenerateBuilding();
+
+		buildings.push_back(building);
 	}
-}
-
-//--------------------------------------------------------------
-MassModel ArchitectureState::convertGenotype(Genotype genotype)
-{
-	// range -30, 30
-	float max = 25;
-	int h = 3;
-	MassModel mm;
-	
-	mm.m1 = Mass(
-		(genotype[0] - 0.5f) * max,
-		(genotype[1] - 0.5f) * max,
-		(genotype[2] - 0.5f) * max,
-		(genotype[3] - 0.5f) * max,
-		fminf(floorf(genotype[4] * h + 1.0f), 3)
-	);
-
-	mm.m2 = Mass(
-		(genotype[5] - 0.5f) * max,
-		(genotype[6] - 0.5f) * max,
-		(genotype[7] - 0.5f) * max,
-		(genotype[8] - 0.5f) * max,
-		fminf(floorf(genotype[9] * h + 1.0f), 3)
-	);
-
-	mm.m3 = Mass(
-		(genotype[10] - 0.5f) * max,
-		(genotype[11] - 0.5f) * max,
-		(genotype[12] - 0.5f) * max,
-		(genotype[13] - 0.5f) * max,
-		fminf(floorf(genotype[14] * h + 1.0f), 3)
-	);
-
-	return mm;
 }
 
 //--------------------------------------------------------------
@@ -241,36 +210,41 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	ofSetColor(220);
 	ofFill();
 
-	// draw mass 1
-	//ofPushMatrix();
-	//{
-	ofPoint pos;
-	ofPoint sz;
+	//// draw mass 1
+	////ofPushMatrix();
+	////{
+	//ofPoint pos;
+	//ofPoint sz;
+
+	buildings[index].draw();
 
 	// draw mass 1
-	pos = massModels[index].m1.getPoint();
-	sz = massModels[index].m1.getSize();
+	//pos = massModels[index].m1.getPoint();
+	//sz = massModels[index].m1.getSize();
 
-	ofSetColor(190, 190, 60, 255);
-	ofDrawBox(pos, sz.x, sz.y, sz.z);
+	//ofSetColor(190, 190, 60, 255);
+	//ofDrawBox(pos, sz.x, sz.y, sz.z);
 
-	// draw mass 2
-	pos = massModels[index].m2.getPoint();
-	sz = massModels[index].m2.getSize();
+	//// draw mass 2
+	//pos = massModels[index].m2.getPoint();
+	//sz = massModels[index].m2.getSize();
 
-	ofSetColor(60, 60, 190, 255);
-	ofDrawBox(pos, sz.x, sz.y, sz.z);
+	//ofSetColor(60, 60, 190, 255);
+	//ofDrawBox(pos, sz.x, sz.y, sz.z);
 
-	// draw mass 3
-	pos = massModels[index].m3.getPoint();
-	sz = massModels[index].m3.getSize();
+	//// draw mass 3
+	//pos = massModels[index].m3.getPoint();
+	//sz = massModels[index].m3.getSize();
 
-	ofSetColor(60, 190, 60, 255);
-	ofDrawBox(pos, sz.x, sz.y, sz.z);
+	//ofSetColor(60, 190, 60, 255);
+	//ofDrawBox(pos, sz.x, sz.y, sz.z);
 
-	// Scale model
+
+	// draw scale model
 	ofSetColor(30);
-	ofDrawCylinder(0, 0.9f, 0, 0.3f, 1.8f);
+	ofDrawCylinder(buildings[index].boundingBox.getMinX() - 1.0f, 0.9f, 0, 0.3f, 1.8f);
+
+
 	//ofDrawBox(0, 0.85f, 0, 0.5f, 1.7f, 0.5f);
 
 
@@ -458,11 +432,13 @@ void ArchitectureState::generateButtonPressed()
 	//		mSelectionRectangles[i].prevSelected = false;
 	//}
 
-	massModels.clear();
+	//massModels.clear();
 
+	// generate phenotypes for the new population
 	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
 	{
-		massModels.push_back(convertGenotype(geneticAlgorithm.population[i]));
+		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i]);
+		buildings[i].GenerateBuilding();
 	}
 
 	selectedIndices.clear();
@@ -484,5 +460,6 @@ void ArchitectureState::minorParameterChanged(float& val)
 //--------------------------------------------------------------
 void ArchitectureState::boolParameterChanged(bool &val)
 {
-	geneticAlgorithm.groupGenes = mGroupGenes.get();
+	// TODO: add boolean params
+	//geneticAlgorithm.groupGenes = mGroupGenes.get();
 }

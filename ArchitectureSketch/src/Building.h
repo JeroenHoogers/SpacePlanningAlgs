@@ -37,7 +37,7 @@ class Building
 private:
 
 	int floors = 3;
-	float floorHeight = 3.0f;
+	float floorHeight = 3.5f;
 
 	vector<ofPolyline> floorShapes;
 	ofMesh buildingMesh;
@@ -53,8 +53,7 @@ private:
 
 		ofPolyline baseFloor = ofPolyline();
 
-		// create square
-
+		// create base rectangle
 		baseFloor.addVertex(boundingBox.getTopLeft());
 		baseFloor.addVertex(boundingBox.getBottomLeft());
 		baseFloor.addVertex(boundingBox.getBottomRight());
@@ -114,6 +113,11 @@ private:
 			ofPoint p = floorshape.getPointAtPercent(t);
 			int index = ceilf(floorshape.getIndexAtPercent(t));
 
+			// due to mutation clamping this could become zero which is invalid
+			// TODO: wrap to last vertex?
+			if (index == 0)
+				index = 1;
+
 			//ofVec3f n = floorshape.getNormalAtIndexInterpolated(t);
 
 			// extrude
@@ -122,7 +126,7 @@ private:
 		
 			//baseFloor.;
 
-			// calculate face snormal
+			// calculate face normal
 			ofVec3f diff = floorshape[index - 1] - floorshape[index];
 			ofVec3f n = ofVec3f(-diff.y, diff.x);
 
@@ -205,16 +209,16 @@ public:
 	}
 
 	//--------------------------------------------------------------
-	void LoadFromGenotype()
+	void LoadFromGenotype(Genotype gt)
 	{
-		GeneticAlgorithm ga = GeneticAlgorithm();
-		ga.setup(1, 12);
+		//GeneticAlgorithm ga = GeneticAlgorithm();
+		//ga.setup(1, 12);
 
-		Genotype gt = ga.generateRandomDna();
+		//Genotype gt = ga.generateRandomDna();
 
 		// first 2 define params define bounding volume
-		float w = 10 + floorf(gt[0] * 10.0f) * 2;
-		float h = 10 + floorf(gt[1] * 10.0f) * 2;
+		float w = 10 + floorf(gt[0] * 6.0f) * 2;
+		float h = 10 + floorf(gt[1] * 6.0f) * 2;
 
 		int maxFloors = 3;
 

@@ -59,7 +59,9 @@ void ProjectState::setup()
 	////post.createPass<BloomPass>();
 	//post.createPass<SSAOPass>();
 
-	building.LoadFromGenotype();
+	geneticAlgorithm.setup(1, 12);
+
+	building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
 	building.GenerateBuilding();
 }
 
@@ -216,7 +218,7 @@ void ProjectState::keyPressed(int key)
 	if (key == 'r')
 	{
 		// refresh building
-		building.LoadFromGenotype();
+		building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
 		building.GenerateBuilding();
 	}
 }

@@ -18,6 +18,8 @@ private:
 
 	Building building;
 
+	GeneticAlgorithm geneticAlgorithm;
+
 public:
 	ProjectState();
 
