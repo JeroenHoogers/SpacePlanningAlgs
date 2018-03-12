@@ -18,7 +18,7 @@ enum class MutationStrategy { Combinatorial, Elitism };
 class GeneticAlgorithm
 {
 private:
-	MatingStrategy matingStrat;
+
 	MutationStrategy mutationStrat;
 								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
 	bool allowSurvival = true; // survival 
@@ -26,6 +26,8 @@ private:
 public:
 	vector<Genotype> population;
 	vector<int> selectedIndices;
+
+	MatingStrategy matingStrat;
 
 	int populationSize = 20;
 

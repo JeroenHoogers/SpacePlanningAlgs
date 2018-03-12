@@ -49,7 +49,7 @@ class Building
 private:
 
 	int floors = 3;
-	float floorHeight = 3.5f;
+	float floorHeight = 4.0f;
 
 	vector<ofPolyline> floorShapes;
 	ofMesh buildingMesh;
@@ -240,8 +240,8 @@ public:
 		//Genotype gt = ga.generateRandomDna();
 
 		// first 2 define params define bounding volume
-		float w = 10 + floorf(gt[0] * 6.0f) * 2;
-		float h = 10 + floorf(gt[1] * 6.0f) * 2;
+		float w = 12 + floorf(gt[0] * 8.0f) * 2;
+		float h = 12 + floorf(gt[1] * 8.0f) * 2;
 
 		int maxFloors = 3;
 
@@ -256,8 +256,8 @@ public:
 		//subdivs.clear();
 		extrusions.clear();
 
-		float minExtrusion = 2.0f;
-		float maxExtrusion = 6.0f;
+		float minExtrusion = 1.0f;
+		float maxExtrusion = 5.0f;
 
 		for (size_t i = 3; i < gt.size(); i+=3)
 		{

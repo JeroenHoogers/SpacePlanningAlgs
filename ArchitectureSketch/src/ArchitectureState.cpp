@@ -63,7 +63,7 @@ void ArchitectureState::setup()
 	//testModel.m2 = Mass(-16, -8, -5, 5, 1);
 	//testModel.m3 = Mass(8, 16, -5, 5, 1);
 
-	// button events
+	// button events 
 	generateNextGenButton.addListener(this, &ArchitectureState::generateButtonPressed);
 
 	//// major parameters (require genetic algorithm reset)
@@ -257,7 +257,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 		ofSetLineWidth(1);
 		ofSetColor(120);
 		//ofDrawPlane(0, 0, 50, 50);
-		ofDrawGridPlane(0.4, 32);
+		ofDrawGridPlane(1, 20);
 	}
 	ofPopMatrix();
 
@@ -336,6 +336,11 @@ void ArchitectureState::keyPressed(int key)
 	if (key == 'h')
 	{
 		mShowGui = !mShowGui;
+	}
+
+	if (key == 'r')
+	{
+		generateButtonPressed();
 	}
 }
 

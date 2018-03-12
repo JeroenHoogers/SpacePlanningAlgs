@@ -67,7 +67,8 @@ private:
 
 	ofxPanel gui;
 
-	ofParameter<int> mDimensions = ofParameter<int>("Nr of params", 5, 1, 20);
+	// evolution parameters
+	ofParameter<int> mDimensions = ofParameter<int>("Num of params", 5, 1, 20);
 	ofParameter<int> mPopulationSize = ofParameter<int>("Population size", 20, 10, 40);
 	ofParameter<float> mMutationRate = ofParameter<float>("Mutation rate", 0.2, 0.0, 1.0);
 	ofParameter<float> mMutationAmount = ofParameter<float>("Mutation amount", 0.4, 0.0, 1.0);
@@ -76,6 +77,9 @@ private:
 
 	ofParameter<int> mTilesHorizontal = ofParameter<int>("Horizontal Tiles", 4, 2, 5);
 	ofParameter<int> mTilesVertical = ofParameter<int>("Vertical Tiles", 3, 2, 5);
+
+	// architectural parameters
+	ofParameter<int> mMaxExtrusions = ofParameter<int>("Num of Extrusions", 4, 1, 10);
 
 	ofxButton generateNextGenButton;
 

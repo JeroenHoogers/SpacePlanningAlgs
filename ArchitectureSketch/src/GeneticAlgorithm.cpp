@@ -20,6 +20,8 @@ void GeneticAlgorithm::setup(int popSize, int n)
 	populationSize = popSize;
 	numGenes = n;
 
+	matingStrat = MatingStrategy::SwitchSource;
+
 	// fill first gen with random data
 	generateRandomPopulation();
 }
@@ -35,6 +37,8 @@ void GeneticAlgorithm::setup(int popSize, int n, float mutRate, float mutAmount)
 
 	mutationRate = mutRate;
 	mutationAmount = mutAmount;
+
+	matingStrat = MatingStrategy::SwitchSource;
 
 	// fill first gen with random data
 	generateRandomPopulation();
@@ -120,9 +124,25 @@ void GeneticAlgorithm::generateOffspring()
 		// populate the rest with mutations of the selected genotype
 		for (int i = population.size(); i < populationSize; i++)
 		{
+			Genotype child;
+
+			switch (matingStrat)
+			{
+			default:
+			case MatingStrategy::SwitchSource:
+				child = crossoverSwitchGenotype(parent1, parent2, 3);
+				break;
+			case MatingStrategy::Gene:
+				child = crossover(parent1, parent2, 0.5f);
+				break;
+			case MatingStrategy::Interpolate:
+				child = crossoverInterpolation(parent1, parent2);
+				break;
+			}
+
 			//Genotype child = crossover(parent1, parent2, 0.5f);
-			//Genotype child = crossoverSwitchGenotype(parent1, parent2, 3);
-			Genotype child = crossoverInterpolation(parent1, parent2);
+			
+			//Genotype child = crossoverInterpolation(parent1, parent2);
 
 			population.push_back(mutate(child));
 			
