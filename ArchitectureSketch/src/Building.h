@@ -52,14 +52,20 @@ private:
 		ofPolyline baseFloor = ofPolyline();
 
 		// create square
-		baseFloor.addVertex(
-			ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
-		baseFloor.addVertex(
-			ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
-		baseFloor.addVertex(
-			ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
-		baseFloor.addVertex(
-			ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
+
+		baseFloor.addVertex(boundingBox.getTopLeft());
+		baseFloor.addVertex(boundingBox.getBottomLeft());
+		baseFloor.addVertex(boundingBox.getBottomRight());
+		baseFloor.addVertex(boundingBox.getTopRight());
+
+		//baseFloor.addVertex(
+		//	ofPoint(boundingBox.getMinX(), boundingBox.getMinY()));
+		//baseFloor.addVertex(
+		//	ofPoint(boundingBox.getMinX(), boundingBox.getMaxY()));
+		//baseFloor.addVertex(
+		//	ofPoint(boundingBox.getMaxX(), boundingBox.getMaxY()));
+		//baseFloor.addVertex(
+		//	ofPoint(boundingBox.getMaxX(), boundingBox.getMinY()));
 
 		baseFloor.close();
 		//baseFloor.addVertex(
@@ -113,14 +119,17 @@ private:
 			ofPoint p = floorshape.getPointAtPercent(t);
 			int index = ceilf(floorshape.getIndexAtPercent(t));
 
+			//ofVec3f n = floorshape.getNormalAtIndexInterpolated(t);
+
 			// extrude
 			floorshape.insertVertex(p, index);
 			floorshape.insertVertex(p, index);
+		
 			//baseFloor.;
 
 			// calculate face snormal
 			ofVec3f diff = floorshape[index - 1] - floorshape[index];
-			ofVec3f n = ofVec3f(-diff.z, 0, diff.x);
+			ofVec3f n = ofVec3f(-diff.y, diff.x);
 
 			n.normalize();
 
@@ -138,40 +147,33 @@ private:
 
 		int verts = 0;
 
+		// 2d to 3d matrix
+		ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+
 		// add new vertices / triangles
 		for (size_t i = 0; i < floorShapes.size(); i++)
 		{
 			// calculate current floor height
 			float currentHeight = floorHeight * i;
-			ofVec3f heightOffset = ofVec3f(0, currentHeight);
+			ofVec3f bottomHeightOffset = ofVec3f(0, currentHeight);
+			ofVec3f topHeightOffset = ofVec3f(0, currentHeight + floorHeight);
 
 			// add floor vertices
 			for (size_t j = 0; j < floorShapes[i].size(); j++)
 			{
 				int j2 = (j + 1) % floorShapes[i].size();
 
+				// add wall face
 				MeshHelper::AddFace(buildingMesh,
-					floorShapes[i][j] + heightOffset,
-					floorShapes[i][j2] + heightOffset,
-					floorShapes[i][j2] + heightOffset + ofVec3f(0, floorHeight),
-					floorShapes[i][j] + heightOffset + ofVec3f(0, floorHeight));
-
-				//// add vertices
-				//buildingMesh.addVertex(floorShapes[i][v] + heightOffset);
-				//buildingMesh.addVertex(floorShapes[i][v] + heightOffset + ofVec3f(0, floorHeight));
-
-				//// add normals;
-				////bu
-
-				//if (j > 0)
-				//{
-				//	int j2 = verts;
-				//	buildingMesh.addTriangle(j2 - 2 , j2 - 1, j2);
-				//	buildingMesh.addTriangle(j2 - 1, j2, j2 + 1);
-				//}
-
-				//verts += 2;
+					mat * floorShapes[i][j] + bottomHeightOffset,
+					mat * floorShapes[i][j2] + bottomHeightOffset,
+					mat * floorShapes[i][j2] + topHeightOffset,
+					mat * floorShapes[i][j] + topHeightOffset);
 			}
+
+			// add flat roof
+			if (i == floorShapes.size() - 1)
+				MeshHelper::AddCap(buildingMesh, floorShapes[i], topHeightOffset);
 
 			// create cap between floors (only where the floor differs)
 			if (i > 0)
@@ -183,13 +185,7 @@ private:
 				//}
 			}
 		}
-	
-		//buildingMesh.nor
-		//buildingMesh.a
 	};
-
-
-
 
 public:
 	ofRectangle boundingBox = ofRectangle(-10, -20, 20, 30);
@@ -243,6 +239,8 @@ public:
 
 			// create subdivs
 			//subdivs.push_back(Subdivision(gt[i]));
+
+			// add extrusion
 			extrusions.push_back(
 				Extrusion(
 					gt[i],
@@ -274,7 +272,6 @@ public:
 		generateMesh();
 	}
 
-
 	//--------------------------------------------------------------
 	float GetTotalArea()
 	{
@@ -298,20 +295,21 @@ public:
 		ofSetColor(10);
 		parcel.draw();
 
-		ofSetColor(255, 0, 0);
-		ofDrawLine(parcel[0], parcel[0] + ofVec3f(0, 1, 0));
+		//ofSetColor(255, 0, 0);
+		//ofDrawLine(parcel[0], parcel[0] + ofVec3f(0, 1, 0));
 
 		// draw building
 		ofSetColor(255);
 		buildingMesh.drawFaces();
 
-		ofSetColor(30);
-		glPointSize(6);
+		//ofSetColor(30);
+		//glPointSize(6);
 
 		// draw vertices
-		buildingMesh.drawVertices();
+		//buildingMesh.drawVertices();
 
-		//ofSetColor(0, 0, 255);
+		ofSetColor(80, 80, 80);
+		buildingMesh.drawWireframe();
 
 		//buildingMesh.re
 	};

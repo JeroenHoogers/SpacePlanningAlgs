@@ -1,3 +1,4 @@
+ofxDelaunay2D
 ofxEasyCam
 ofxGui
 ofxStateMachine
