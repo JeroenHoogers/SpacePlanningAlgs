@@ -140,6 +140,9 @@
     <ClInclude Include="src\Building.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\MeshHelper.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

@@ -1,6 +1,8 @@
 #pragma once
+
 #include "ofMain.h"
-#include "Building.h"
+
+typedef vector<float> Genotype;
 
 enum class MatingStrategy { 
 	SwitchSource,	// switch source parent at some frequency
@@ -10,7 +12,7 @@ enum class MatingStrategy {
 
 enum class MutationStrategy { Combinatorial, Elitism };
 
-typedef vector<float> Genotype;
+
 
 // TODO: implement as abstract template class instead to allow multiple implementations
 class GeneticAlgorithm

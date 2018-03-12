@@ -34,20 +34,20 @@ void ProjectState::setup()
 	// use normalized tex coords
 	ofEnableNormalizedTexCoords();
 
-	//glFrontFace(GL_CW);
+	//glFrontFace(GL_CCW);
 	//glEnable(GL_CULL_FACE);
 
 	// load shader
 	//phong.load("shaders/phong.vert", "shaders/phong.frag");
 
 	// setup light
-	light.enable();
 	light.setDirectional();
 	light.setAmbientColor(ofColor(25, 25, 40));
 	light.setDiffuseColor(ofColor(210, 200, 180));
 
 	light.setPosition(-150, -200, -400);
 	light.lookAt(ofVec3f(0, 0, 0));
+	light.enable();
 
 	ofSetLineWidth(1.5);
 
@@ -59,6 +59,7 @@ void ProjectState::setup()
 	////post.createPass<BloomPass>();
 	//post.createPass<SSAOPass>();
 
+	building.LoadFromGenotype();
 	building.GenerateBuilding();
 }
 
@@ -210,6 +211,13 @@ void ProjectState::keyPressed(int key)
 	if (key == 'l')
 	{
 		drawOutlines = !drawOutlines;
+	}
+
+	if (key == 'r')
+	{
+		// refresh building
+		building.LoadFromGenotype();
+		building.GenerateBuilding();
 	}
 }
 

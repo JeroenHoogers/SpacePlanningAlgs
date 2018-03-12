@@ -189,6 +189,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Building.h" />
+    <ClInclude Include="src\MeshHelper.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\ArchitectureState.h" />
     <ClInclude Include="src\EvolutionState.h" />

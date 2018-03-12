@@ -1,30 +1,48 @@
-#include "ofMain.h"
-
 #pragma once
+
+#include "ofMain.h"
+#include "GeneticAlgorithm.h"
+#include "MeshHelper.h" 
 
 struct Subdivision
 {
-	int faceId;
-	float cutPos; // could be an interpolation along the entire shape
+	Subdivision(float pos)
+	{
+		cutpos = pos;
+	}
+
+	float cutpos; // could be an interpolation along the entire shape
 };
 
 struct Extrusion
 {
 	// could be encoded in a single float where the interpolation variable t is derived from the local position on the line segment
 
-	float faceIndex;	// the face to extrude
-	float amount;		// the extrusion amount
-	float angle;		// angle of extrusion (limited between -45 and + 45 degrees) 
+	Extrusion(float pos, float amount, int floor)
+	{
+		faceIndex = pos;
+		extrudeAmount = amount;
+		extrudeFloor = floor;
+	}
+
+	float faceIndex;		// the face to extrude
+	float extrudeAmount;	// the extrusion amount
+	int extrudeFloor = -1;	// apply the extrusion to a specific floor (-1) applies it to all floors
+
+	float angle;			// angle of extrusion (limited between -45 and + 45 degrees) 
 };
 
 class Building
 {
 private:
 
+	int floors = 3;
 	float floorHeight = 3.0f;
 
 	vector<ofPolyline> floorShapes;
 	ofMesh buildingMesh;
+
+	ofPolyline parcel;
 
 	void generateFloorShapes()
 	{
@@ -32,7 +50,6 @@ private:
 		floorShapes.clear();
 
 		ofPolyline baseFloor = ofPolyline();
-
 
 		// create square
 		baseFloor.addVertex(
@@ -44,27 +61,74 @@ private:
 		baseFloor.addVertex(
 			ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
 
-		// create subdivisions
-		for (size_t i = 0; i < subdivs.size(); i++)
-		{
-			
-		}
+		baseFloor.close();
+		//baseFloor.addVertex(
+		//	ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
 
-		// do extrusions
-		for (size_t i = 0; i < extrusions.size(); i++)
-		{
+		//// create subdivisions
+		//for (size_t i = 0; i < subdivs.size(); i++)
+		//{
+		//	// TODO: add the same vertex twice
+		//	float t = subdivs[i].cutpos;
+		//	ofPoint p = baseFloor.getPointAtPercent(t);
 
-		}
+		//	int index = ceilf(baseFloor.getIndexAtPercent(t));
+		//	//int i2 = ceilf(baseFloor.getIndexAtPercent(t));
+
+		//	// insert vertex twice
+		//	baseFloor.insertVertex(p, index);
+		//	baseFloor.insertVertex(p, index);
+		//}
+
+		// do base floor extrusions
+		applyExtrusions(baseFloor, -1);
 
 		// create floors
-		int floors = 3;
+		//floors = 3;
 		for (size_t i = 0; i < floors; i++)
 		{
+			//ofPolyline pl = baseFloor;
+			
+			// do extrusions for individual floors
+			applyExtrusions(baseFloor, i);
+
 			floorShapes.push_back(baseFloor);
+
 		}
 
 		// TODO: per floor subdivisions / extrude
 	};
+
+	//--------------------------------------------------------------
+	void applyExtrusions(ofPolyline &floorshape, int floor)
+	{
+		// do extrusions
+		for (size_t i = 0; i < extrusions.size(); i++)
+		{
+			if (extrusions[i].extrudeFloor != floor)
+				continue;
+
+			float t = extrusions[i].faceIndex;
+
+			ofPoint p = floorshape.getPointAtPercent(t);
+			int index = ceilf(floorshape.getIndexAtPercent(t));
+
+			// extrude
+			floorshape.insertVertex(p, index);
+			floorshape.insertVertex(p, index);
+			//baseFloor.;
+
+			// calculate face snormal
+			ofVec3f diff = floorshape[index - 1] - floorshape[index];
+			ofVec3f n = ofVec3f(-diff.z, 0, diff.x);
+
+			n.normalize();
+
+			// extrude inward
+			floorshape[index] += n * extrusions[i].extrudeAmount;
+			floorshape[index - 1] += n * extrusions[i].extrudeAmount;
+		}
+	}
 
 	//--------------------------------------------------------------
 	void generateMesh()
@@ -84,14 +148,13 @@ private:
 			// add floor vertices
 			for (size_t j = 0; j < floorShapes[i].size(); j++)
 			{
-				int j2 = (j - 1) % floorShapes[i].size();
+				int j2 = (j + 1) % floorShapes[i].size();
 
-				addFace(buildingMesh,
-					floorShapes[i][j2] + heightOffset,
+				MeshHelper::AddFace(buildingMesh,
 					floorShapes[i][j] + heightOffset,
-					floorShapes[i][j] + heightOffset + ofVec3f(0, floorHeight),
-					floorShapes[i][j2] + heightOffset + ofVec3f(0, floorHeight));
-
+					floorShapes[i][j2] + heightOffset,
+					floorShapes[i][j2] + heightOffset + ofVec3f(0, floorHeight),
+					floorShapes[i][j] + heightOffset + ofVec3f(0, floorHeight));
 
 				//// add vertices
 				//buildingMesh.addVertex(floorShapes[i][v] + heightOffset);
@@ -125,22 +188,7 @@ private:
 		//buildingMesh.a
 	};
 
-	//--------------------------------------------------------------
-	void addFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c) {
-		ofVec3f normal = ((b - a).cross(c - a)).normalize();
-		mesh.addNormal(normal);
-		mesh.addVertex(a);
-		mesh.addNormal(normal);
-		mesh.addVertex(b);
-		mesh.addNormal(normal);
-		mesh.addVertex(c);
-	}
 
-	//--------------------------------------------------------------
-	void addFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c, ofVec3f d) {
-		addFace(mesh, a, b, c);
-		addFace(mesh, a, c, d);
-	}
 
 
 public:
@@ -160,6 +208,63 @@ public:
 
 	}
 
+	//--------------------------------------------------------------
+	void LoadFromGenotype()
+	{
+		GeneticAlgorithm ga = GeneticAlgorithm();
+		ga.setup(1, 12);
+
+		Genotype gt = ga.generateRandomDna();
+
+		// first 2 define params define bounding volume
+		float w = 10 + floorf(gt[0] * 10.0f) * 2;
+		float h = 10 + floorf(gt[1] * 10.0f) * 2;
+
+		int maxFloors = 3;
+
+		boundingBox = ofRectangle(
+			-w * 0.5f, -h * 0.5f, w, h);
+
+		// TODO: derive nr of floors from area
+		floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
+		
+		// TODO: separate subdivs and extrusions
+
+		//subdivs.clear();
+		extrusions.clear();
+
+		float minExtrusion = 2.0f;
+		float maxExtrusion = 6.0f;
+
+		for (size_t i = 3; i < gt.size(); i+=3)
+		{
+			// which floor does this extrusion apply to?
+			int floor = (gt[i + 2] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * floors), floors-1) : -1;
+
+			// create subdivs
+			//subdivs.push_back(Subdivision(gt[i]));
+			extrusions.push_back(
+				Extrusion(
+					gt[i],
+					minExtrusion + floorf(gt[i + 1] * maxExtrusion - minExtrusion),
+					floor));
+		}
+
+		// create parcel
+		parcel.clear();
+
+		parcel.addVertex(
+			ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
+		parcel.addVertex(
+			ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
+		parcel.addVertex(
+			ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
+		parcel.addVertex(
+			ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
+		parcel.close();
+	}
+
+	//--------------------------------------------------------------
 	void GenerateBuilding()
 	{
 		// generate the floor shapes
@@ -170,7 +275,7 @@ public:
 	}
 
 
-	// get the total building area
+	//--------------------------------------------------------------
 	float GetTotalArea()
 	{
 		float area = 0;
@@ -184,11 +289,31 @@ public:
 		return area;
 	};
 
-	// draw building
+	//--------------------------------------------------------------
 	void draw()
 	{
 		//ofSetColor(200);
+
+		// draw parcel
+		ofSetColor(10);
+		parcel.draw();
+
+		ofSetColor(255, 0, 0);
+		ofDrawLine(parcel[0], parcel[0] + ofVec3f(0, 1, 0));
+
+		// draw building
+		ofSetColor(255);
 		buildingMesh.drawFaces();
+
+		ofSetColor(30);
+		glPointSize(6);
+
+		// draw vertices
+		buildingMesh.drawVertices();
+
+		//ofSetColor(0, 0, 255);
+
+		//buildingMesh.re
 	};
 };
 
