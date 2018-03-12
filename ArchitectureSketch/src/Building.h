@@ -42,6 +42,8 @@ private:
 	vector<ofPolyline> floorShapes;
 	ofMesh buildingMesh;
 
+	//vector<ofPoin> lines;
+
 	ofPolyline parcel;
 
 	void generateFloorShapes()
@@ -57,15 +59,6 @@ private:
 		baseFloor.addVertex(boundingBox.getBottomLeft());
 		baseFloor.addVertex(boundingBox.getBottomRight());
 		baseFloor.addVertex(boundingBox.getTopRight());
-
-		//baseFloor.addVertex(
-		//	ofPoint(boundingBox.getMinX(), boundingBox.getMinY()));
-		//baseFloor.addVertex(
-		//	ofPoint(boundingBox.getMinX(), boundingBox.getMaxY()));
-		//baseFloor.addVertex(
-		//	ofPoint(boundingBox.getMaxX(), boundingBox.getMaxY()));
-		//baseFloor.addVertex(
-		//	ofPoint(boundingBox.getMaxX(), boundingBox.getMinY()));
 
 		baseFloor.close();
 		//baseFloor.addVertex(
@@ -91,14 +84,16 @@ private:
 
 		// create floors
 		//floors = 3;
+
+		// TODO: multi level extrusions?
 		for (size_t i = 0; i < floors; i++)
 		{
-			//ofPolyline pl = baseFloor;
+			ofPolyline pl = baseFloor;
 			
 			// do extrusions for individual floors
-			applyExtrusions(baseFloor, i);
+			applyExtrusions(pl, i);
 
-			floorShapes.push_back(baseFloor);
+			floorShapes.push_back(pl);
 
 		}
 
@@ -145,6 +140,8 @@ private:
 		// empty mesh
 		buildingMesh.clear();
 
+		//lines.clear();
+
 		int verts = 0;
 
 		// 2d to 3d matrix
@@ -172,12 +169,15 @@ private:
 			}
 
 			// add flat roof
-			if (i == floorShapes.size() - 1)
-				MeshHelper::AddCap(buildingMesh, floorShapes[i], topHeightOffset);
+			//if (i == floorShapes.size() - 1)
+			//	MeshHelper::AddCap(buildingMesh, floorShapes[i], topHeightOffset);
 
 			// create cap between floors (only where the floor differs)
-			if (i > 0)
+			MeshHelper::AddCap(buildingMesh, floorShapes[i], topHeightOffset);
+
+			if (i == 0)
 			{
+				MeshHelper::AddCap(buildingMesh, floorShapes[i], bottomHeightOffset);
 				//for (size_t j = 0; j < floorShapes[i-1].size(); j++)
 				//{
 				//	buildingMesh.addVertex(floorShapes[i-1][j]);
@@ -309,6 +309,16 @@ public:
 		//buildingMesh.drawVertices();
 
 		ofSetColor(80, 80, 80);
+		//ofPushMatrix();
+		//{
+		//	
+		//	for (size_t i = 0; i < floorShapes.size(); i++)
+		//	{
+		//		floorShapes[i].draw();
+		//	}
+		//}
+		
+		// draw wireframe
 		buildingMesh.drawWireframe();
 
 		//buildingMesh.re

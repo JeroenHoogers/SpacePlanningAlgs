@@ -96,7 +96,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxDelaunay2D\libs;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay\src;..\..\..\..\addons\ofxDelaunay2D\src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxDelaunay2D\libs;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay\src;..\..\..\..\addons\ofxDelaunay2D\src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -134,7 +134,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxDelaunay2D\libs;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay\src;..\..\..\..\addons\ofxDelaunay2D\src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -156,7 +156,7 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxDelaunay2D\libs;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay;..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay\src;..\..\..\..\addons\ofxDelaunay2D\src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;..\..\..\..\addons\ofxEasyCam\src;..\..\..\..\addons\ofxGui\src;..\..\..\..\addons\ofxStateMachine\src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -178,8 +178,6 @@
     <ClCompile Include="src\EvolutionState.cpp" />
     <ClCompile Include="src\GeneticAlgorithm.cpp" />
     <ClCompile Include="src\ProjectState.cpp" />
-    <ClCompile Include="..\..\..\..\addons\ofxDelaunay2D\src\ofxDelaunay2D.cpp" />
-    <ClCompile Include="..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay\src\Delaunay.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxEasyCam\src\ofxEasyCam.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxBaseGui.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxButton.cpp" />
@@ -199,8 +197,6 @@
     <ClInclude Include="src\MeshHelper.h" />
     <ClInclude Include="src\ProjectState.h" />
     <ClInclude Include="src\SharedData.h" />
-    <ClInclude Include="..\..\..\..\addons\ofxDelaunay2D\src\ofxDelaunay2D.h" />
-    <ClInclude Include="..\..\..\..\addons\ofxDelaunay2D\libs\Delaunay\src\Delaunay.h" />
     <ClInclude Include="..\..\..\..\addons\ofxEasyCam\src\ofxEasyCam.h" />
     <ClInclude Include="..\..\..\..\addons\ofxGui\src\ofxBaseGui.h" />
     <ClInclude Include="..\..\..\..\addons\ofxGui\src\ofxButton.h" />
