@@ -240,8 +240,8 @@ public:
 		//Genotype gt = ga.generateRandomDna();
 
 		// first 2 define params define bounding volume
-		float w = 12 + floorf(gt[0] * 8.0f) * 2;
-		float h = 12 + floorf(gt[1] * 8.0f) * 2;
+		float w = 13.0f + floorf(gt[0] * 9.0f) * 2;
+		float h = 13.0f + floorf(gt[1] * 9.0f) * 2;
 
 		int maxFloors = 3;
 
@@ -307,8 +307,14 @@ public:
 		// approximation
 		for (size_t i = 0; i < floorShapes.size(); i++)
 		{
-			area += floorShapes[i].getArea();
+			area += fabs(floorShapes[i].getArea());
 		}
+
+		// TODO: check if this is correct
+		area *= 0.1f;
+
+		// round area to 1 decimal
+		area = roundf(area * 100) / 100;
 
 		return area;
 	};
@@ -353,5 +359,3 @@ public:
 		//buildingMesh.re
 	};
 };
-
-

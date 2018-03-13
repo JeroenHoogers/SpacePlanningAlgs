@@ -108,6 +108,9 @@ void ArchitectureState::setup()
 	programmeGui.add(mInhabitants);
 	programmeGui.add(mStories);
 
+	int inhab = mInhabitants.get();
+	numInhabitantsChanged(inhab);
+
 	setupEvolution();
 
 	mShowGui = true;
@@ -140,7 +143,7 @@ void ArchitectureState::update()
 //--------------------------------------------------------------
 void ArchitectureState::draw()
 {
-	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(150, 150, 150));
+	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
 
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
 	int tileh = (ofGetHeight() / mTilesVertical.get());
@@ -184,9 +187,9 @@ void ArchitectureState::draw()
 
 	// show generation
 	ofSetColor(10);
-	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlgorithm.currentGeneration), 15, 25);
-	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 210, 25);
-	ofDrawBitmapStringHighlight("R: Generate next gen,   H: Hide gui", 15, 40);
+	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlgorithm.currentGeneration), 10, 20);
+	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 200, 20);
+	ofDrawBitmapStringHighlight("R: Generate next gen,   H: Hide gui", ofPoint(ofGetWidth() * 0.5f - 150, 20));
 
 	if (mShowGui)
 	{
@@ -287,6 +290,14 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	//post.end();
 
 	camera.end();
+
+	ofPoint p = viewport.getBottomLeft() + ofVec2f(5, -5);
+	
+	ofColor bgCol = ofColor::gray;
+	if (buildings[index].GetTotalArea() >= targetArea)
+		bgCol = ofColor::forestGreen;
+
+	ofDrawBitmapStringHighlight("Area: " + ofToString(buildings[index].GetTotalArea()) + " m2", p, bgCol);
 }
 
 //--------------------------------------------------------------
@@ -441,7 +452,15 @@ void ArchitectureState::generateButtonPressed()
 	// generate phenotypes for the new population
 	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
 	{
-		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i]);
+		//for (int j = 0; j < 100; j++)
+		//{
+			buildings[i].LoadFromGenotype(geneticAlgorithm.population[i]);
+
+		//	// force area to be at least minimum area
+		//	if (buildings[i].GetTotalArea() >= targetArea)
+		//		break;
+		//}
+
 		buildings[i].GenerateBuilding();
 	}
 
@@ -479,32 +498,24 @@ void ArchitectureState::numInhabitantsChanged (int &val)
 	switch (inhabitants)
 	{
 	case 1:
-		//mStories.setMin(1);
-		//mStories.setMax(1);
 		targetArea = 33.0f;
 
 		if (stories > 1)
 			targetArea = -1;
 		break;
 	case 2:
-		//mStories.setMin(1);
-		//mStories.setMax(1);
 		targetArea = 48.5f;
 
 		if (stories > 1)
 			targetArea = -1;
 		break;
 	case 3:
-		//mStories.setMin(1);
-		//mStories.setMax(1);
 		targetArea = 61.0f;
 
 		if (stories > 1)
 			targetArea = -1;
 		break;
 	case 4:
-		//mStories.setMin(1);
-		//mStories.setMax(2);
 		if (stories == 1)
 			targetArea = 71.5;
 		else if (stories == 2)
@@ -521,13 +532,8 @@ void ArchitectureState::numInhabitantsChanged (int &val)
 			targetArea = 86.5f;
 		else
 			targetArea = 98.5f;
-		//mStories.setMin(1);
-		//mStories.setMax(3);
 		break;
 	case 6:
-		//mStories.setMin(1);
-		//mStories.setMax(3);
-
 		if (stories == 1)
 			targetArea = 88.5f;
 		else if (stories == 2)
@@ -537,9 +543,6 @@ void ArchitectureState::numInhabitantsChanged (int &val)
 
 		break;
 	case 7:
-		//mStories.setMin(2);
-		//mStories.setMax(3);
-
 		if (stories == 2)
 			targetArea = 114.5f;
 		else if (stories == 3)

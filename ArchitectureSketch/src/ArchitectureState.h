@@ -94,7 +94,7 @@ private:
 
 
 	ofxPanel programmeGui;
-	ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 2, 1, 7);
+	ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 4, 1, 7);
 	ofParameter<int> mStories = ofParameter<int>("Num of Stories", 2, 1, 3);
 
 	vector<Building> buildings;
