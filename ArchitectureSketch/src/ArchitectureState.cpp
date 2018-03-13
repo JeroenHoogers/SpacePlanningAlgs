@@ -77,10 +77,15 @@ void ArchitectureState::setup()
 	mMutationRate.addListener(this, &ArchitectureState::minorParameterChanged);
 	mMutationAmount.addListener(this, &ArchitectureState::minorParameterChanged);
 
-	//mGroupGenes.addListener(this, &ArchitectureState::boolParameterChanged);
+	mCrossoverGene.addListener(this, &ArchitectureState::matingModeChanged);
+	mCrossoverInterpolate.addListener(this, &ArchitectureState::matingModeChanged);
+	mCrossoverSwitch.addListener(this, &ArchitectureState::matingModeChanged);
+
+	mInhabitants.addListener(this, &ArchitectureState::numInhabitantsChanged);
+	mStories.addListener(this, &ArchitectureState::numInhabitantsChanged);
 
 	// setup gui 
-	gui.setup("GA Settings");
+	gui.setup("Evolution settings");
 	//gui.add(mDimensions);
 	//gui.add(mPopulationSize);
 
@@ -89,9 +94,19 @@ void ArchitectureState::setup()
 
 	gui.add(mMutationRate);
 	gui.add(mMutationAmount);
+
+
+
+	gui.add(mCrossoverSwitch);
+	gui.add(mCrossoverInterpolate);
+	gui.add(mCrossoverGene);
 	//gui.add(mGroupGenes);
 	//gui.add(mDiversify);
 	gui.add(generateNextGenButton.setup("Generate offspring"));
+
+	programmeGui.setup("Achitecture programme", "settings.xml", 250, 10);
+	programmeGui.add(mInhabitants);
+	programmeGui.add(mStories);
 
 	setupEvolution();
 
@@ -125,7 +140,7 @@ void ArchitectureState::update()
 //--------------------------------------------------------------
 void ArchitectureState::draw()
 {
-	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
+	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(150, 150, 150));
 
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
 	int tileh = (ofGetHeight() / mTilesVertical.get());
@@ -170,10 +185,14 @@ void ArchitectureState::draw()
 	// show generation
 	ofSetColor(10);
 	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlgorithm.currentGeneration), 15, 25);
-	ofDrawBitmapStringHighlight("H: Hide Gui", 15, 40);
+	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 210, 25);
+	ofDrawBitmapStringHighlight("R: Generate next gen,   H: Hide gui", 15, 40);
 
-	if(mShowGui)
+	if (mShowGui)
+	{
 		gui.draw();
+		programmeGui.draw();
+	}
 }
 
 //--------------------------------------------------------------
@@ -445,6 +464,126 @@ void ArchitectureState::minorParameterChanged(float& val)
 //--------------------------------------------------------------
 void ArchitectureState::boolParameterChanged(bool &val)
 {
+	// TODO: add boolean params
+	//geneticAlgorithm.groupGenes = mGroupGenes.get();
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::numInhabitantsChanged (int &val)
+{
+	// From the metric planning handbook
+
+	int inhabitants = mInhabitants.get();
+	int stories = mStories.get();
+
+	switch (inhabitants)
+	{
+	case 1:
+		//mStories.setMin(1);
+		//mStories.setMax(1);
+		targetArea = 33.0f;
+
+		if (stories > 1)
+			targetArea = -1;
+		break;
+	case 2:
+		//mStories.setMin(1);
+		//mStories.setMax(1);
+		targetArea = 48.5f;
+
+		if (stories > 1)
+			targetArea = -1;
+		break;
+	case 3:
+		//mStories.setMin(1);
+		//mStories.setMax(1);
+		targetArea = 61.0f;
+
+		if (stories > 1)
+			targetArea = -1;
+		break;
+	case 4:
+		//mStories.setMin(1);
+		//mStories.setMax(2);
+		if (stories == 1)
+			targetArea = 71.5;
+		else if (stories == 2)
+			targetArea = 76.5f;
+		else
+			targetArea = -1;
+
+		break;
+	case 5:
+
+		if (stories == 1)
+			targetArea = 71.5;
+		else if (stories == 2)
+			targetArea = 86.5f;
+		else
+			targetArea = 98.5f;
+		//mStories.setMin(1);
+		//mStories.setMax(3);
+		break;
+	case 6:
+		//mStories.setMin(1);
+		//mStories.setMax(3);
+
+		if (stories == 1)
+			targetArea = 88.5f;
+		else if (stories == 2)
+			targetArea = 97.0f;
+		else
+			targetArea = 102.0f;
+
+		break;
+	case 7:
+		//mStories.setMin(2);
+		//mStories.setMax(3);
+
+		if (stories == 2)
+			targetArea = 114.5f;
+		else if (stories == 3)
+			targetArea = 118.5f;
+		else
+			targetArea = -1;
+		break;
+	default:
+		break;
+	}
+
+	// round area
+	//targetArea = roundf(targetArea * 100) / 100;
+
+	// TODO: add boolean params
+	//geneticAlgorithm.groupGenes = mGroupGenes.get();
+}
+
+
+//--------------------------------------------------------------
+void ArchitectureState::matingModeChanged(bool &val)
+{
+
+	if (val)
+	{
+		// deselect others
+		mCrossoverInterpolate.set(false);
+		mCrossoverGene.set(false);
+		mCrossoverSwitch.set(false);
+
+		val = true;
+
+		// change mating mode
+		if (mCrossoverSwitch.get())
+			geneticAlgorithm.matingStrat = MatingStrategy::SwitchSource;
+
+		if (mCrossoverInterpolate.get())
+			geneticAlgorithm.matingStrat = MatingStrategy::Interpolate;
+
+		if (mCrossoverGene.get())
+			geneticAlgorithm.matingStrat = MatingStrategy::Gene;
+
+	}
+
 	// TODO: add boolean params
 	//geneticAlgorithm.groupGenes = mGroupGenes.get();
 }

@@ -61,6 +61,10 @@ private:
 	ofLight light;
 	ofxEasyCam camera;
 
+	float targetArea;
+	int minStories = 1;
+	int maxStories = 3;
+
 	bool mShowGui;
 
 	ofPoint mousePos;
@@ -81,7 +85,17 @@ private:
 	// architectural parameters
 	ofParameter<int> mMaxExtrusions = ofParameter<int>("Num of Extrusions", 4, 1, 10);
 
+
+	ofParameter<bool> mCrossoverInterpolate = ofParameter<bool>("Mating: Interpolate", false, false, true);
+	ofParameter<bool> mCrossoverSwitch = ofParameter<bool>("Mating: Crossover", true, false, true);
+	ofParameter<bool> mCrossoverGene = ofParameter<bool>("Mating: Pick random gene", false, false, true);
+
 	ofxButton generateNextGenButton;
+
+
+	ofxPanel programmeGui;
+	ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 2, 1, 7);
+	ofParameter<int> mStories = ofParameter<int>("Num of Stories", 2, 1, 3);
 
 	vector<Building> buildings;
 	//vector<MassModel> massModels;
@@ -122,5 +136,7 @@ public:
 
 	void boolParameterChanged(bool &val);
 
-};
+	void matingModeChanged(bool &val);
 
+	void numInhabitantsChanged(int &val);
+};
