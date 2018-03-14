@@ -238,7 +238,10 @@ private:
 			MeshHelper::AddCap(buildingMesh, floorShapes[i], topHeightOffset);
 
 			//if (i == 0)
-				MeshHelper::AddCap(buildingMesh, floorShapes[i], bottomHeightOffset);
+			MeshHelper::AddCap(buildingMesh, floorShapes[i], bottomHeightOffset);
+
+			// create faces automatically
+			buildingMesh.setupIndicesAuto();
 		}
 	};
 
@@ -285,7 +288,7 @@ public:
 		extrusions.clear();
 
 		float minExtrusion = 1.0f;
-		float maxExtrusion = 5.0f;
+		float maxExtrusion = 6.0f;
 
 		for (size_t i = 3; i < gt.size()-3; i+=4)
 		{
@@ -306,8 +309,6 @@ public:
 				angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
 			if (gt[i + 3] > 0.75f)
 				angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
-
-			//float angle = ofLer
 
 			// create subdivs
 			//subdivs.push_back(Subdivision(gt[i]));
@@ -381,7 +382,7 @@ public:
 		for (size_t i = 0; i < lines.size(); i++)
 		{
 			// draw floor outlines slightly thicker then the vertical edges
-			if(lines[i].size()> 2)
+			if(lines[i].size() > 2)
 				ofSetLineWidth(1.0f);
 			else
 				ofSetLineWidth(0.7f);
@@ -393,5 +394,8 @@ public:
 
 		// draw wireframe
 		//buildingMesh.drawWireframe();
+
+		// DEBUG: draw normals
+		//MeshHelper::drawNormals(buildingMesh);
 	};
 };

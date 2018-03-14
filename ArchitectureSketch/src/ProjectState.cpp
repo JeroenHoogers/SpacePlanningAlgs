@@ -13,13 +13,13 @@ ProjectState::~ProjectState()
 //--------------------------------------------------------------
 void ProjectState::stateEnter()
 {
-
+	light.enable();
 }
 
 //--------------------------------------------------------------
 void ProjectState::stateExit()
 {
-
+	light.disable();
 }
 
 //--------------------------------------------------------------
@@ -47,7 +47,7 @@ void ProjectState::setup()
 
 	light.setPosition(-150, -200, -400);
 	light.lookAt(ofVec3f(0, 0, 0));
-	light.enable();
+	//light.enable();
 
 	ofSetLineWidth(1.5);
 

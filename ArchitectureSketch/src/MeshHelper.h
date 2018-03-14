@@ -112,4 +112,35 @@ public:
 
 //		mesh.append(m);
 	}
+
+
+	//--------------------------------------------------------------
+	static void drawNormals(ofMesh& mesh)
+	{
+		vector<ofMeshFace> faces = mesh.getUniqueFaces();
+
+		for (size_t i = 0; i < faces.size(); i++)
+		{
+			ofVec3f v0 = faces[i].getVertex(0);
+			ofVec3f v1 = faces[i].getVertex(1);
+			ofVec3f v2 = faces[i].getVertex(2);
+
+			// calculate triangle centerpoint
+			ofVec3f center = (v0 + v1 + v2) / 3.0f;
+
+			ofVec3f n0 = faces[i].getNormal(0); //((v1 - v0).cross(v2 - v0)).normalize();
+			ofVec3f n1 = faces[i].getNormal(1);
+			ofVec3f n2 = faces[i].getNormal(2);
+
+
+			ofSetColor(0, 0, 255);
+			ofLine(v0, v0 + n0);
+			ofLine(v1, v1 + n1);
+			ofLine(v2, v2 + n2);
+
+			
+		}
+
+
+	}
 };

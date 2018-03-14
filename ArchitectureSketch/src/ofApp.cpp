@@ -14,6 +14,16 @@ void ofApp::setup()
 	mStateMachine->addState(new ArchitectureState());
 
 	mStateMachine->changeState(ArchitectureState_StateName);
+
+
+	ofPolyline pl = ofPolyline();
+	pl.addVertex(ofPoint(0, 0));
+	pl.addVertex(ofPoint(0, 1));
+	pl.addVertex(ofPoint(1, 2));
+	pl.addVertex(ofPoint(1, 0));
+
+
+	cout << ofToString(pl.getArea()) << endl;
 }
 
 //--------------------------------------------------------------

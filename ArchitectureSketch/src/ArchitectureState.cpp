@@ -13,13 +13,13 @@ ArchitectureState::~ArchitectureState()
 //--------------------------------------------------------------
 void ArchitectureState::stateEnter()
 {
-
+	light.enable();
 }
 
 //--------------------------------------------------------------
 void ArchitectureState::stateExit()
 {
-
+	light.disable();
 }
 
 //--------------------------------------------------------------
@@ -41,9 +41,9 @@ void ArchitectureState::setup()
 	//phong.load("shaders/phong.vert", "shaders/phong.frag");
 
 	// setup light
-	light.enable();
+	//light.enable();
 	light.setDirectional();
-	light.setAmbientColor(ofColor(25, 25, 40));
+	light.setAmbientColor(ofColor(60, 60, 80));
 	light.setDiffuseColor(ofColor(210, 200, 180));
 
 	light.setPosition(-150, -200, -400);
@@ -143,6 +143,9 @@ void ArchitectureState::update()
 //--------------------------------------------------------------
 void ArchitectureState::draw()
 {
+	light.setPosition(-camera.getGlobalPosition());
+	light.lookAt(ofVec3f(0, 0, 0));
+
 //	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
 	ofBackground(ofColor(200, 195, 190));
 
@@ -217,9 +220,6 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	ofSetLineWidth(1.5);
 	ofEnableDepthTest();
 
-	light.setPosition(-camera.getGlobalPosition());
-	light.lookAt(ofVec3f(0, 0, 0));
-
 	camera.begin(viewport);
 
 	// draw outlines
@@ -230,7 +230,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	//phong.begin();
 
 	// draw shapes
-	ofSetColor(220);
+	ofSetColor(255);
 	ofFill();
 
 	//// draw mass 1
