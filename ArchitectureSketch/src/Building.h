@@ -364,40 +364,34 @@ public:
 	//--------------------------------------------------------------
 	void draw()
 	{
+		// HACK: hack depth buffer range to make sure the lines render on top of the geometry
+		glDepthRange(0.0005, 1.0);
 		//ofSetColor(200);
-
-		// draw parcel
-		//ofSetColor(10);
-		//parcel.draw();
-
-		//ofSetColor(255, 0, 0);
-		//ofDrawLine(parcel[0], parcel[0] + ofVec3f(0, 1, 0));
 
 		// draw building
 		ofSetColor(255);
 		buildingMesh.drawFaces();
 
-		//ofSetColor(30);
-		//glPointSize(6);
+		// HACK: hack depth buffer range to make sure the lines render on top of the geometry
+		glDepthRange(0.0, 0.9995);
 
-		// draw vertices
-		//buildingMesh.drawVertices();
-
-
-
-		//ofPushMatrix();
-		//{
 		ofSetColor(50);
-		ofSetLineWidth(1.5f);
+		
+		// draw lines
 		for (size_t i = 0; i < lines.size(); i++)
 		{
+			// draw floor outlines slightly thicker then the vertical edges
+			if(lines[i].size()> 2)
+				ofSetLineWidth(1.0f);
+			else
+				ofSetLineWidth(0.7f);
 			lines[i].draw();
 		}
-		//}
-		
+
+		// restore depth buffer
+		glDepthRange(0.0, 1.0);
+
 		// draw wireframe
 		//buildingMesh.drawWireframe();
-
-		//buildingMesh.re
 	};
 };
