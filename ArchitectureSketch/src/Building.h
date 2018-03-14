@@ -17,19 +17,19 @@ struct Subdivision
 struct Extrusion
 {
 	// could be encoded in a single float where the interpolation variable t is derived from the local position on the line segment
-
-	Extrusion(float pos, float amount, int floor)
+	Extrusion(float pos, float amount, int floor, float angle = 0)
 	{
-		faceIndex = pos;
+		position = pos;
 		extrudeAmount = amount;
 		extrudeFloor = floor;
+		extrudeAngle = angle;
 	}
 
-	float faceIndex;		// the face to extrude
+	float position;		// the face to extrude
 	float extrudeAmount;	// the extrusion amount
 	int extrudeFloor = -1;	// apply the extrusion to a specific floor (-1) applies it to all floors
 
-	float angle;			// angle of extrusion (limited between -45 and + 45 degrees) 
+	float extrudeAngle;			// angle of extrusion (limited between -45 and + 45 degrees) 
 };
 
 //struct Lin
@@ -105,7 +105,6 @@ private:
 			applyExtrusions(pl, i);
 
 			floorShapes.push_back(pl);
-
 		}
 
 		// TODO: per floor subdivisions / extrude
@@ -120,7 +119,7 @@ private:
 			if (extrusions[i].extrudeFloor != floor)
 				continue;
 
-			float t = extrusions[i].faceIndex;
+			float t = extrusions[i].position;
 
 			ofPoint p = floorshape.getPointAtPercent(t);
 			int index = ceilf(floorshape.getIndexAtPercent(t));
@@ -140,13 +139,40 @@ private:
 
 			// calculate face normal
 			ofVec3f diff = floorshape[index - 1] - floorshape[index];
-			ofVec3f n = ofVec3f(-diff.y, diff.x);
+			ofVec3f n = ofVec2f(-diff.y, diff.x);
+
+			// calculate rotated normal
+			float angle = extrusions[i].extrudeAngle;
 
 			n.normalize();
 
-			// extrude inward
-			floorshape[index] += n * extrusions[i].extrudeAmount;
-			floorshape[index - 1] += n * extrusions[i].extrudeAmount;
+			// calculate new points
+			ofVec3f u = n * extrusions[i].extrudeAmount;
+
+			ofPoint p1 = floorshape[index] + u;
+			ofPoint p2 = floorshape[index - 1] + u;
+
+			if (angle != 0)
+			{
+				//// center coordinate system along the extusion edge
+				//ofMatrix4x4 translation = ofMatrix4x4::newTranslationMatrix((floorshape[index] + floorshape[index - 1]) * 0.5f);
+				//ofMatrix4x4 rotation = ofMatrix4x4::newRotationMatrix(angle, ofVec3f(0, 0, 1));
+
+				//// do rotation
+				//p1 = //translation.getInverse() * rotation * translation * p1;
+				//p2 = translation.getInverse() * rotation * translation * p2;
+
+
+				// project p onto u
+				if (angle > 0)
+					p1 = floorshape[index];
+				else
+					p2 = floorshape[index - 1];
+			}
+
+			// do extrusion
+			floorshape[index] = p1;
+			floorshape[index - 1] = p2;
 		}
 	}
 
@@ -186,9 +212,11 @@ private:
 					mat * floorShapes[i][j2] + topHeightOffset,
 					mat * floorShapes[i][j] + topHeightOffset);
 
+				// add vertex to floor outline
 				floorOutline.addVertex(mat * floorShapes[i][j] + bottomHeightOffset);
 				ceilingOutline.addVertex(mat * floorShapes[i][j] + topHeightOffset);
 
+				// create vertical edges
 				ofPolyline wallEdge;
 				wallEdge.addVertex(mat * floorShapes[i][j] + bottomHeightOffset);
 				wallEdge.addVertex(mat * floorShapes[i][j] + topHeightOffset);
@@ -259,20 +287,34 @@ public:
 		float minExtrusion = 1.0f;
 		float maxExtrusion = 5.0f;
 
-		for (size_t i = 3; i < gt.size(); i+=3)
+		for (size_t i = 3; i < gt.size()-3; i+=4)
 		{
 			// which floor does this extrusion apply to?
-			int floor = (gt[i + 2] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * floors), floors-1) : -1;
+			// TODO: tweak this ratio
+			
+			// TODO: make sure this is not close to any walls, maybe align to a grid?
+			float position = gt[i]; // interpolation along shape
+			// TODO: apply to multiple but not all floors?
+			int floor = (gt[i + 1] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * floors), floors-1) : -1;
+
+			float amount = ofLerp(-maxExtrusion, maxExtrusion, gt[i + 2]);
+			amount = (amount < 0) ? ofClamp(amount, -maxExtrusion, -minExtrusion) : ofClamp(amount, minExtrusion, maxExtrusion);
+
+			// calculate angle
+			float angle = 0;
+			if (gt[i + 3] < 0.25f)
+				angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
+			if (gt[i + 3] > 0.75f)
+				angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
+
+			//float angle = ofLer
 
 			// create subdivs
 			//subdivs.push_back(Subdivision(gt[i]));
-
+			
 			// add extrusion
 			extrusions.push_back(
-				Extrusion(
-					gt[i],
-					minExtrusion + floorf(gt[i + 1] * maxExtrusion - minExtrusion),
-					floor));
+				Extrusion(position, amount, floor, angle));
 		}
 
 		// create parcel

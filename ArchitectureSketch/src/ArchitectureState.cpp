@@ -120,7 +120,7 @@ void ArchitectureState::setup()
 void ArchitectureState::setupEvolution()
 {
 	// setup genetic algorithm
-	geneticAlgorithm.setup(mTilesHorizontal.get() * mTilesVertical.get(), 15, mMutationRate.get(), mMutationAmount.get());
+	geneticAlgorithm.setup(mTilesHorizontal.get() * mTilesVertical.get(), 19, mMutationRate.get(), mMutationAmount.get());
 
 	buildings.clear();
 
@@ -143,7 +143,8 @@ void ArchitectureState::update()
 //--------------------------------------------------------------
 void ArchitectureState::draw()
 {
-	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
+//	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
+	ofBackground(ofColor(200, 195, 190));
 
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
 	int tileh = (ofGetHeight() / mTilesVertical.get());
@@ -277,7 +278,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 		//ofRotateX(-90);
 		ofRotateZ(90);
 		ofSetLineWidth(1);
-		ofSetColor(120);
+		ofSetColor(160);
 		//ofDrawPlane(0, 0, 50, 50);
 		ofDrawGridPlane(1, 20);
 	}
