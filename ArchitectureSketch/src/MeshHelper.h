@@ -133,10 +133,13 @@ public:
 			ofVec3f n2 = faces[i].getNormal(2);
 
 
-			ofSetColor(0, 0, 255);
-			ofLine(v0, v0 + n0);
-			ofLine(v1, v1 + n1);
-			ofLine(v2, v2 + n2);
+			//ofSetColor(0, 0, 255);
+			ofSetColor(60);
+
+
+			ofLine(v0, v0 + n0 * 0.2f);
+			ofLine(v1, v1 + n1 * 0.2f);
+			ofLine(v2, v2 + n2 * 0.2f);
 
 			
 		}

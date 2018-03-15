@@ -26,11 +26,10 @@ void ArchitectureState::stateExit()
 void ArchitectureState::setup()
 {
 	// use AA
-	ofEnableAntiAliasing();
+	//ofEnableAntiAliasing();
 
 	// use depth information for occlusion
-	ofEnableDepthTest();
-
+//	ofEnableDepthTest();
 	// use normalized tex coords
 	ofEnableNormalizedTexCoords();
 
@@ -143,11 +142,11 @@ void ArchitectureState::update()
 //--------------------------------------------------------------
 void ArchitectureState::draw()
 {
-	light.setPosition(-camera.getGlobalPosition());
+	light.setPosition(-camera.getGlobalPosition() + ofVec3f(0,2,0));
 	light.lookAt(ofVec3f(0, 0, 0));
 
 //	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
-	ofBackground(ofColor(200, 195, 190));
+	ofBackground(ofColor(200, 200, 200));
 
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
 	int tileh = (ofGetHeight() / mTilesVertical.get());
@@ -243,10 +242,12 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 
 	// draw scale model
 	ofSetColor(30);
-	ofDrawCylinder(buildings[index].boundingBox.getMinX() - 1.0f, 0.9f, 0, 0.3f, 1.8f);
-	ofDrawCylinder(buildings[index].boundingBox.getMaxX() + 1.0f, 0.9f, 0, 0.3f, 1.8f);
-	ofDrawCylinder(0, 0.9f, buildings[index].boundingBox.getMinY() - 1.0f, 0.3f, 1.8f);
-	ofDrawCylinder(0, 0.9f, buildings[index].boundingBox.getMaxY() + 1.0f, 0.3f, 1.8f);
+	ofRectangle boundingRect = buildings[index].GetFloorBoundingBox(0);
+
+	ofDrawCylinder(boundingRect.getMinX() - 1.0f, 0.9f, 0, 0.3f, 1.8f);
+	ofDrawCylinder(boundingRect.getMaxX() + 1.0f, 0.9f, 0, 0.3f, 1.8f);
+	ofDrawCylinder(0, 0.9f, boundingRect.getMinY() - 1.0f, 0.3f, 1.8f);
+	ofDrawCylinder(0, 0.9f, boundingRect.getMaxY() + 1.0f, 0.3f, 1.8f);
 
 	//ofDrawBox(0, 0.85f, 0, 0.5f, 1.7f, 0.5f);
 
@@ -277,9 +278,9 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	{
 		//ofRotateX(-90);
 		ofRotateZ(90);
-		ofSetLineWidth(1);
-		ofSetColor(160);
-		//ofDrawPlane(0, 0, 50, 50);
+		ofSetLineWidth(0.8f);
+		ofSetColor(170);
+		//ofDrawPlane(0, 0, 100, 100);
 		ofDrawGridPlane(1, 20);
 	}
 	ofPopMatrix();

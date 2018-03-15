@@ -7,22 +7,10 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\ArchitectureState.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EvolutionState.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GeneticAlgorithm.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ofApp.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ProjectState.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\addons\ofxEasyCam\src\ofxEasyCam.cpp">
@@ -52,6 +40,21 @@
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxToggle.cpp">
       <Filter>addons\ofxGui\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ArchitectureState.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProjectState.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EvolutionState.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GeneticAlgorithm.cpp">
+      <Filter>src\Evolution</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Building.cpp">
+      <Filter>src\Architecture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -78,30 +81,24 @@
     <Filter Include="addons\ofxStateMachine\src">
       <UniqueIdentifier>{F43EE182-92E0-B7FC-C59F-CC91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\States">
+      <UniqueIdentifier>{c750d745-78a1-4265-afdf-5e8f9df0bdcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utility">
+      <UniqueIdentifier>{5b3cd7b6-b376-4fcd-bcf5-801cd47069cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Evolution">
+      <UniqueIdentifier>{cb97f03d-38b8-40d1-a8ac-b6e48b9d7a47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Architecture">
+      <UniqueIdentifier>{01f27bf7-eff6-4d18-9827-a03739767445}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ofApp.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\ArchitectureState.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Building.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EvolutionState.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GeneticAlgorithm.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MeshHelper.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\ofApp.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ProjectState.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\SharedData.h">
@@ -143,8 +140,32 @@
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxStateMachine.h">
       <Filter>addons\ofxStateMachine\src</Filter>
     </ClInclude>
-    <ClInclude Include="ArchitectureProgramme.h">
+    <ClInclude Include="src\ArchitectureState.h">
+      <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ProjectState.h">
+      <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EvolutionState.h">
+      <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MeshHelper.h">
+      <Filter>src\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GeneticAlgorithm.h">
+      <Filter>src\Evolution</Filter>
+    </ClInclude>
+    <ClInclude Include="PopulationFilter.h">
+      <Filter>src\Evolution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Building.h">
+      <Filter>src\Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PopulationFilter.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ArchitectureProgramme.h">
+      <Filter>src\Architecture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

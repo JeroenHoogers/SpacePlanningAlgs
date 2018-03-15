@@ -172,6 +172,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Building.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="src\ArchitectureState.cpp" />
@@ -189,13 +190,15 @@
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArchitectureProgramme.h" />
+    <ClInclude Include="PopulationFilter.h" />
+    <ClInclude Include="src\ArchitectureProgramme.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\ArchitectureState.h" />
     <ClInclude Include="src\Building.h" />
     <ClInclude Include="src\EvolutionState.h" />
     <ClInclude Include="src\GeneticAlgorithm.h" />
     <ClInclude Include="src\MeshHelper.h" />
+    <ClInclude Include="src\PopulationFilter.h" />
     <ClInclude Include="src\ProjectState.h" />
     <ClInclude Include="src\SharedData.h" />
     <ClInclude Include="..\..\..\..\addons\ofxEasyCam\src\ofxEasyCam.h" />

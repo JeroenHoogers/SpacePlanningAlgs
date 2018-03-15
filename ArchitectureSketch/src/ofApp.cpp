@@ -6,7 +6,7 @@ void ofApp::setup()
 	ofSetVerticalSync(false);
 
 	ofSetCoordHandedness(ofHandednessType::OF_RIGHT_HANDED);
-
+	ofEnableAntiAliasing();
 
 	mStateMachine = new itg::ofxStateMachine<SharedData>();
 	mStateMachine->addState(new EvolutionState());
