@@ -1,3 +1,3 @@
-ofxEasyCam
 ofxGui
+ofxEasyCam
 ofxStateMachine

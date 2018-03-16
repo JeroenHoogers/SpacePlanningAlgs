@@ -146,7 +146,7 @@ void ArchitectureState::draw()
 	light.lookAt(ofVec3f(0, 0, 0));
 
 //	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
-	ofBackground(ofColor(200, 200, 200));
+	ofBackground(ofColor(200));
 
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
 	int tileh = (ofGetHeight() / mTilesVertical.get());

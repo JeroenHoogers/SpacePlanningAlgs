@@ -10,10 +10,10 @@ void ofApp::setup()
 
 	mStateMachine = new itg::ofxStateMachine<SharedData>();
 	mStateMachine->addState(new EvolutionState());
-	mStateMachine->addState(new ProjectState());
+	mStateMachine->addState(new ProgramState());
 	mStateMachine->addState(new ArchitectureState());
 
-	mStateMachine->changeState(ArchitectureState_StateName);
+	mStateMachine->changeState(ProgramState_StateName);
 
 
 	ofPolyline pl = ofPolyline();
@@ -21,7 +21,6 @@ void ofApp::setup()
 	pl.addVertex(ofPoint(0, 1));
 	pl.addVertex(ofPoint(1, 2));
 	pl.addVertex(ofPoint(1, 0));
-
 
 	cout << ofToString(pl.getArea()) << endl;
 }
@@ -71,7 +70,7 @@ void ofApp::keyPressed(int key)
 
 	if (key == 'p')
 	{
-		mStateMachine->changeState(ProjectState_StateName);
+		mStateMachine->changeState(ProgramState_StateName);
 	}
 
 	if (key == 'a')
