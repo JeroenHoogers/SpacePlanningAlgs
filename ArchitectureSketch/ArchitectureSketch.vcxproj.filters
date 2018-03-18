@@ -167,11 +167,14 @@
     <ClInclude Include="src\PopulationFilter.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\ArchitectureProgramme.h">
-      <Filter>src\Architecture</Filter>
-    </ClInclude>
     <ClInclude Include="src\ProgramState.h">
       <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ArchitectureProgram.h">
+      <Filter>src\Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Measurements.h">
+      <Filter>src\Architecture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

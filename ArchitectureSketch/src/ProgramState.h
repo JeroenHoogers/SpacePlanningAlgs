@@ -3,6 +3,7 @@
 #include "ofxGui.h"
 #include "ofxEasyCam.h"
 #include "Building.h"
+#include "Measurements.h"
 
 #define ProgramState_StateName "ProgramState"
 
@@ -28,8 +29,8 @@ private:
 	ofParameter<int> mStories = ofParameter<int>("Stories", 2, 1, 3);
 
 	// site parameters
-	ofParameter<int> mWidth = ofParameter<int>("Parcel width (m)", 15, 5, 30);
-	ofParameter<int> mDepth = ofParameter<int>("Parcel depth (m)", 15, 5, 30);
+	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 15, 5, 30);
+	ofParameter<int> mDepth = ofParameter<int>("Lot depth (m)", 15, 5, 30);
 
 	ofParameter<bool> mTerracedLeft = ofParameter<bool>("Terraced Left", false);
 	ofParameter<bool> mTerracedRight = ofParameter<bool>("Terraced Right", false);

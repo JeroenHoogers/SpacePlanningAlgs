@@ -1,7 +1,14 @@
 #pragma once
-class ArchitectureProgramme
+class ArchitectureProgram
 {
+public:
+	bool terracedLeft = false;
+	bool terracedRight = false;
 
+	int lotWidth = 5;
+	int lotLength = 5;
+
+	int inhabitants = 2;
 //private:
 //
 //public:

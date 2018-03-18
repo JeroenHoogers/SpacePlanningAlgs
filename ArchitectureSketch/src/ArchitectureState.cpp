@@ -103,7 +103,7 @@ void ArchitectureState::setup()
 	//gui.add(mDiversify);
 	gui.add(generateNextGenButton.setup("Generate offspring"));
 
-	programmeGui.setup("Achitecture programme", "settings.xml", 250, 10);
+	programmeGui.setup("Achitecture program", "settings.xml", 250, 10);
 	programmeGui.add(mInhabitants);
 	programmeGui.add(mStories);
 
@@ -244,10 +244,10 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	ofSetColor(30);
 	ofRectangle boundingRect = buildings[index].GetFloorBoundingBox(0);
 
-	ofDrawCylinder(boundingRect.getMinX() - 1.0f, 0.9f, 0, 0.3f, 1.8f);
-	ofDrawCylinder(boundingRect.getMaxX() + 1.0f, 0.9f, 0, 0.3f, 1.8f);
-	ofDrawCylinder(0, 0.9f, boundingRect.getMinY() - 1.0f, 0.3f, 1.8f);
-	ofDrawCylinder(0, 0.9f, boundingRect.getMaxY() + 1.0f, 0.3f, 1.8f);
+	ofDrawCylinder(boundingRect.getMinX() - 1.0f, 0.9f, 0, 0.2f, 1.8f);
+	ofDrawCylinder(boundingRect.getMaxX() + 1.0f, 0.9f, 0, 0.2f, 1.8f);
+	ofDrawCylinder(0, 0.9f, boundingRect.getMinY() - 1.0f, 0.2f, 1.8f);
+	ofDrawCylinder(0, 0.9f, boundingRect.getMaxY() + 1.0f, 0.2f, 1.8f);
 
 	//ofDrawBox(0, 0.85f, 0, 0.5f, 1.7f, 0.5f);
 

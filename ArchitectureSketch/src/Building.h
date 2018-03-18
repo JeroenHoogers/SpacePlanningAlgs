@@ -49,7 +49,7 @@ class Building
 private:
 
 	int floors = 3;
-	float floorHeight = 4.0f;
+	float floorHeight = 3.5f;
 
 	vector<ofPolyline> floorShapes;
 	ofMesh buildingMesh;

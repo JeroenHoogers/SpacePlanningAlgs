@@ -111,8 +111,9 @@ void Building::LoadFromGenotype(Genotype gt)
 	//Genotype gt = ga.generateRandomDna();
 
 	// first 2 define params define bounding volume
-	float w = 13.0f + floorf(gt[0] * 9.0f) * 2;
-	float h = 13.0f + floorf(gt[1] * 9.0f) * 2;
+	// TODO: Fix scaling
+	float w = 11.0f + floorf(gt[0] * 8.0f) * 2;
+	float h = 11.0f + floorf(gt[1] * 8.0f) * 2;
 
 	int maxFloors = 3;
 
@@ -128,7 +129,7 @@ void Building::LoadFromGenotype(Genotype gt)
 	extrusions.clear();
 
 	float minExtrusion = 1.0f;
-	float maxExtrusion = 6.0f;
+	float maxExtrusion = 5.0f;
 
 	for (size_t i = 3; i < gt.size() - 3; i += 4)
 	{
@@ -263,7 +264,7 @@ float Building::GetTotalArea()
 	}
 
 	// TODO: check if this is correct
-	area *= 0.1f;
+	area *= 0.2f;
 
 	// round area to 1 decimal
 	area = roundf(area * 100) / 100;

@@ -199,7 +199,8 @@ src;
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PopulationFilter.h" />
-    <ClInclude Include="src\ArchitectureProgramme.h" />
+    <ClInclude Include="src\ArchitectureProgram.h" />
+    <ClInclude Include="src\Measurements.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\ArchitectureState.h" />
     <ClInclude Include="src\Building.h" />

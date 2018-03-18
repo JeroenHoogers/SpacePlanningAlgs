@@ -78,7 +78,10 @@ void ProgramState::draw()
 	mInhabitantsSlider.draw();
 	mStoriesSlider.draw();
 
+	//ofSetColor(255);
+	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(Measurements::getMinimumArea(mInhabitants.get(), mStories.get())) + " m2", 20, 100);
 
+	ofSetColor(40);
 	ofDrawBitmapString("Site constraints", ofPoint(20, 190));
 	mWidthSlider.draw();
 	mDepthSlider.draw();
@@ -110,7 +113,7 @@ void ProgramState::drawSiteLayout()
 		ofTranslate(mapRectangle.getMinX(), mapRectangle.getMinY());
 
 		ofSetColor(255);
-		ofDrawBitmapString("Street", 180, 25);
+		ofDrawBitmapString("Road", 180, 25);
 
 		float x = 200 - mWidth.get() * 5.0f;
 		float y = 200 - mDepth.get() * 5.0f;
