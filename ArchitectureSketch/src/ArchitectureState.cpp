@@ -284,7 +284,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	glDepthRange(0.0, 0.9995);
 
 	// draw lot
-	ofSetColor(100);
+	ofSetColor(80);
 	ofSetLineWidth(2.0f);
 	ofNoFill();
 	lotPolygon.draw();
@@ -515,6 +515,16 @@ bool ArchitectureState::isBuildingValid(Building& building)
 		// check for invalid (self-intersecting) geometry
 		if (MeshHelper::hasSelfIntersections(building.floorShapes[i]))
 			return false;
+
+		// minimum distance check
+		for (size_t j = 0; j < building.floorShapes[i].size(); j++)
+		{
+			ofPoint p = building.floorShapes[i][j];
+			ofPoint q = building.floorShapes[i][(j+1) % building.floorShapes[i].size()];
+			float dist = p.distance(q);
+			if (dist > 0.0f && dist < 1.0f)
+				return false;
+		}
 	}
 
 	return true;
