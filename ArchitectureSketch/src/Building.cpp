@@ -110,8 +110,9 @@ void Building::LoadFromGenotype(Genotype gt)
 
 	// first 2 define params define bounding volume
 	// TODO: Fix scaling
-	float w = 11.0f + floorf(gt[0] * 8.0f) * 2;
-	float h = 11.0f + floorf(gt[1] * 8.0f) * 2;
+
+	float w = 5.0f + floorf(gt[0] * 12.0f);
+	float h = 5.0f + floorf(gt[1] * 12.0f);
 
 	int maxFloors = 3;
 
@@ -126,8 +127,8 @@ void Building::LoadFromGenotype(Genotype gt)
 	//subdivs.clear();
 	extrusions.clear();
 
-	float minExtrusion = 1.0f;
-	float maxExtrusion = 5.0f;
+	float minExtrusion = 0.5f;
+	float maxExtrusion = 3.0f;
 
 	for (size_t i = 3; i < gt.size() - 3; i += 4)
 	{

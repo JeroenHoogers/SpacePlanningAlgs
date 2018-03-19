@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "GeneticAlgorithm.h"
 #include "MeshHelper.h" 
+#include "ArchitectureProgram.h"
 
 struct Subdivision
 {
@@ -47,10 +48,8 @@ struct Extrusion
 class Building
 {
 private:
-
 	int floors = 3;
 	float floorHeight = 3.5f;
-
 
 	ofMesh buildingMesh;
 
@@ -71,6 +70,7 @@ public:
 
 	vector<ofPolyline> floorShapes;
 
+	//--------------------------------------------------------------
 	Building()
 	{
 		buildingMesh = ofMesh();
@@ -78,6 +78,7 @@ public:
 		extrusions = vector<Extrusion>();
 	}
 
+	//--------------------------------------------------------------
 	~Building()
 	{
 

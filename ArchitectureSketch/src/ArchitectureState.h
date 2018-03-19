@@ -102,8 +102,8 @@ private:
 	//ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 4, 1, 7);
 	//ofParameter<int> mStories = ofParameter<int>("Num of Stories", 2, 1, 3);
 
-	vector<Building> candidates;
 	vector<Building> buildings;
+	vector<int> candidates;
 	//vector<MassModel> massModels;
 	//MassModel testModel;
 

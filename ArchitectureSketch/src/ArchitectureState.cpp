@@ -35,7 +35,7 @@ void ArchitectureState::stateEnter()
 	lotPolygon.close();
 
 
-
+	evaluateCandidates();
 }
 
 //--------------------------------------------------------------
@@ -139,9 +139,9 @@ void ArchitectureState::setupEvolution()
 {
 	// setup genetic algorithm
 	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
-	geneticAlgorithm.setup(200, 19, mMutationRate.get(), mMutationAmount.get());
+	geneticAlgorithm.setup(500, 19, mMutationRate.get(), mMutationAmount.get());
 
-	candidates.clear();
+	buildings.clear();
 
 	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
 	{
@@ -149,12 +149,12 @@ void ArchitectureState::setupEvolution()
 	//	building.LoadFromGenotype(geneticAlgorithm.population[i]);
 	//	building.GenerateBuilding();
 
-		candidates.push_back(building);
+		buildings.push_back(building);
 	}
 
-	buildings.clear();
+	candidates.clear();
 
-	// select 
+	// evaluate all candidates
 	evaluateCandidates();
 }
 
@@ -227,8 +227,13 @@ void ArchitectureState::draw()
 }
 
 //--------------------------------------------------------------
-void ArchitectureState::drawTile(ofRectangle viewport, int index)
+void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 {
+	if (tileIndex >= candidates.size())
+		return;
+
+	int index = candidates[tileIndex];
+
 	// show selection
 	for (int i = 0; i < selectedIndices.size(); i++)
 	{
@@ -257,12 +262,6 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	ofSetColor(255);
 	ofFill();
 
-	//// draw mass 1
-	////ofPushMatrix();
-	////{
-	//ofPoint pos;
-	//ofPoint sz;
-
 	buildings[index].draw();
 
 	// draw scale model
@@ -274,21 +273,25 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 	ofDrawCylinder(0, 0.9f, boundingRect.getMinY() - 1.0f, 0.2f, 1.8f);
 	ofDrawCylinder(0, 0.9f, boundingRect.getMaxY() + 1.0f, 0.2f, 1.8f);
 
-
 	//ofDrawBox(0, 0.85f, 0, 0.5f, 1.7f, 0.5f);
 	//}
 	//ofPopMatrix();
 
-
 	ofDisableLighting();
 	//phong.end();
 
+	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
+	glDepthRange(0.0, 0.9995);
+
 	// draw lot
-	ofSetColor(50);
-	ofSetLineWidth(3.0f);
+	ofSetColor(100);
+	ofSetLineWidth(2.0f);
 	ofNoFill();
 	lotPolygon.draw();
 
+	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
+	glDepthRange(0.0005, 1.0);
+	
 	ofPushMatrix();
 	{
 		//ofRotateX(-90);
@@ -296,12 +299,14 @@ void ArchitectureState::drawTile(ofRectangle viewport, int index)
 		ofSetLineWidth(0.8f);
 		ofSetColor(170);
 		//ofDrawPlane(0, 0, 100, 100);
-		ofDrawGridPlane(1, 16);
+		ofDrawGridPlane(0.5f, 30);
 	}
 	ofPopMatrix();
 
-	ofDisableDepthTest();
+	glDepthRange(0.0, 1.0);
 
+	// disable depth testing
+	ofDisableDepthTest();
 
 	//ofDrawAxis(5);
 	//post.end();
@@ -412,11 +417,13 @@ void ArchitectureState::mouseReleased(int x, int y, int button)
 		int tileh = (ofGetHeight() / mTilesVertical.get());
 
 		// calculate index based on mouse position
-		int index = (x / tilew) + (y / tileh) * mTilesHorizontal.get();
+		int tileIndex = (x / tilew) + (y / tileh) * mTilesHorizontal.get();
 		bool removed = false;
 
-		if (index < geneticAlgorithm.populationSize)
+		if (tileIndex < candidates.size())
 		{
+			int index = candidates[tileIndex];
+
 			for (int i = 0; i < selectedIndices.size(); i++)
 			{
 				// remove index
@@ -499,10 +506,11 @@ bool ArchitectureState::isBuildingValid(Building& building)
 	for (size_t i = 0; i < building.floorShapes.size(); i++)
 	{
 		ofRectangle bb = building.floorShapes[i].getBoundingBox();
+		ofRectangle intersection = lotRect.getIntersection(bb);
 
 		// check whether the mass is inside the bounds of the plot
-		//if (lotRect.getIntersection(bb) != bb)
-		//	return false;
+		if (intersection != bb)
+			return false;
 
 		// check for invalid (self-intersecting) geometry
 		if (MeshHelper::hasSelfIntersections(building.floorShapes[i]))
@@ -517,7 +525,7 @@ void ArchitectureState::evaluateCandidates()
 {
 	cout << "current generation: " << geneticAlgorithm.currentGeneration << endl;
 
-	buildings.clear();
+	candidates.clear();
 
 	//// mark survivors from the last generation
 	//for (int i = 0; i < mSelectionRectangles.size(); i++)
@@ -556,12 +564,13 @@ void ArchitectureState::evaluateCandidates()
 		{
 			//for (int j = 0; j < 100; j++)
 			//{
-			candidates[i].LoadFromGenotype(geneticAlgorithm.population[i]);
+			buildings[i].LoadFromGenotype(geneticAlgorithm.population[i]);
 
 			// evaluate candidate
-			if (isBuildingValid(candidates[i]))
+			if (isBuildingValid(buildings[i]))
 			{
-				buildings.push_back(candidates[i]);
+				candidates.push_back(i);
+				buildings[i].GenerateBuilding();
 			}
 
 
@@ -576,16 +585,16 @@ void ArchitectureState::evaluateCandidates()
 
 		// generate building for candidates
 		// Inifinite loop potential
-		if (buildings.size() >= tiles)
-		{
-			for (int i = 0; i < tiles; i++)
-			{
-				buildings[i].GenerateBuilding();
-			}
+		//if (candidates.size() >= tiles)
+		//{
+			//for (int i = 0; i < candidates.size(); i++)
+			//{
+			//	buildings[candidates[i]].GenerateBuilding();
+			//}
 
-			done = true;
+			//done = true;
 			selectedIndices.clear();
-		}
+		//}
 
 		// do a subselection of buildings
 	//}
