@@ -1,6 +1,5 @@
 #include "Building.h"
 
-
 //--------------------------------------------------------------
 void Building::generateFloorShapes()
 {
@@ -16,7 +15,6 @@ void Building::generateFloorShapes()
 	baseFloor.addVertex(boundingBox.getTopRight());
 
 	baseFloor.close();
-
 
 	// do base floor extrusions
 	applyExtrusions(baseFloor, -1);
@@ -171,6 +169,9 @@ void Building::LoadFromGenotype(Genotype gt)
 	parcel.addVertex(
 		ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
 	parcel.close();
+
+	// generate floor shapes
+	generateFloorShapes();
 }
 
 //--------------------------------------------------------------
@@ -246,7 +247,7 @@ void Building::generateMesh()
 void Building::GenerateBuilding()
 {
 	// generate the floor shapes
-	generateFloorShapes();
+	//generateFloorShapes();
 
 	// generate the building mesh using the floor shapes
 	generateMesh();
@@ -264,7 +265,7 @@ float Building::GetTotalArea()
 	}
 
 	// TODO: check if this is correct
-	area *= 0.2f;
+//	area *= 0.2f;
 
 	// round area to 1 decimal
 	area = roundf(area * 100) / 100;

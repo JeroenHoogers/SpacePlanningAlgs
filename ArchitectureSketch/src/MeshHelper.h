@@ -1,8 +1,9 @@
 #pragma once
 
 #include "ofMain.h"
+#include "IntersectionHelper.h"
 
-class MeshHelper
+static class MeshHelper
 {
 public:
 	//--------------------------------------------------------------
@@ -132,18 +133,36 @@ public:
 			ofVec3f n1 = faces[i].getNormal(1);
 			ofVec3f n2 = faces[i].getNormal(2);
 
-
 			//ofSetColor(0, 0, 255);
 			ofSetColor(60);
-
 
 			ofLine(v0, v0 + n0 * 0.2f);
 			ofLine(v1, v1 + n1 * 0.2f);
 			ofLine(v2, v2 + n2 * 0.2f);
+		}
+	}
 
-			
+	//--------------------------------------------------------------
+	static bool hasSelfIntersections(const ofPolyline& pl)
+	{
+		for (int i = 0; i < pl.size(); i++)
+		{
+			ofPoint p1 = pl[i];
+			ofPoint p2 = pl[(i+1) % pl.size()];
+
+			for (int j = 0; j < pl.size(); j++)
+			{
+				ofPoint q1 = pl[j];
+				ofPoint q2 = pl[(j+1) % pl.size()];
+
+				if (p1 == q1 || p1 == q2 || p2 == q1 || p2 == q2)
+					continue;
+
+				if (IntersectionHelper::intersects(p1, p2, q1, q2))
+					return true;
+			}
 		}
 
-
+		return false;
 	}
 };

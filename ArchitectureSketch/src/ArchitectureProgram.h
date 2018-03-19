@@ -1,14 +1,24 @@
 #pragma once
+
+#include "ofMain.h"
+
 class ArchitectureProgram
 {
 public:
 	bool terracedLeft = false;
 	bool terracedRight = false;
 
-	int lotWidth = 5;
-	int lotLength = 5;
+	int lotWidth = 25;
+	int lotDepth = 25;
 
 	int inhabitants = 2;
+	int stories = 2;
+
+	ofRectangle getLotRectangle()
+	{
+		return ofRectangle(-lotWidth * 0.5f, -lotDepth * 0.5f, lotWidth, lotDepth);
+	};
+
 //private:
 //
 //public:

@@ -12,8 +12,6 @@ enum class MatingStrategy {
 
 enum class MutationStrategy { Combinatorial, Elitism };
 
-
-
 // TODO: implement as abstract template class instead to allow multiple implementations
 class GeneticAlgorithm
 {

@@ -51,7 +51,7 @@ private:
 	int floors = 3;
 	float floorHeight = 3.5f;
 
-	vector<ofPolyline> floorShapes;
+
 	ofMesh buildingMesh;
 
 	vector<ofPolyline> lines;
@@ -68,6 +68,8 @@ public:
 	ofRectangle boundingBox = ofRectangle(-10, -20, 20, 30);
 	vector<Subdivision> subdivs;
 	vector<Extrusion> extrusions;
+
+	vector<ofPolyline> floorShapes;
 
 	Building()
 	{

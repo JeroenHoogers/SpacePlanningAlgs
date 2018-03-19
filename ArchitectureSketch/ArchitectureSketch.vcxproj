@@ -198,8 +198,9 @@ src;
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PopulationFilter.h" />
     <ClInclude Include="src\ArchitectureProgram.h" />
+    <ClInclude Include="src\IntersectionHelper.h" />
+    <ClInclude Include="src\MassConverter.h" />
     <ClInclude Include="src\Measurements.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\ArchitectureState.h" />
@@ -207,6 +208,7 @@ src;
     <ClInclude Include="src\EvolutionState.h" />
     <ClInclude Include="src\GeneticAlgorithm.h" />
     <ClInclude Include="src\MeshHelper.h" />
+    <ClInclude Include="src\PhenotypeConverter.h" />
     <ClInclude Include="src\PopulationFilter.h" />
     <ClInclude Include="src\ProgramState.h" />
     <ClInclude Include="src\ProjectState.h" />

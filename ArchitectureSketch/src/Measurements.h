@@ -1,11 +1,24 @@
 #pragma once
+#include "ofMain.h"
 
+enum Room
+{
+
+};
 
 class Measurements
 {
+private:
+	//map<Room, float>
+
 public:
+	// floor height
+	float floorHeight = 3.5f;
+
 	static float getMinimumArea(int inhabitants, int stories)
 	{
+		// From the metric planning handbook
+
 		float targetArea = 0.0f;
 		switch (inhabitants)
 		{

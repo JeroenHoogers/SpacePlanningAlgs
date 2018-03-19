@@ -96,6 +96,9 @@
     <Filter Include="src\Architecture">
       <UniqueIdentifier>{01f27bf7-eff6-4d18-9827-a03739767445}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Converters">
+      <UniqueIdentifier>{c3a05a34-24b4-46d0-9a39-e02dcda6bec7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ofApp.h">
@@ -158,9 +161,6 @@
     <ClInclude Include="src\GeneticAlgorithm.h">
       <Filter>src\Evolution</Filter>
     </ClInclude>
-    <ClInclude Include="PopulationFilter.h">
-      <Filter>src\Evolution</Filter>
-    </ClInclude>
     <ClInclude Include="src\Building.h">
       <Filter>src\Architecture</Filter>
     </ClInclude>
@@ -175,6 +175,15 @@
     </ClInclude>
     <ClInclude Include="src\Measurements.h">
       <Filter>src\Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhenotypeConverter.h">
+      <Filter>src\Converters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MassConverter.h">
+      <Filter>src\Converters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\IntersectionHelper.h">
+      <Filter>src\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

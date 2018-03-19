@@ -1,13 +1,15 @@
+#pragma once
+
 #include "SharedData.h"
 #include "ofxState.h"
 #include "ofxGui.h"
 #include "ofxEasyCam.h"
 #include "Building.h"
 #include "Measurements.h"
+#include "ArchitectureState.h"
 
 #define ProgramState_StateName "ProgramState"
 
-#pragma once
 class ProgramState : public itg::ofxState<SharedData>
 {
 private:
@@ -24,13 +26,15 @@ private:
 	ofParameterGroup mProgramParameters;
 	ofParameterGroup mSiteParameters;
 
+	ArchitectureProgram* pProgram;
+
 	// program parameters
 	ofParameter<int> mInhabitants = ofParameter<int>("Inhabitants", 4, 1, 7);
 	ofParameter<int> mStories = ofParameter<int>("Stories", 2, 1, 3);
 
 	// site parameters
-	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 15, 5, 30);
-	ofParameter<int> mDepth = ofParameter<int>("Lot depth (m)", 15, 5, 30);
+	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 10, 5, 25);
+	ofParameter<int> mDepth = ofParameter<int>("Lot depth (m)", 10, 5, 25);
 
 	ofParameter<bool> mTerracedLeft = ofParameter<bool>("Terraced Left", false);
 	ofParameter<bool> mTerracedRight = ofParameter<bool>("Terraced Right", false);
@@ -64,5 +68,8 @@ public:
 	string getName();
 	void keyPressed(int key);
 
+	void updateProgram();
+
+	void acceptButtonPressed();
 };
 

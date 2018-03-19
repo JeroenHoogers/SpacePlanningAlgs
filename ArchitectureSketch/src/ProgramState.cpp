@@ -19,14 +19,13 @@ void ProgramState::stateEnter()
 //--------------------------------------------------------------
 void ProgramState::stateExit()
 {
-
+	updateProgram();
 }
 
 //--------------------------------------------------------------
 void ProgramState::setup()
 {
 	mapRectangle = ofRectangle(520, 30, 400, 400);
-
 
 	// setup gui
 	mProgramParameters.setName("Program");
@@ -35,14 +34,12 @@ void ProgramState::setup()
 	guiPanel.setup(mProgramParameters,"settings.xml",20,20);
 
 	//guiPanel.add(mProgramParameters);
-
 	mSiteParameters.setName("Site");
 	mSiteParameters.add(mWidth);
 	mSiteParameters.add(mDepth);
 
 	mInhabitantsSlider.setPosition(ofPoint(20, 30));
 	mStoriesSlider.setPosition(ofPoint(20, 60));
-
 
 	mWidthSlider.setPosition(ofPoint(20, 200));
 	mDepthSlider.setPosition(ofPoint(20, 230));
@@ -53,6 +50,10 @@ void ProgramState::setup()
 	// accept button
 	mAcceptButton.setup("Accept", 300, 20);
 	mAcceptButton.setPosition(ofPoint(20, 350));
+
+	mAcceptButton.addListener(this, &ProgramState::acceptButtonPressed);
+
+	pProgram = &getSharedData().program;
 }
 
 //--------------------------------------------------------------
@@ -74,12 +75,12 @@ void ProgramState::draw()
 
 	//guiPanel.draw();
 	
-
 	mInhabitantsSlider.draw();
 	mStoriesSlider.draw();
 
 	//ofSetColor(255);
 	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(Measurements::getMinimumArea(mInhabitants.get(), mStories.get())) + " m2", 20, 100);
+
 
 	ofSetColor(40);
 	ofDrawBitmapString("Site constraints", ofPoint(20, 190));
@@ -88,7 +89,6 @@ void ProgramState::draw()
 
 	mTerracedLeftToggle.draw();
 	mTerracedRightToggle.draw();
-
 
 	mAcceptButton.draw();
 	
@@ -105,7 +105,6 @@ void ProgramState::drawSiteLayout()
 	ofSetColor(160);
 	ofFill();
 	ofRect(mapRectangle);
-
 
 	ofFill();
 	ofPushMatrix();
@@ -144,13 +143,10 @@ void ProgramState::drawSiteLayout()
 	}
 	ofPopMatrix();
 
-
 	ofSetColor(50);
 	ofNoFill();
 	ofRect(mapRectangle);
 	// TODO: Draw width depth below the map
-	
-
 
 }
 
@@ -169,5 +165,33 @@ void ProgramState::keyPressed(int key)
 //--------------------------------------------------------------
 void ProgramState::mousePressed(int x, int y, int button)
 {
+
+}
+
+//--------------------------------------------------------------
+void ProgramState::updateProgram()
+{
+	// inhabitants
+	pProgram->inhabitants = mInhabitants.get();
+
+	// lot dims
+	pProgram->lotWidth = mWidth.get();
+	pProgram->lotDepth = mDepth.get();
+	pProgram->stories = mStories.get();
+
+	// terraced 
+	pProgram->terracedLeft = mTerracedLeft.get();
+	pProgram->terracedRight = mTerracedRight.get();
+}
+
+//--------------------------------------------------------------
+void ProgramState::acceptButtonPressed()
+{
+	// TODO: store program settings
+	updateProgram();
+
+	// change state to architecture
+	changeState(ArchitectureState_StateName);
+
 
 }

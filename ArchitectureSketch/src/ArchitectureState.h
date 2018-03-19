@@ -6,6 +6,8 @@
 #include "ofxEasyCam.h"
 #include "GeneticAlgorithm.h"
 #include "Building.h"
+#include "Measurements.h"
+#include "ArchitectureProgram.h"
 
 #define ArchitectureState_StateName "ArchitectureState"
 
@@ -69,6 +71,10 @@ private:
 
 	ofPoint mousePos;
 
+	ArchitectureProgram* pProgram;
+
+	ofPolyline lotPolygon;
+
 	ofxPanel gui;
 
 	// evolution parameters
@@ -85,7 +91,6 @@ private:
 	// architectural parameters
 	ofParameter<int> mMaxExtrusions = ofParameter<int>("Num of Extrusions", 4, 1, 10);
 
-
 	ofParameter<bool> mCrossoverInterpolate = ofParameter<bool>("Mating: Interpolate", false, false, true);
 	ofParameter<bool> mCrossoverSwitch = ofParameter<bool>("Mating: Crossover", true, false, true);
 	ofParameter<bool> mCrossoverGene = ofParameter<bool>("Mating: Pick random gene", false, false, true);
@@ -93,10 +98,11 @@ private:
 	ofxButton generateNextGenButton;
 
 
-	ofxPanel programmeGui;
-	ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 4, 1, 7);
-	ofParameter<int> mStories = ofParameter<int>("Num of Stories", 2, 1, 3);
+	//ofxPanel programmeGui;
+	//ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 4, 1, 7);
+	//ofParameter<int> mStories = ofParameter<int>("Num of Stories", 2, 1, 3);
 
+	vector<Building> candidates;
 	vector<Building> buildings;
 	//vector<MassModel> massModels;
 	//MassModel testModel;
@@ -104,6 +110,8 @@ private:
 	vector<int> selectedIndices;
 
 	GeneticAlgorithm geneticAlgorithm;
+
+	bool initialized = false;
 
 public:
 	ArchitectureState();
@@ -139,4 +147,8 @@ public:
 	void matingModeChanged(bool &val);
 
 	void numInhabitantsChanged(int &val);
+
+	bool isBuildingValid(Building& building);
+
+	void evaluateCandidates();
 };

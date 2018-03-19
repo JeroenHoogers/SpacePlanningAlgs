@@ -214,7 +214,6 @@ Genotype GeneticAlgorithm::mutate(Genotype genotype)
 			mutateGene = ofRandom(1) < mutationRate;
 		}
 		
-		
 		if (mutateGene)
 		{
 			// adjust 
