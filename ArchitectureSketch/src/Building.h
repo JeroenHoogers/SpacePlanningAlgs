@@ -93,7 +93,7 @@ public:
 		return ofRectangle();
 	}
 
-	void LoadFromGenotype(Genotype gt);
+	void LoadFromGenotype(Genotype gt, ArchitectureProgram program = ArchitectureProgram());
 	
 	void GenerateBuilding();
 

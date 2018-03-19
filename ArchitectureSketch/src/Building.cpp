@@ -101,8 +101,10 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 }
 
 //--------------------------------------------------------------
-void Building::LoadFromGenotype(Genotype gt)
+void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
 {
+	// TODO: loosly couple building and program
+
 	//GeneticAlgorithm ga = GeneticAlgorithm();
 	//ga.setup(1, 12);
 
@@ -111,8 +113,12 @@ void Building::LoadFromGenotype(Genotype gt)
 	// first 2 define params define bounding volume
 	// TODO: Fix scaling
 
-	float w = 5.0f + floorf(gt[0] * 12.0f);
-	float h = 5.0f + floorf(gt[1] * 12.0f);
+
+	float w = 5.0f + floorf(gt[0] * (program.lotWidth - 5.0f));
+	float h = 5.0f + floorf(gt[1] * (program.lotDepth - 5.0f));
+
+	if (program.terracedLeft && program.terracedRight)
+		w = program.lotWidth;
 
 	int maxFloors = 3;
 
@@ -120,15 +126,16 @@ void Building::LoadFromGenotype(Genotype gt)
 		-w * 0.5f, -h * 0.5f, w, h);
 
 	// TODO: derive nr of floors from area
-	floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
-
+	//floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
+	
+	floors = program.stories;
 	// TODO: separate subdivs and extrusions
 
 	//subdivs.clear();
 	extrusions.clear();
 
-	float minExtrusion = 0.5f;
-	float maxExtrusion = 3.0f;
+	float minExtrusion = 1.0f;
+	float maxExtrusion = 3.5f;
 
 	for (size_t i = 3; i < gt.size() - 3; i += 4)
 	{

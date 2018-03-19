@@ -11,7 +11,7 @@ public:
 	int lotWidth = 25;
 	int lotDepth = 25;
 
-	int inhabitants = 2;
+	int inhabitants = 4;
 	int stories = 2;
 
 	ofRectangle getLotRectangle()

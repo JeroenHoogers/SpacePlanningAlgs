@@ -512,19 +512,20 @@ bool ArchitectureState::isBuildingValid(Building& building)
 		if (intersection != bb)
 			return false;
 
-		// check for invalid (self-intersecting) geometry
-		if (MeshHelper::hasSelfIntersections(building.floorShapes[i]))
-			return false;
-
-		// minimum distance check
+		// minimum line segment distance check
 		for (size_t j = 0; j < building.floorShapes[i].size(); j++)
 		{
 			ofPoint p = building.floorShapes[i][j];
-			ofPoint q = building.floorShapes[i][(j+1) % building.floorShapes[i].size()];
+			ofPoint q = building.floorShapes[i][(j + 1) % building.floorShapes[i].size()];
 			float dist = p.distance(q);
+
 			if (dist > 0.0f && dist < 1.0f)
 				return false;
 		}
+
+		// check for invalid (self-intersecting) geometry
+		if (MeshHelper::hasSelfIntersections(building.floorShapes[i]))
+			return false;
 	}
 
 	return true;
@@ -574,7 +575,7 @@ void ArchitectureState::evaluateCandidates()
 		{
 			//for (int j = 0; j < 100; j++)
 			//{
-			buildings[i].LoadFromGenotype(geneticAlgorithm.population[i]);
+			buildings[i].LoadFromGenotype(geneticAlgorithm.population[i], *pProgram);
 
 			// evaluate candidate
 			if (isBuildingValid(buildings[i]))
