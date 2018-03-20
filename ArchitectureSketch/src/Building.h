@@ -49,7 +49,8 @@ class Building
 {
 private:
 	int floors = 3;
-	float floorHeight = 3.5f;
+	float floorHeight = 3.0f;
+	float ceilingHeight = 0.3f;
 
 	ofMesh buildingMesh;
 
