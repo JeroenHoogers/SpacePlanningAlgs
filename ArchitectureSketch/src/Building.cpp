@@ -98,6 +98,9 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		floorshape[index] = p1;
 		floorshape[index - 1] = p2;
 	}
+
+	// simplify shape
+	floorshape.simplify(0.001f);
 }
 
 //--------------------------------------------------------------
@@ -112,8 +115,6 @@ void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
 
 	// first 2 define params define bounding volume
 	// TODO: Fix scaling
-
-
 	float w = 5.0f + floorf(gt[0] * (program.lotWidth - 5.0f));
 	float h = 5.0f + floorf(gt[1] * (program.lotDepth - 5.0f));
 
@@ -135,7 +136,7 @@ void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
 	extrusions.clear();
 
 	float minExtrusion = 1.0f;
-	float maxExtrusion = 3.5f;
+	float maxExtrusion = 1.0f + 2.5f;
 
 	for (size_t i = 3; i < gt.size() - 3; i += 4)
 	{
@@ -152,9 +153,9 @@ void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
 
 		// calculate angle
 		float angle = 0;
-		if (gt[i + 3] < 0.25f)
+		if (gt[i + 3] < 0.2f)
 			angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
-		if (gt[i + 3] > 0.75f)
+		if (gt[i + 3] > 0.8f)
 			angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
 
 		// create subdivs

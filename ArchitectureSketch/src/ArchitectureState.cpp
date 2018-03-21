@@ -139,7 +139,7 @@ void ArchitectureState::setupEvolution()
 {
 	// setup genetic algorithm
 	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
-	geneticAlgorithm.setup(500, 19, mMutationRate.get(), mMutationAmount.get());
+	geneticAlgorithm.setup(1000, 19, mMutationRate.get(), mMutationAmount.get());
 
 	buildings.clear();
 
@@ -304,6 +304,10 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	ofPopMatrix();
 
 	glDepthRange(0.0, 1.0);
+	
+	ofFill();
+	ofSetColor(255);
+	ofDrawArrow(ofVec3f(0, 1, -18), ofVec3f(0, 1, -15), 0.3f);
 
 	// disable depth testing
 	ofDisableDepthTest();
@@ -492,6 +496,7 @@ void ArchitectureState::matingModeChanged(bool &val)
 //--------------------------------------------------------------
 bool ArchitectureState::isBuildingValid(Building& building)
 {
+	// get minimum area
 	int stories = pProgram->stories;
 	int inhabitants = pProgram->inhabitants;
 
@@ -515,6 +520,12 @@ bool ArchitectureState::isBuildingValid(Building& building)
 		// minimum line segment distance check
 		for (size_t j = 0; j < building.floorShapes[i].size(); j++)
 		{
+			// filter odd angles
+			float angle = building.floorShapes[i].getAngleAtIndex(j);
+			if(angle < 45.0f || angle > 135.0f)
+				return false;
+
+			// check minimum wall length
 			ofPoint p = building.floorShapes[i][j];
 			ofPoint q = building.floorShapes[i][(j + 1) % building.floorShapes[i].size()];
 			float dist = p.distance(q);
@@ -581,7 +592,8 @@ void ArchitectureState::evaluateCandidates()
 			if (isBuildingValid(buildings[i]))
 			{
 				candidates.push_back(i);
-				buildings[i].GenerateBuilding();
+				if(candidates.size() <= tiles)
+					buildings[i].GenerateBuilding();
 			}
 
 

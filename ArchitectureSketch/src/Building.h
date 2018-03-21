@@ -49,8 +49,9 @@ class Building
 {
 private:
 	int floors = 3;
-	float floorHeight = 3.0f;
-	float ceilingHeight = 0.3f;
+	float floorHeight = 3.0f; // 3 m
+	float ceilingHeight = 0.3f; // 30 cm
+	float wallWidth = 0.2f; // 20 cm
 
 	ofMesh buildingMesh;
 
