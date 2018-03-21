@@ -58,6 +58,9 @@
     <ClCompile Include="src\ProgramState.cpp">
       <Filter>src\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\StraightSkeleton.cpp">
+      <Filter>src\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -98,6 +101,9 @@
     </Filter>
     <Filter Include="src\Converters">
       <UniqueIdentifier>{c3a05a34-24b4-46d0-9a39-e02dcda6bec7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Geometry">
+      <UniqueIdentifier>{9388e629-91b8-422e-a7ce-cb25aab3f9cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="src\IntersectionHelper.h">
       <Filter>src\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\StraightSkeleton.h">
+      <Filter>src\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

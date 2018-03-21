@@ -67,6 +67,8 @@ private:
 	int minStories = 1;
 	int maxStories = 3;
 
+	int visibleFloor = -1;
+
 	bool mShowGui;
 
 	ofPoint mousePos;

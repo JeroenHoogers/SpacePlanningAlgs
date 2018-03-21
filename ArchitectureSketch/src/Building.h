@@ -4,6 +4,7 @@
 #include "GeneticAlgorithm.h"
 #include "MeshHelper.h" 
 #include "ArchitectureProgram.h"
+#include "Measurements.h"
 
 struct Subdivision
 {
@@ -50,10 +51,12 @@ class Building
 private:
 	int floors = 3;
 	float floorHeight = 3.0f; // 3 m
-	float ceilingHeight = 0.3f; // 30 cm
-	float wallWidth = 0.2f; // 20 cm
+	//float ceilingHeight = 0.3f; // 30 cm
+	//float wallWidth = 0.2f; // 20 cm
 
 	ofMesh buildingMesh;
+
+	vector<ofMesh> floorMeshes;
 
 	vector<ofPolyline> lines;
 
@@ -101,5 +104,5 @@ public:
 
 	float GetTotalArea();
 
-	void draw();
+	void draw(int floor = -1);
 };

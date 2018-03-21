@@ -55,6 +55,7 @@ void ArchitectureState::setup()
 	// use normalized tex coords
 	ofEnableNormalizedTexCoords();
 
+
 	//glFrontFace(GL_CW);
 	//glEnable(GL_CULL_FACE);
 
@@ -262,7 +263,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	ofSetColor(255);
 	ofFill();
 
-	buildings[index].draw();
+	buildings[index].draw(visibleFloor);
 
 	// draw scale model
 	ofSetColor(30);
@@ -312,6 +313,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	// disable depth testing
 	ofDisableDepthTest();
 
+
 	//ofDrawAxis(5);
 	//post.end();
 
@@ -350,6 +352,20 @@ void ArchitectureState::keyPressed(int key)
 {
 	float dist = camera.getDistance();
 
+	// visible floor down
+	if (key == '[')
+	{
+		if (visibleFloor > -1)
+			visibleFloor--;
+	}
+
+	// visible floor up
+	if (key == ']')
+	{
+		if (visibleFloor < pProgram->stories - 1)
+			visibleFloor++;
+	}
+
 	// top view
 	if (key == 't')
 	{
@@ -365,6 +381,7 @@ void ArchitectureState::keyPressed(int key)
 		camera.setPosition(0, 0, dist);
 		camera.lookAt(ofPoint(0, 0, 0));
 	}
+
 
 	// side view
 	if (key == 's')

@@ -13,7 +13,10 @@ private:
 
 public:
 	// floor height
-	float floorHeight = 3.5f;
+	float floorHeight = 3.0f;
+
+	float ceilingHeight = 0.3f;
+	float wallWidth = 0.2f;
 
 	static float getMinimumArea(int inhabitants, int stories)
 	{

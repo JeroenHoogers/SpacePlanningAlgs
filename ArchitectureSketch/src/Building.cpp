@@ -189,6 +189,8 @@ void Building::generateMesh()
 	// empty mesh
 	buildingMesh.clear();
 
+	floorMeshes.clear();
+
 	lines.clear();
 
 	int verts = 0;
@@ -199,6 +201,8 @@ void Building::generateMesh()
 	// add new vertices / triangles
 	for (size_t i = 0; i < floorShapes.size(); i++)
 	{
+		ofMesh floorMesh = ofMesh();
+
 		// calculate current floor height
 		float currentHeight = floorHeight * i;
 		ofVec3f bottomHeightOffset = ofVec3f(0, currentHeight);
@@ -218,6 +222,14 @@ void Building::generateMesh()
 				mat * floorShapes[i][j2] + bottomHeightOffset,
 				mat * floorShapes[i][j2] + topHeightOffset,
 				mat * floorShapes[i][j] + topHeightOffset);
+
+			// add to floor mesh
+			MeshHelper::AddFace(floorMesh,
+				mat * floorShapes[i][j] + bottomHeightOffset,
+				mat * floorShapes[i][j2] + bottomHeightOffset,
+				mat * floorShapes[i][j2] + topHeightOffset,
+				mat * floorShapes[i][j] + topHeightOffset);
+			
 
 			// add vertex to floor outline
 			floorOutline.addVertex(mat * floorShapes[i][j] + bottomHeightOffset);
@@ -247,9 +259,16 @@ void Building::generateMesh()
 		//if (i == 0)
 		MeshHelper::AddCap(buildingMesh, floorShapes[i], bottomHeightOffset);
 
+		MeshHelper::AddCap(floorMesh, floorShapes[i], bottomHeightOffset);
+
 		// create faces automatically
-		buildingMesh.setupIndicesAuto();
+		floorMesh.setupIndicesAuto();
+
+		floorMeshes.push_back(floorMesh);
 	}
+
+	// create faces automatically
+	buildingMesh.setupIndicesAuto();
 }
 
 //--------------------------------------------------------------
@@ -283,15 +302,23 @@ float Building::GetTotalArea()
 };
 
 //--------------------------------------------------------------
-void Building::draw()
+void Building::draw(int floor)
 {
 	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
 	glDepthRange(0.0005, 1.0);
 	//ofSetColor(200);
 
 	// draw building
-	ofSetColor(255);
-	buildingMesh.drawFaces();
+	if (floor == -1)
+	{
+		ofSetColor(255);
+		buildingMesh.drawFaces();
+	}
+	else
+	{
+		ofSetColor(255);
+		floorMeshes[floor].drawFaces();
+	}
 
 	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
 	glDepthRange(0.0, 0.9995);
@@ -318,3 +345,4 @@ void Building::draw()
 	// DEBUG: draw normals
 	MeshHelper::drawNormals(buildingMesh);
 };
+
