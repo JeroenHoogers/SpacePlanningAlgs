@@ -537,6 +537,7 @@ bool ArchitectureState::isBuildingValid(Building& building)
 		// minimum line segment distance check
 		for (size_t j = 0; j < building.floorShapes[i].size(); j++)
 		{
+			// TODO: Check if correct
 			// filter odd angles
 			float angle = building.floorShapes[i].getAngleAtIndex(j);
 			if(angle < 45.0f || angle > 135.0f)
