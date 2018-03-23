@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "IntersectionHelper.h"
 
+class LAV;
+
 // Arc structure
 struct LineArc
 {
@@ -11,32 +13,90 @@ struct LineArc
 	int index2;
 };
 
+enum struct EventType
+{
+	EdgeEvent,
+	SplitEvent
+};
+
 struct Event
 {
+	// TODO: add LAV?
+	//LAV* pLav;
+
 	float distance; // time
 	ofPoint intersection;
 
-	// TODO: sort function
-};
+	EventType type;
 
-struct EdgeEvent : Event
-{
 	struct Node* v1;
 	struct Node* v2;
 
-	EdgeEvent(struct Node* _v1, struct Node* _v2, float _distance, ofPoint _intersection)
+	//virtual ~Event() {};
+
+	Event()
 	{
-		v1 = _v1;
-		v2 = _v2;
+		distance = INFINITY;
+		intersection = ofPoint();
+	}
+
+	// edge event constructor
+	Event(float _distance, ofPoint _intersection, struct Node* _v1, struct Node* _v2)
+	{
 		distance = _distance;
 		intersection = _intersection;
+		v1 = _v1;
+		v2 = _v2;
+
+		type = EventType::EdgeEvent;
 	}
+
+	// split event constructor
+	Event(float _distance, ofPoint _intersection, struct Node* _v)
+	{
+		distance = _distance;
+		intersection = _intersection;
+		v1 = _v;
+		v2 = _v;
+
+		type = EventType::SplitEvent;
+	}
+
+	// TODO: sort function
+	bool operator()(const Event& lhs, const Event& rhs) const 
+	{ 
+		return lhs.distance < rhs.distance;
+	};
+
+	bool operator<(const Event& rhs) const
+	{
+		return distance < rhs.distance;
+	};
+
+	bool operator>(const Event& rhs) const
+	{
+		return distance > rhs.distance;
+	};
 };
 
-struct SplitEvent : Event
-{
-	struct Node* v;
-};
+//struct EdgeEvent : public Event
+//{
+//	struct Node* v1;
+//	struct Node* v2;
+//
+//	EdgeEvent(struct Node* _v1, struct Node* _v2, float _distance, ofPoint _intersection) : Event(_distance, _intersection)
+//	{
+//		v1 = _v1;
+//		v2 = _v2;
+//		//distance = _distance;
+//		//intersection = _intersection;
+//	}
+//};
+//
+//struct SplitEvent : public Event
+//{
+//	struct Node* v;
+//};
 
 
 // Line graph datastructure 
@@ -52,16 +112,16 @@ struct Node
 {
 	ofPoint p;
 	ofVec2f bisector;
-	int lavId;
 
 	struct Node* prev;
 	struct Node* next;
 
+	LAV* pLav;
 
-	Node(ofPoint vert, int lav)
+	Node(ofPoint vert, LAV* lav)
 	{
 		p = vert;
-		lavId = lav;
+		pLav = lav;
 	}
 	// TODO: compute bisector
 
@@ -87,9 +147,9 @@ struct Node
 			bisector *= -1;
 	}
 
-	Event getNextEvent()
+	bool getNextEvent(Event* nextEvent)
 	{
-		Event nextEvent;
+		bool hasEvent = false;
 		float mindist = INFINITY;
 
 		if(isReflex())
@@ -107,7 +167,8 @@ struct Node
 			{
 				// update next event
 				mindist = dist;
-				nextEvent = EdgeEvent(this, prev, dist, intersection);
+				hasEvent = true;
+				(*nextEvent) = Event(dist, intersection, this, prev); // edge event
 			}
 		}
 		
@@ -119,13 +180,14 @@ struct Node
 			{
 				// update next event
 				mindist = dist;
-				nextEvent = EdgeEvent(this, next, dist, intersection);
+				hasEvent = true;
+				(*nextEvent) = Event(dist, intersection, this, next); // edge event
 			}
 		}
 
 		// TODO: handle the case where there are no events
 		
-		return nextEvent;
+		return hasEvent;
 	}
 };
 
@@ -135,17 +197,44 @@ class LAV
 public:
 	struct Node* head = NULL;
 	int length = 0;
-	int lavId;
 
-	LAV(const ofPolyline& polygon, int id)
+	LAV(const ofPolyline& polygon)
 	{
-		lavId = id;
 		// create double connected circular list
 		for (size_t i = 0; i < polygon.size(); i++)
 		{
 			addNode(&head, polygon[0]);
 		}
 	};
+
+	bool operator==(const LAV& rhs) const 
+	{ 
+		return this->head == rhs.head;
+	}
+
+	// unify 2 vertices by replacing them in the chain with a new vertex
+	Node* unify(struct Node* v1, struct Node* v2, ofVec3f vert)
+	{
+		// create replacement node
+		struct Node* node = new Node(vert, this);
+
+		if (head == v1 || head == v2)
+			head = node;
+
+		// rearrange links to replace v1, v2 with the new node
+		v1->prev->next = node;
+		v2->next->prev = node;
+		node->prev = v1->prev;
+		node->next = v2->next;
+
+		length--;
+
+		// delete nodes
+		delete v1;
+		delete v2;
+
+		return node;
+	}
 
 	void addNode(struct Node** start, ofPoint vert)
 	{
@@ -154,7 +243,7 @@ public:
 		// List is empty, add first element
 		if (*start == NULL)
 		{
-			struct Node* node = new Node(vert);
+			struct Node* node = new Node(vert, this);
 			node->prev = node->next = node;
 			*start = node;
 
@@ -165,7 +254,7 @@ public:
 		Node *last = (*start)->prev;
 
 		// create new node
-		struct Node* node = new Node(vert);
+		struct Node* node = new Node(vert, this);
 		node->next = *start;
 
 		// the new node becomes the previous of start
@@ -183,11 +272,6 @@ public:
 		last->computeBisector();
 	};
 
-	Event getNextEventForIndex(int index)
-	{
-		return Event();
-	}
-
 	bool empty()
 	{
 		return length == 0;
@@ -196,6 +280,24 @@ public:
 	vector<Event> getEvents()
 	{
 		vector<Event> events;
+
+		// loop vertices
+		if (head != NULL)
+		{
+			Node* s = head;
+			for (size_t i = 0; i < length; i++)
+			{
+				Event e;
+
+				// if the vertex has events, add them to the list
+				if(s->getNextEvent(&e))
+					events.push_back(e);
+
+				// go to the next value
+				s = s->next;
+			}
+		}
+
 		return events;
 	}
 };
@@ -209,7 +311,7 @@ public:
 	SLAV(const ofPolyline& polygon)
 	{
 		activeLavs = vector<LAV>();
-		activeLavs.push_back(LAV(polygon, 0));
+		activeLavs.push_back(LAV(polygon));
 		//boundary = polygon;
 	};
 
@@ -219,26 +321,18 @@ public:
 	};
 
 	// handle edge event
-	void HandleEdgeEvent(EdgeEvent e)
-	{
-		// collapse
-		if (e.v1->prev == e.v2->next)
-		{
-			// remove at index
-			activeLavs.erase(activeLavs.begin() + e.v1->lavId);
-			/*activeLavs.erase(
-				find(activeLavs.begin(), activeLavs.end(), );*/
-		}
+	void HandleEdgeEvent(Event e);
 
-	}
+	void HandleSplitEvent(Event e);
 
 };
 
+//--------------------------------------------------------------
 class StraightSkeleton
 {
 
 private: 
-	priority_queue<Event> eventQueue;
+	//priority_queue<Event> eventQueue;
 
 public:
 	StraightSkeleton();
