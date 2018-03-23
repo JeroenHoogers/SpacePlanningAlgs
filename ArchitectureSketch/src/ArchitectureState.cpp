@@ -495,13 +495,13 @@ void ArchitectureState::matingModeChanged(bool &val)
 
 		// change mating mode
 		if (mCrossoverSwitch.get())
-			geneticAlgorithm.matingStrat = MatingStrategy::SwitchSource;
+			geneticAlgorithm.matingStrat = EMatingStrategy::SwitchSource;
 
 		if (mCrossoverInterpolate.get())
-			geneticAlgorithm.matingStrat = MatingStrategy::Interpolate;
+			geneticAlgorithm.matingStrat = EMatingStrategy::Interpolate;
 
 		if (mCrossoverGene.get())
-			geneticAlgorithm.matingStrat = MatingStrategy::Gene;
+			geneticAlgorithm.matingStrat = EMatingStrategy::Gene;
 
 	}
 

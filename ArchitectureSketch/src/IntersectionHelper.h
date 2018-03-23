@@ -6,23 +6,25 @@ static class IntersectionHelper
 public:
 	static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
 	{
+		if (d1 == ofPoint(0, 0) || d2 == ofPoint(0, 0))
+			return false;
+
 		// check whether the rays intersect
 		ofVec2f diff = p2 - p1;
 		float det = d2.x * d1.y - d2.y * d1.x;
-		float u = (diff.y * p2.x - diff.x - p2.y) / det;
-		float v = (diff.y * p1.x - diff.x - p1.y) / det;
+		float u = (diff.y * d2.x - diff.x - d2.y) / det;
+		float v = (diff.y * d1.x - diff.x - d1.y) / det;
 
 		// if both u and v are positive, the rays intersect
-		if (u > 0 && v > 0)
+		if (u >= 0 && v >= 0)
 		{
-			(*intersection) = p1 + diff * u;
+			(*intersection) = p1 + d1 * u;
 
 			return true;
 		}
 
 		return false;
 	}
-
 
 	static int ccw(const ofPoint& p1, const ofPoint& p2, const ofPoint& q) 
 	{

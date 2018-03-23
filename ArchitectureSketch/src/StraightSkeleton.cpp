@@ -1,53 +1,52 @@
 #include "StraightSkeleton.h"
 
-
 //--------------------------------------------------------------
-StraightSkeleton::StraightSkeleton()
+EventOutput SLAV::HandleEdgeEvent(Event e)
 {
-}
-
-//--------------------------------------------------------------
-StraightSkeleton::~StraightSkeleton()
-{
-}
-
-//--------------------------------------------------------------
-void SLAV::HandleEdgeEvent(Event e)
-{
-	vector<ofVec3f> arcs;
+	vector<SkeletonArc> arcs;
 	vector<Event> events;
-
-	LAV* lav = e.v1->pLav;
+	 
+	LAV* pLav = e.v1->pLav;
 
 	// collapse (peak event)
 	if (e.v1->prev == e.v2->next)
 	{
 		// TODO: add 3 arcs of the peak
-		ofVec3f v1 = e.v1->p;
-		ofVec3f v2 = e.v2->p;
-		ofVec3f v3 = e.v1->prev->p;
+		ofPoint v1 = e.v1->p;
+		ofPoint v2 = e.v2->p;
+		ofPoint v3 = e.v1->prev->p;
 
-		arcs.push_back(v1);
-		arcs.push_back(v2);
-		arcs.push_back(v3);
+		// compute intersection point (store distance in z-coord)
+		ofPoint i = e.intersection;
+	//	i.z = e.distance;
+
+		arcs.push_back(SkeletonArc(v1, i));
+		arcs.push_back(SkeletonArc(v2, i));
+		arcs.push_back(SkeletonArc(v3, i));
 
 		// add arcs (v1, i), (v2, i) and (v3, i)
 
 		// remove this lav from the list since we have reached the apex
 		activeLavs.erase(
-			find(activeLavs.begin(), activeLavs.end(), *lav));
+			find(activeLavs.begin(), activeLavs.end(), pLav));
 
+		// delete lav
+		delete pLav;
 	}
 	else // edge event
 	{
 		// add arcs (v1, i) and (v2, i)	
-		ofVec3f v1 = e.v1->p;
-		ofVec3f v2 = e.v2->p;
+		ofPoint v1 = e.v1->p;
+		ofPoint v2 = e.v2->p;
 
-		struct Node* newNode = lav->unify(e.v1, e.v2, e.intersection);
+		struct Node* newNode = pLav->unify(e.v1, e.v2, e.intersection);
 
-		arcs.push_back(v1);
-		arcs.push_back(v2);
+		// compute intersection point (store distance in z-coord)
+		ofPoint i = e.intersection;
+	//	i.z = e.distance;
+
+		arcs.push_back(SkeletonArc(v1, i));
+		arcs.push_back(SkeletonArc(v2, i));
 
 		// get next event and add it to the event list
 		Event nextEvent;
@@ -55,38 +54,35 @@ void SLAV::HandleEdgeEvent(Event e)
 			events.push_back(nextEvent);
 	}
 
+	return EventOutput(arcs, events);
 }
 
 //--------------------------------------------------------------
-void SLAV::HandleSplitEvent(Event e)
+EventOutput SLAV::HandleSplitEvent(Event e)
 {
+	vector<SkeletonArc> arcs;
+	vector<Event> events;
 
+	return EventOutput(arcs, events);
 }
 
-
 //--------------------------------------------------------------
-void StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
+vector<SkeletonArc> StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
 {
-	// compare function for priority queue (compare distance)
-	//auto cmp = [](Event left, Event right) { return left.distance < right.distance; };
-
 	// construct event queue
-	//priority_queue<Event, vector<Event>, function<bool(Event, Event)>> eventQueue([](Event left, Event right) { return left.distance < right.distance; });
-
 	priority_queue<Event, vector<Event>, std::greater<Event>> eventQueue;
-
 	SLAV slav = SLAV(polygon);
 
-	//eventQueue.
+	vector<SkeletonArc> skeleton;
 
 	// TODO: fill event queue emplace()
 	for (size_t i = 0; i < slav.activeLavs.size(); i++)
 	{
 		// add events for this LAV
-		vector<Event> lavEvents = slav.activeLavs[i].getEvents();
-		for (size_t i = 0; i < lavEvents.size(); i++)
+		vector<Event> lavEvents = slav.activeLavs[i]->getEvents();
+		for (size_t j = 0; j < lavEvents.size(); j++)
 		{
-			eventQueue.emplace(lavEvents[i]);
+			eventQueue.emplace(lavEvents[j]);
 		}
 		// get events for this lav
 		
@@ -101,7 +97,7 @@ void StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
 	}
 
 	// Handle events
-	while (!eventQueue.empty())
+	while (!eventQueue.empty() && !slav.empty())
 	{
 		// get top event
 		Event e = eventQueue.top();
@@ -109,20 +105,41 @@ void StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
 		// remove top element
 		eventQueue.pop();
 
+		EventOutput res;
+
 		// add arcs
-		if (e.type == EventType::EdgeEvent)
+		if (e.type == EEventType::EdgeEvent)
 		{
-			slav.HandleEdgeEvent(e);
+			// handle edge event
+			if (!e.v1->active || !e.v2->active)
+				continue;
+
+			res = slav.HandleEdgeEvent(e);
 		}
-		else if(e.type == EventType::SplitEvent)
+		else if(e.type == EEventType::SplitEvent)
 		{
-			slav.HandleSplitEvent(e);
+			if (!e.v1->active)
+				continue;
+
+			// handle split event
+			res = slav.HandleSplitEvent(e);
 		}
-		//slav.HandleEdgeEvent(dynamic_cast<EdgeEvent>(e));
 		
-		// handle edge event
+		vector<SkeletonArc> arcs;
+		vector<Event> events;
 
+		// unpack tuple
+		std::tie(arcs, events) = res;
 
-		// handle split event
+		// append arcs to skeleton
+		skeleton.insert(skeleton.end(), arcs.begin(), arcs.end());
+
+		// add new events to the event queue
+		for (size_t i = 0; i < events.size(); i++)
+		{
+			eventQueue.emplace(events[i]);
+		}
 	}
+
+	return skeleton;
 }

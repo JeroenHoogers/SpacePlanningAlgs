@@ -4,20 +4,23 @@
 
 typedef vector<float> Genotype;
 
-enum class MatingStrategy { 
+enum class EMatingStrategy { 
 	SwitchSource,	// switch source parent at some frequency
 	Gene,			// 
 	Interpolate		// generate a percentage p per gene and interpolate the gene value based on this percentage v = p1(p) + p2(1-p)
 };
 
-enum class MutationStrategy { Combinatorial, Elitism };
+enum class EMutationStrategy { 
+	Combinatorial, 
+	Elitism 
+};
 
 // TODO: implement as abstract template class instead to allow multiple implementations
 class GeneticAlgorithm
 {
 private:
 
-	MutationStrategy mutationStrat;
+	EMutationStrategy mutationStrat;
 								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
 	bool allowSurvival = true; // survival 
 
@@ -25,7 +28,7 @@ public:
 	vector<Genotype> population;
 	vector<int> selectedIndices;
 
-	MatingStrategy matingStrat;
+	EMatingStrategy matingStrat;
 
 	int populationSize = 20;
 

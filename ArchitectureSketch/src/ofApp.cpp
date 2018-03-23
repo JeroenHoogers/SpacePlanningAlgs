@@ -12,9 +12,9 @@ void ofApp::setup()
 	mStateMachine->addState(new EvolutionState());
 	mStateMachine->addState(new ProgramState());
 	mStateMachine->addState(new ArchitectureState());
+	mStateMachine->addState(new DebugState());
 
 	mStateMachine->changeState(ProgramState_StateName);
-
 
 	ofPolyline pl = ofPolyline();
 	pl.addVertex(ofPoint(0, 0));
@@ -76,6 +76,11 @@ void ofApp::keyPressed(int key)
 	if (key == 'a')
 	{
 		mStateMachine->changeState(ArchitectureState_StateName);
+	}
+
+	if (key == 'd')
+	{
+		mStateMachine->changeState(DebugState_StateName);
 	}
 }
 

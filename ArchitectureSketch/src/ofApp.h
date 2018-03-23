@@ -7,6 +7,7 @@
 #include "ProjectState.h"
 #include "ArchitectureState.h"
 #include "ProgramState.h"
+#include "DebugState.h"
 
 class ofApp : public ofBaseApp
 {

@@ -5,15 +5,26 @@
 
 class LAV;
 
+struct SkeletonArc;
+struct Event;
+
+
+typedef tuple<vector<SkeletonArc>, vector<Event>> EventOutput;
+
 // Arc structure
-struct LineArc
+struct SkeletonArc
 {
-	// vertex index
-	int index1;
-	int index2;
+	ofPoint v1;
+	ofPoint v2;
+
+	SkeletonArc(ofPoint _v1, ofPoint _v2)
+	{
+		v1 = _v1;
+		v2 = _v2;
+	}
 };
 
-enum struct EventType
+enum struct EEventType
 {
 	EdgeEvent,
 	SplitEvent
@@ -27,7 +38,7 @@ struct Event
 	float distance; // time
 	ofPoint intersection;
 
-	EventType type;
+	EEventType type;
 
 	struct Node* v1;
 	struct Node* v2;
@@ -48,7 +59,7 @@ struct Event
 		v1 = _v1;
 		v2 = _v2;
 
-		type = EventType::EdgeEvent;
+		type = EEventType::EdgeEvent;
 	}
 
 	// split event constructor
@@ -59,7 +70,7 @@ struct Event
 		v1 = _v;
 		v2 = _v;
 
-		type = EventType::SplitEvent;
+		type = EEventType::SplitEvent;
 	}
 
 	// TODO: sort function
@@ -98,30 +109,24 @@ struct Event
 //	struct Node* v;
 //};
 
-
-// Line graph datastructure 
-struct LineGraph
-{
-	ofPolyline polygon;
-
-	vector<LineArc> nodes;
-};
-
 //--------------------------------------------------------------
 struct Node
 {
 	ofPoint p;
 	ofVec2f bisector;
+	bool active;
 
 	struct Node* prev;
 	struct Node* next;
 
 	LAV* pLav;
 
+
 	Node(ofPoint vert, LAV* lav)
 	{
 		p = vert;
 		pLav = lav;
+		active = true;
 	}
 	// TODO: compute bisector
 
@@ -142,6 +147,7 @@ struct Node
 
 		// add edge vectors to obtain bisector
 		bisector = e1 + e2;
+		bisector.normalize();
 
 		if (isReflex())
 			bisector *= -1;
@@ -152,7 +158,9 @@ struct Node
 		bool hasEvent = false;
 		float mindist = INFINITY;
 
-		if(isReflex())
+		bool reflex = isReflex();
+
+		if(reflex)
 		{
 			// TODO: Check for split events
 
@@ -163,7 +171,7 @@ struct Node
 		if (IntersectionHelper::intersectRays(p, bisector, prev->p, prev->bisector, &intersection))
 		{
 			float dist = p.distance(intersection);
-			if (mindist < dist)
+			if (mindist > dist)
 			{
 				// update next event
 				mindist = dist;
@@ -176,7 +184,7 @@ struct Node
 		if (IntersectionHelper::intersectRays(p, bisector, next->p, next->bisector, &intersection))
 		{
 			float dist = p.distance(intersection);
-			if (mindist < dist)
+			if (mindist > dist)
 			{
 				// update next event
 				mindist = dist;
@@ -203,9 +211,28 @@ public:
 		// create double connected circular list
 		for (size_t i = 0; i < polygon.size(); i++)
 		{
-			addNode(&head, polygon[0]);
+			addNode(&head, polygon[i]);
 		}
 	};
+
+	~LAV()
+	{
+		if (head != NULL)
+		{
+			struct Node* s = head;
+			
+
+			for (size_t i = 0; i < length; i++)
+			{
+				struct Node* n = s->next;
+
+				delete s;
+
+				// go to the next value
+				s = n;
+			}
+		}
+	}
 
 	bool operator==(const LAV& rhs) const 
 	{ 
@@ -230,8 +257,14 @@ public:
 		length--;
 
 		// delete nodes
-		delete v1;
-		delete v2;
+		// causes memory leak
+		v1->active = false;
+		v2->active = false;
+	//	delete v1;
+	//	delete v2;
+		node->computeBisector();
+		node->prev->computeBisector();
+		node->next->computeBisector();
 
 		return node;
 	}
@@ -272,19 +305,19 @@ public:
 		last->computeBisector();
 	};
 
-	bool empty()
+	bool empty() const
 	{
 		return length == 0;
 	};
 
-	vector<Event> getEvents()
+	vector<Event> getEvents() const
 	{
 		vector<Event> events;
 
 		// loop vertices
 		if (head != NULL)
 		{
-			Node* s = head;
+			struct Node* s = head;
 			for (size_t i = 0; i < length; i++)
 			{
 				Event e;
@@ -306,12 +339,12 @@ public:
 class SLAV
 {
 public:
-	vector<LAV> activeLavs;
+	vector<LAV*> activeLavs;
 
 	SLAV(const ofPolyline& polygon)
 	{
-		activeLavs = vector<LAV>();
-		activeLavs.push_back(LAV(polygon));
+		activeLavs = vector<LAV*>();
+		activeLavs.push_back(new LAV(polygon));
 		//boundary = polygon;
 	};
 
@@ -321,25 +354,20 @@ public:
 	};
 
 	// handle edge event
-	void HandleEdgeEvent(Event e);
+	EventOutput HandleEdgeEvent(Event e);
 
-	void HandleSplitEvent(Event e);
+	EventOutput HandleSplitEvent(Event e);
 
 };
 
 //--------------------------------------------------------------
-class StraightSkeleton
+static class StraightSkeleton
 {
 
-private: 
-	//priority_queue<Event> eventQueue;
-
 public:
-	StraightSkeleton();
-	~StraightSkeleton();
 
 	// Compute the straight skeleton of the polygon
-	void CreateSkeleton(ofPolyline& polygon);
+	static vector<SkeletonArc> CreateSkeleton(ofPolyline& polygon);
 
 };
 
