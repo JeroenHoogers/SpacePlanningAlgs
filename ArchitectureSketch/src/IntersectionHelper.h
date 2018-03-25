@@ -4,30 +4,97 @@
 static class IntersectionHelper
 {
 public:
+	//static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
+	//{
+	//	ofSetColor(20, 255, 20);
+
+	//	// calculate determinant
+	//	//float det = d2.y * d1.x - d2.x * d1.y;
+	//	float det = d2.x * d1.y - d2.y * d1.x;
+
+	//	if (det == 0)
+	//		return false;
+
+	//	// check whether the rays intersect
+	//	ofVec2f diff = p2 - p1;
+	//	//diff.normalize();
+
+	//	//ofVec2f diff = p2 - p1;
+	//	float u = (diff.y * d2.x - diff.x - d2.y) / det;
+	//	float v = (diff.y * d1.x - diff.x - d1.y) / det;
+
+	//	ofSetLineWidth(1.0f);
+	//	ofLine(p1, p1 + d1 * u);
+	//	ofLine(p2, p2 + d2 * v);
+
+	//	// if both u and v are positive, the rays intersect
+	//	if (u >= 0 && v >= 0)
+	//	{
+	//		(*intersection) = p1 + d1 * u;
+
+	//		ofDrawCircle(*intersection, 3.0f);
+	//		ofSetColor(100, 100, 100);
+	//		//(*intersection) = p2 + d2 * u;
+	//		return true;
+	//	}
+
+	//	return false;
+	//}
+
+	static float perp(const ofVec2f& v1, const ofVec2f& v2)
+	{
+		return v1.x * v2.y - v1.y * v2.x;
+	}
+
 	static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
 	{
-		// calculate determinant
-		float det = d2.y * d1.x - d2.x * d1.y;
+		//ofSetColor(255, 20, 20);
+		//ofLine(p1, p1 + d1 * 50);
+		//ofLine(p2, p2 + d2 * 50);
 
+		float det = perp(d1, d2);
+		//float det1 = d2.y * d1.x - d2.x * d1.y;
 		if (det == 0)
 			return false;
 
-		// check whether the rays intersect
-		ofVec2f diff = p1 - p2;
+
+		ofVec2f diff = p2 - p1;
+
+		float u = perp(diff, d2) / det;
+		float v = perp(diff, d1) / det;
+
 
 		//ofVec2f diff = p2 - p1;
-		//float det = d2.x * d1.y - d2.y * d1.x;
+	/*	float u = (d2.x * dy - d2.y - dx) / det;
+		float v = (d1.x * dy - d1.y - dx) / det;*/
 
-		float u = (diff.y * d2.x - diff.x - d2.y) / det;
-		float v = (diff.y * d1.x - diff.x - d1.y) / det;
+		//ofLine(p1, p1 + d1 * u);
+		//ofLine(p2, p2 + d2 * v);
 
-		// if both u and v are positive, the rays intersect
 		if (u >= 0 && v >= 0)
 		{
-			(*intersection) = p1 + d1 * u;
+			ofPoint i = p1 + d1 * u;
+			(*intersection) = i;
+
+			ofDrawCircle(i, 3.0f);
+			ofSetColor(100, 100, 100);
 
 			return true;
 		}
+
+		// if both u and v are positive, the rays intersect
+		//if (u >= 0 && v >= 0)
+		//{
+		//	ofPoint i = ofPoint(p1.x + u * d1.x, p1.y + u * d1.y);
+
+		//	ofDrawCircle(i, 3.0f);
+		//	ofSetColor(100, 100, 100);
+
+		//	(*intersection) = i;
+		////	(*intersection) = p1 + d1 * u;
+		//	//(*intersection) = p2 + d2 * u;
+		//	return true;
+		//}
 
 		return false;
 	}
@@ -140,6 +207,11 @@ public:
 
 		// calculate the projection of p on the edge
 		ofPoint q = v1 + u * t;
+
+		//q.z = 0;
+		//p.z = 0;
+		//ofSetColor(255, 30, 30);
+		//ofLine(p, q);
 
 		// return the squared distance from p to q
 		return p.distance(q);
