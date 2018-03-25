@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 EventOutput SLAV::HandleEdgeEvent(Event e)
 {
-	vector<SkeletonArc> arcs;
+	vector<LineSegment> arcs;
 	vector<Event> events;
 	 
 	LAV* pLav = e.v1->pLav;
@@ -20,11 +20,16 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 		ofPoint i = e.intersection;
 	//	i.z = e.distance;
 
-		arcs.push_back(SkeletonArc(v1, i));
-		arcs.push_back(SkeletonArc(v2, i));
-		arcs.push_back(SkeletonArc(v3, i));
+		// add arcs to the skeleton
+		arcs.push_back(LineSegment(v1, i));
+		arcs.push_back(LineSegment(v2, i));
+		arcs.push_back(LineSegment(v3, i));
 
 		// add arcs (v1, i), (v2, i) and (v3, i)
+		// set inactive
+		e.v1->active = false;
+		e.v2->active = false;
+		e.v1->prev->active = false;
 
 		// remove this lav from the list since we have reached the apex
 		activeLavs.erase(
@@ -45,8 +50,8 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 		ofPoint i = e.intersection;
 	//	i.z = e.distance;
 
-		arcs.push_back(SkeletonArc(v1, i));
-		arcs.push_back(SkeletonArc(v2, i));
+		arcs.push_back(LineSegment(v1, i));
+		arcs.push_back(LineSegment(v2, i));
 
 		// get next event and add it to the event list
 		Event nextEvent;
@@ -60,20 +65,20 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 //--------------------------------------------------------------
 EventOutput SLAV::HandleSplitEvent(Event e)
 {
-	vector<SkeletonArc> arcs;
+	vector<LineSegment> arcs;
 	vector<Event> events;
 
 	return EventOutput(arcs, events);
 }
 
 //--------------------------------------------------------------
-vector<SkeletonArc> StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
+vector<LineSegment> StraightSkeleton::CreateSkeleton(ofPolyline& polygon, int steps)
 {
 	// construct event queue
 	priority_queue<Event, vector<Event>, std::greater<Event>> eventQueue;
 	SLAV slav = SLAV(polygon);
 
-	vector<SkeletonArc> skeleton;
+	vector<LineSegment> skeleton;
 
 	// TODO: fill event queue emplace()
 	for (size_t i = 0; i < slav.activeLavs.size(); i++)
@@ -97,7 +102,7 @@ vector<SkeletonArc> StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
 	}
 
 	// Handle events
-	while (!eventQueue.empty() && !slav.empty())
+	while (!eventQueue.empty() && !slav.empty() && steps > 0)
 	{
 		// get top event
 		Event e = eventQueue.top();
@@ -125,7 +130,7 @@ vector<SkeletonArc> StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
 			res = slav.HandleSplitEvent(e);
 		}
 		
-		vector<SkeletonArc> arcs;
+		vector<LineSegment> arcs;
 		vector<Event> events;
 
 		// unpack tuple
@@ -139,6 +144,8 @@ vector<SkeletonArc> StraightSkeleton::CreateSkeleton(ofPolyline& polygon)
 		{
 			eventQueue.emplace(events[i]);
 		}
+
+		steps--;
 	}
 
 	return skeleton;

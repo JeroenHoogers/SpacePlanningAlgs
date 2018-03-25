@@ -6,12 +6,18 @@ static class IntersectionHelper
 public:
 	static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
 	{
-		if (d1 == ofPoint(0, 0) || d2 == ofPoint(0, 0))
+		// calculate determinant
+		float det = d2.y * d1.x - d2.x * d1.y;
+
+		if (det == 0)
 			return false;
 
 		// check whether the rays intersect
-		ofVec2f diff = p2 - p1;
-		float det = d2.x * d1.y - d2.y * d1.x;
+		ofVec2f diff = p1 - p2;
+
+		//ofVec2f diff = p2 - p1;
+		//float det = d2.x * d1.y - d2.y * d1.x;
+
 		float u = (diff.y * d2.x - diff.x - d2.y) / det;
 		float v = (diff.y * d1.x - diff.x - d1.y) / det;
 
@@ -120,21 +126,46 @@ public:
 		return false;
 	};
 
+	static float getDistanceToEdge(ofPoint v1, ofPoint v2, ofPoint p)
+	{
+		// calculate difference vectors
+		ofVec2f u = v2 - v1;
+		ofVec2f v = p - v1;
+
+		// calculate interpolation variable t corresponding 
+		float t = u.dot(v) / v.lengthSquared();
+
+		// clamp t between 0 and 1 since the projected point must lie on the edge
+		t = ofClamp(t, 0, 1);
+
+		// calculate the projection of p on the edge
+		ofPoint q = v1 + u * t;
+
+		// return the squared distance from p to q
+		return p.distance(q);
+	}
+
 	static ofVec2f getProjectedPointOnLine(ofPoint v1, ofPoint v2, ofPoint p)
 	{
+		// calculate difference vectors
 		ofVec2f e1 = v2 - v1;
 		ofVec2f e2 = p - v1;
 
 		float dot = e1.dot(e2);
 
 		// projection vector along e1
-		ofVec2f e2Proj = (dot * e1) / e1.lengthSquared();
-		ofPoint q = v1 + e2Proj;
+		float t = dot / e1.lengthSquared();
+		t = ofClamp(t, 0, 1);
+		//t = Mathf.Clamp01(t);
+
+		//ofVec2f e2Proj = (dot * e1) / e1.lengthSquared();
+		// calculate the projection of p on the edge
+		ofPoint q = v1 + e1 * t;
 
 		// p projected onto the line intersecting v1 and v2
-		if (onSegment(v1, v2, q))
+		//if (onSegment(v1, v2, q))
 			return q;
-		else
-			return ofPoint(0, 0);
+		//else
+		//	return ofPoint(0, 0);
 	};
 };

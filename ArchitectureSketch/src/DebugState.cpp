@@ -27,12 +27,13 @@ void DebugState::setup()
 {
 	polygon = ofPolyline();
 	polygon.addVertex(ofPoint(0, 0));
-	polygon.addVertex(ofPoint(0, 500));
-	polygon.addVertex(ofPoint(400,600));
-	polygon.addVertex(ofPoint(500, 0));
+	polygon.addVertex(ofPoint(20, 400));
+	polygon.addVertex(ofPoint(400, 700));
+	//polygon.addVertex(ofPoint(800, 400));
+	polygon.addVertex(ofPoint(600, 0));
 	polygon.close();
 
-	skeleton = StraightSkeleton::CreateSkeleton(polygon);
+
 }
 
 //--------------------------------------------------------------
@@ -53,7 +54,11 @@ void DebugState::draw()
 		ofTranslate(20, 20);
 		ofSetColor(20);
 
+
 		polygon.draw();
+
+		skeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
+
 
 		ofSetLineWidth(1);
 		ofSetColor(20, 20, 200);
@@ -77,7 +82,11 @@ string DebugState::getName()
 //--------------------------------------------------------------
 void DebugState::keyPressed(int key)
 {
-	
+	if (key == '-')
+		steps = ofClamp(steps - 1, 0, 500);
+
+	if (key == '=')
+		steps = ofClamp(steps + 1, 0, 500);
 }
 
 //--------------------------------------------------------------

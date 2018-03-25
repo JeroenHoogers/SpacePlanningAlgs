@@ -5,22 +5,37 @@
 
 class LAV;
 
-struct SkeletonArc;
+struct LineSegment;
 struct Event;
 
+typedef tuple<vector<LineSegment>, vector<Event>> EventOutput;
 
-typedef tuple<vector<SkeletonArc>, vector<Event>> EventOutput;
+//// Arc structure
+//struct SkeletonArc
+//{
+//
+//};
 
-// Arc structure
-struct SkeletonArc
+struct LineSegment
 {
 	ofPoint v1;
 	ofPoint v2;
 
-	SkeletonArc(ofPoint _v1, ofPoint _v2)
+	ofVec2f dir1;
+	ofVec2f dir2;
+
+	LineSegment()
+	{
+
+	}
+
+	LineSegment(ofPoint _v1, ofPoint _v2)
 	{
 		v1 = _v1;
 		v2 = _v2;
+
+		dir1 = (v2 - v1).normalized();
+		dir2 = (v1 - v2).normalized();
 	}
 };
 
@@ -116,42 +131,58 @@ struct Node
 	ofVec2f bisector;
 	bool active;
 
+	struct LineSegment edgeLeft;
+	struct LineSegment edgeRight;
+
 	struct Node* prev;
 	struct Node* next;
 
 	LAV* pLav;
 
+	//Node(ofPoint vert, LAV* lav)
+	//{
+	//	p = vert;
+	//	pLav = lav;
+	//	active = true;
+	//}
 
-	Node(ofPoint vert, LAV* lav)
+	Node(ofPoint vert, LAV* lav, LineSegment _edgeLeft, LineSegment _edgeRight)
 	{
 		p = vert;
 		pLav = lav;
 		active = true;
-	}
-	// TODO: compute bisector
 
+		edgeLeft = _edgeLeft;
+		edgeRight = _edgeRight;
+	}
+
+	//void computeEdges()
+	//{
+	//	edgeLeft = (prev->p - p).normalized();
+	//	edgeRight = (next->p - p).normalized();
+	//}
+
+	// TODO: compute bisector
 	bool isReflex()
 	{
 		ofVec2f e1 = (prev->p - p).normalized();
 		ofVec2f e2 = (next->p - p).normalized();
 
-		float cross = e1.x*e2.y - e2.x*e1.y;
+		float cross = e1.x * e2.y - e1.x * e2.y;
 
 		return cross < 0;
 	}
 
 	void computeBisector()
 	{
-		ofVec2f e1 = (prev->p - p).normalized();
-		ofVec2f e2 = (next->p - p).normalized();
-
 		// add edge vectors to obtain bisector
-		bisector = e1 + e2;
+		bisector = edgeLeft.dir2 + edgeRight.dir1;
 		bisector.normalize();
 
 		if (isReflex())
 			bisector *= -1;
 	}
+
 
 	bool getNextEvent(Event* nextEvent)
 	{
@@ -171,26 +202,39 @@ struct Node
 		if (IntersectionHelper::intersectRays(p, bisector, prev->p, prev->bisector, &intersection))
 		{
 			float dist = p.distance(intersection);
+			float time = IntersectionHelper::getDistanceToEdge(edgeLeft.v1, edgeLeft.v2, intersection);
+
 			if (mindist > dist)
 			{
 				// update next event
 				mindist = dist;
 				hasEvent = true;
-				(*nextEvent) = Event(dist, intersection, this, prev); // edge event
+				(*nextEvent) = Event(time, intersection, prev, this); // edge event
 			}
+
+
+			ofDrawLine(intersection, intersection + bisector * 20);
+			ofDrawLine(intersection, intersection + prev->bisector * 20);
+			ofDrawCircle(intersection, 2.0f);
 		}
 		
 		// check for intersection with next bisector
 		if (IntersectionHelper::intersectRays(p, bisector, next->p, next->bisector, &intersection))
 		{
 			float dist = p.distance(intersection);
+			float time = IntersectionHelper::getDistanceToEdge(edgeRight.v1, edgeRight.v2, intersection);
+
 			if (mindist > dist)
 			{
 				// update next event
 				mindist = dist;
 				hasEvent = true;
-				(*nextEvent) = Event(dist, intersection, this, next); // edge event
+				(*nextEvent) = Event(time, intersection, this, next); // edge event
 			}
+
+			ofDrawLine(intersection, intersection + bisector * 20);
+			ofDrawLine(intersection, intersection + next->bisector * 20);
+			ofDrawCircle(intersection, 2.0f);
 		}
 
 		// TODO: handle the case where there are no events
@@ -211,8 +255,14 @@ public:
 		// create double connected circular list
 		for (size_t i = 0; i < polygon.size(); i++)
 		{
-			addNode(&head, polygon[i]);
+			int prev = polygon.getWrappedIndex(i - 1);
+			int next = polygon.getWrappedIndex(i + 1);
+
+			// create node
+			addNode(&head, polygon[i], LineSegment(polygon[prev], polygon[i]), LineSegment(polygon[i], polygon[next]));
 		}
+
+		computeBisectors();
 	};
 
 	~LAV()
@@ -243,7 +293,7 @@ public:
 	Node* unify(struct Node* v1, struct Node* v2, ofVec3f vert)
 	{
 		// create replacement node
-		struct Node* node = new Node(vert, this);
+		struct Node* node = new Node(vert, this, v1->edgeLeft, v2->edgeRight);
 
 		if (head == v1 || head == v2)
 			head = node;
@@ -262,53 +312,22 @@ public:
 		v2->active = false;
 	//	delete v1;
 	//	delete v2;
+
 		node->computeBisector();
-		node->prev->computeBisector();
-		node->next->computeBisector();
+		//node->prev->computeBisector();
+		//node->next->computeBisector();
+
+		ofSetLineWidth(1.0f);
+		ofSetColor(100, 100, 100);
+		ofDrawLine(node->p, node->p + node->bisector * 500);
 
 		return node;
 	}
 
-	void addNode(struct Node** start, ofPoint vert)
-	{
-		length++;
-
-		// List is empty, add first element
-		if (*start == NULL)
-		{
-			struct Node* node = new Node(vert, this);
-			node->prev = node->next = node;
-			*start = node;
-
-			return;
-		}
-
-		// find last node
-		Node *last = (*start)->prev;
-
-		// create new node
-		struct Node* node = new Node(vert, this);
-		node->next = *start;
-
-		// the new node becomes the previous of start
-		(*start)->prev = node;
-
-		// make last node previous of the new node
-		node->prev = last;
-
-		// make new node next of last node
-		last->next = node;
-
-		// update bisectors
-		(*start)->computeBisector();
-		node->computeBisector();
-		last->computeBisector();
-	};
-
 	bool empty() const
 	{
 		return length == 0;
-	};
+	}
 
 	vector<Event> getEvents() const
 	{
@@ -323,7 +342,7 @@ public:
 				Event e;
 
 				// if the vertex has events, add them to the list
-				if(s->getNextEvent(&e))
+				if (s->getNextEvent(&e))
 					events.push_back(e);
 
 				// go to the next value
@@ -332,6 +351,67 @@ public:
 		}
 
 		return events;
+	}
+
+private:
+	void addNode(struct Node** start, ofPoint vert, LineSegment edgeLeft, LineSegment edgeRight)
+	{
+		length++;
+
+		// List is empty, add first element
+		if (*start == NULL)
+		{
+			struct Node* node = new Node(vert, this, edgeLeft, edgeRight);
+			node->prev = node->next = node;
+			*start = node;
+
+			return;
+		}
+
+		// find last node
+		Node *last = (*start)->prev;
+
+		// create new node
+		struct Node* node = new Node(vert, this, edgeLeft, edgeRight);
+		node->next = *start;
+
+		// the new node becomes the previous of start
+		(*start)->prev = node;
+
+		// make last node previous of the new node
+		node->prev = last;
+
+		// make new node next of last node
+		last->next = node;
+
+		//// update bisectors
+		//(*start)->computeEdges();
+		//node->computeEdges();
+		//last->computeEdges();
+
+		//(*start)->computeBisector();
+		//node->computeBisector();
+		//last->computeBisector();
+	}
+
+	void computeBisectors()
+	{
+		if (head != NULL)
+		{
+			struct Node* s = head;
+			for (size_t i = 0; i < length; i++)
+			{
+				//s->computeEdges();
+				s->computeBisector();
+
+				ofSetLineWidth(1.0f);
+				ofSetColor(100, 100, 100);
+				ofDrawLine(s->p, s->p + s->bisector * 500);
+
+				// go to the next value
+				s = s->next;
+			}
+		}
 	}
 };
 
@@ -345,6 +425,7 @@ public:
 	{
 		activeLavs = vector<LAV*>();
 		activeLavs.push_back(new LAV(polygon));
+
 		//boundary = polygon;
 	};
 
@@ -367,7 +448,7 @@ static class StraightSkeleton
 public:
 
 	// Compute the straight skeleton of the polygon
-	static vector<SkeletonArc> CreateSkeleton(ofPolyline& polygon);
+	static vector<LineSegment> CreateSkeleton(ofPolyline& polygon, int steps = 0);
 
 };
 

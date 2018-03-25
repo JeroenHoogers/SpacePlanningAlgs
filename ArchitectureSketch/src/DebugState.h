@@ -10,8 +10,9 @@
 class DebugState : public itg::ofxState<SharedData>
 {
 private:
-	vector<SkeletonArc> skeleton;
+	vector<LineSegment> skeleton;
 	ofPolyline polygon;
+	int steps = 0;
 
 public:
 	DebugState();
