@@ -4,46 +4,47 @@
 static class IntersectionHelper
 {
 public:
-	//static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
-	//{
-	//	ofSetColor(20, 255, 20);
+	
+	bool approx(float a, float b)
+	{
+		return (a == b) || (abs(a - b) <= 0.001f);
+	}
 
-	//	// calculate determinant
-	//	//float det = d2.y * d1.x - d2.x * d1.y;
-	//	float det = d2.x * d1.y - d2.y * d1.x;
-
-	//	if (det == 0)
-	//		return false;
-
-	//	// check whether the rays intersect
-	//	ofVec2f diff = p2 - p1;
-	//	//diff.normalize();
-
-	//	//ofVec2f diff = p2 - p1;
-	//	float u = (diff.y * d2.x - diff.x - d2.y) / det;
-	//	float v = (diff.y * d1.x - diff.x - d1.y) / det;
-
-	//	ofSetLineWidth(1.0f);
-	//	ofLine(p1, p1 + d1 * u);
-	//	ofLine(p2, p2 + d2 * v);
-
-	//	// if both u and v are positive, the rays intersect
-	//	if (u >= 0 && v >= 0)
-	//	{
-	//		(*intersection) = p1 + d1 * u;
-
-	//		ofDrawCircle(*intersection, 3.0f);
-	//		ofSetColor(100, 100, 100);
-	//		//(*intersection) = p2 + d2 * u;
-	//		return true;
-	//	}
-
-	//	return false;
-	//}
-
-	static float perp(const ofVec2f& v1, const ofVec2f& v2)
+	static float det(const ofVec2f& v1, const ofVec2f& v2)
 	{
 		return v1.x * v2.y - v1.y * v2.x;
+	}
+
+	static bool intersectLines(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
+	{
+		//ofSetColor(255, 20, 20);
+		//ofLine(p1, p1 + d1 * 50);
+		//ofLine(p2, p2 + d2 * 50);
+
+		float d = det(d1, d2);
+		//float det1 = d2.y * d1.x - d2.x * d1.y;
+
+		// check if lines are parallel
+		if (d == 0)
+			return false;
+
+		ofVec2f diff = p2 - p1;
+
+		float u = det(diff, d2) / d;
+		float v = det(diff, d1) / d;
+
+		//if (u >= 0 && v >= 0)
+		//{
+		ofPoint i = p1 + d1 * u;
+		(*intersection) = i;
+
+			//ofDrawCircle(i, 3.0f);
+			//ofSetColor(100, 100, 100);
+
+			return true;
+		//}
+
+		//return false;
 	}
 
 	static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
@@ -52,16 +53,16 @@ public:
 		//ofLine(p1, p1 + d1 * 50);
 		//ofLine(p2, p2 + d2 * 50);
 
-		float det = perp(d1, d2);
+		float d = det(d1, d2);
 		//float det1 = d2.y * d1.x - d2.x * d1.y;
-		if (det == 0)
+		if (d == 0)
 			return false;
 
 
 		ofVec2f diff = p2 - p1;
 
-		float u = perp(diff, d2) / det;
-		float v = perp(diff, d1) / det;
+		float u = det(diff, d2) / d;
+		float v = det(diff, d1) / d;
 
 
 		//ofVec2f diff = p2 - p1;

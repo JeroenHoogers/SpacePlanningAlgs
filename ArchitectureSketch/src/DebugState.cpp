@@ -28,6 +28,7 @@ void DebugState::setup()
 	polygon = ofPolyline();
 	polygon.addVertex(ofPoint(20, 20));
 	polygon.addVertex(ofPoint(20, 400));
+	polygon.addVertex(ofPoint(350, 600));
 	polygon.addVertex(ofPoint(400, 700));
 	polygon.addVertex(ofPoint(800, 400));
 	polygon.addVertex(ofPoint(600, 20));
@@ -97,10 +98,10 @@ string DebugState::getName()
 //--------------------------------------------------------------
 void DebugState::keyPressed(int key)
 {
-	if (key == '-')
+	if (key == '[')
 		steps = ofClamp(steps - 1, 0, 500);
 
-	if (key == '=')
+	if (key == ']')
 		steps = ofClamp(steps + 1, 0, 500);
 }
 

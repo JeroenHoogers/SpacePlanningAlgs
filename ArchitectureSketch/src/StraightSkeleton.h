@@ -4,6 +4,7 @@
 #include "IntersectionHelper.h"
 
 class LAV;
+class SLAV;
 
 struct LineSegment;
 struct Event;
@@ -37,6 +38,11 @@ struct LineSegment
 		dir1 = (v2 - v1).normalized();
 		dir2 = (v1 - v2).normalized();
 	}
+
+	bool operator==(const LineSegment& rhs) const
+	{
+		return (this->v1 == rhs.v1 && this->v2 == rhs.v2);
+	}
 };
 
 enum struct EEventType
@@ -58,6 +64,8 @@ struct Event
 	struct Node* v1;
 	struct Node* v2;
 
+	LineSegment oppositeEdge;
+
 	//virtual ~Event() {};
 
 	Event()
@@ -78,12 +86,14 @@ struct Event
 	}
 
 	// split event constructor
-	Event(float _distance, ofPoint _intersection, struct Node* _v)
+	Event(float _distance, ofPoint _intersection, struct Node* _v, LineSegment _oppositeEdge)
 	{
 		distance = _distance;
 		intersection = _intersection;
 		v1 = _v;
 		v2 = _v;
+
+		oppositeEdge = _oppositeEdge;
 
 		type = EEventType::SplitEvent;
 	}
@@ -156,13 +166,8 @@ struct Node
 		edgeRight = _edgeRight;
 	}
 
-	//void computeEdges()
-	//{
-	//	edgeLeft = (prev->p - p).normalized();
-	//	edgeRight = (next->p - p).normalized();
-	//}
 
-	// TODO: compute bisector
+	// reflex
 	bool isReflex()
 	{
 		ofVec2f e1 = (prev->p - p).normalized();
@@ -173,6 +178,7 @@ struct Node
 		return cross < 0;
 	}
 
+	// compute bisector
 	void computeBisector()
 	{
 		// add edge vectors to obtain bisector
@@ -183,64 +189,8 @@ struct Node
 			bisector *= -1;
 	}
 
-
-	bool getNextEvent(Event* nextEvent)
-	{
-		bool hasEvent = false;
-		float mindist = INFINITY;
-
-		bool reflex = isReflex();
-
-		if(reflex)
-		{
-			// TODO: Check for split events
-
-		}
-
-		// check for intersection with previous bisector
-		ofPoint intersection;
-		if (IntersectionHelper::intersectRays(p, bisector, prev->p, prev->bisector, &intersection))
-		{
-			float dist = p.distance(intersection);
-			float time = IntersectionHelper::getDistanceToEdge(edgeLeft.v1, edgeLeft.v2, intersection);
-
-			if (mindist > dist)
-			{
-				// update next event
-				mindist = dist;
-				hasEvent = true;
-				(*nextEvent) = Event(time, intersection, prev, this); // edge event
-			}
-
-
-			ofDrawLine(intersection, intersection + bisector * 20);
-			ofDrawLine(intersection, intersection + prev->bisector * 20);
-			ofDrawCircle(intersection, 2.0f);
-		}
-		
-		// check for intersection with next bisector
-		if (IntersectionHelper::intersectRays(p, bisector, next->p, next->bisector, &intersection))
-		{
-			float dist = p.distance(intersection);
-			float time = IntersectionHelper::getDistanceToEdge(edgeRight.v1, edgeRight.v2, intersection);
-
-			if (mindist > dist)
-			{
-				// update next event
-				mindist = dist;
-				hasEvent = true;
-				(*nextEvent) = Event(time, intersection, this, next); // edge event
-			}
-
-			ofDrawLine(intersection, intersection + bisector * 20);
-			ofDrawLine(intersection, intersection + next->bisector * 20);
-			ofDrawCircle(intersection, 2.0f);
-		}
-
-		// TODO: handle the case where there are no events
-		
-		return hasEvent;
-	}
+	// get the next event for this vertex
+	bool getNextEvent(Event* nextEvent);
 };
 
 //--------------------------------------------------------------
@@ -249,9 +199,13 @@ class LAV
 public:
 	struct Node* head = NULL;
 	int length = 0;
+	SLAV* pSlav;
 
-	LAV(const ofPolyline& polygon)
+	// construct from polygon
+	LAV(const ofPolyline& polygon, SLAV* slav)
 	{
+		pSlav = slav;
+
 		// create double connected circular list
 		for (size_t i = 0; i < polygon.size(); i++)
 		{
@@ -265,23 +219,29 @@ public:
 		computeBisectors();
 	};
 
+	// construct from chain
+	LAV(const Node* head, SLAV* slav)
+	{
+
+	}
+
 	~LAV()
 	{
-		if (head != NULL)
-		{
-			struct Node* s = head;
-			
+		//if (head != NULL)
+		//{
+		//	struct Node* s = head;
+		//	
 
-			for (size_t i = 0; i < length; i++)
-			{
-				struct Node* n = s->next;
+		//	for (size_t i = 0; i < length; i++)
+		//	{
+		//		struct Node* n = s->next;
 
-				delete s;
+		//		delete s;
 
-				// go to the next value
-				s = n;
-			}
-		}
+		//		// go to the next value
+		//		s = n;
+		//	}
+		//}
 	}
 
 	bool operator==(const LAV& rhs) const 
@@ -420,13 +380,20 @@ class SLAV
 {
 public:
 	vector<LAV*> activeLavs;
+	vector<LineSegment> originalEdges;
 
 	SLAV(const ofPolyline& polygon)
 	{
 		activeLavs = vector<LAV*>();
-		activeLavs.push_back(new LAV(polygon));
+		activeLavs.push_back(new LAV(polygon, this));
 
-		//boundary = polygon;
+		// store the original edges
+		for (size_t i = 0; i < polygon.size(); i++)
+		{
+			int prev = polygon.getWrappedIndex(i - 1);
+			LineSegment lineSegment = LineSegment(polygon[prev], polygon[i]);
+			originalEdges.push_back(lineSegment);
+		}
 	};
 
 	bool empty()
@@ -437,8 +404,8 @@ public:
 	// handle edge event
 	EventOutput HandleEdgeEvent(Event e);
 
+	// handle split event
 	EventOutput HandleSplitEvent(Event e);
-
 };
 
 //--------------------------------------------------------------
