@@ -8,11 +8,11 @@ bool Node::getNextEvent(Event* nextEvent)
 
 	bool reflex = isReflex();
 
-	if (reflex && false)
+	if (reflex)
 	{
 		SLAV* slav = pLav->pSlav;
 
-		// TODO: Check for split events
+		// Check for split events
 		for (size_t i = 0; i < slav->originalEdges.size(); i++)
 		{
 			LineSegment edge = slav->originalEdges[i];
@@ -38,20 +38,18 @@ bool Node::getNextEvent(Event* nextEvent)
 					edgeVec = -edgeVec;
 
 				ofVec2f bisecVec = edgeVec + linVec;
-				// TODO: find out what is meant by this ??????
-				//	if (abs(bisecVec) == 0) 
-				//		continue;
+
+				// if the bisector has a length of 0 stop
+				if (bisecVec.length() == 0) 
+					continue;
 
 				ofPoint bIntersection;
 				if (IntersectionHelper::intersectRays(intersection, bisecVec, p, bisector, &bIntersection))
 				{
-					float detLeft; 
-					float detRight;
-					float detEdge;
-
-					//	bool xLeft = IntersectionHelper::perp()
-					//	bool xLeft = IntersectionHelper::perp()
-					//	bool xLeft = IntersectionHelper::perp()
+					// the intersection should lie in the area marked by the edge and bisectors of two vertices
+					float detLeft = IntersectionHelper::det(edge.bisectorLeft, (bIntersection - edge.v1).normalized()); 
+					float detRight = IntersectionHelper::det(edge.bisectorRight, (bIntersection - edge.v2).normalized());
+					float detEdge = IntersectionHelper::det(edge.dir1, (bIntersection - edge.v1).normalized());
 
 					// check if the intersection lies inside the area marked by the edges 
 					if (detLeft > 0 && detRight < 0 && detEdge < 0)
@@ -102,6 +100,9 @@ bool Node::getNextEvent(Event* nextEvent)
 		}
 	}
 
+	if ((*nextEvent).type == EEventType::SplitEvent)
+		float i = 0;
+
 	// TODO: handle the case where there are no events
 	return hasEvent;
 }
@@ -123,7 +124,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		i.z = e.distance;
+		//i.z = e.distance;
 
 		// add arcs to the skeleton
 		arcs.push_back(LineSegment(v1, i));
@@ -151,10 +152,9 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		i.z = e.distance;
+		//i.z = e.distance;
 
 		struct Node* newNode = pLav->unify(e.v1, e.v2, i);
-
 
 		arcs.push_back(LineSegment(v1, i));
 		arcs.push_back(LineSegment(v2, i));

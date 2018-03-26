@@ -309,7 +309,7 @@ void Building::GenerateBuilding()
 	generateMesh();
 
 	// generate roof
-	generateRoof();
+	//generateRoof();
 }
 
 //--------------------------------------------------------------

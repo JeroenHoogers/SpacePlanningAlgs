@@ -25,6 +25,9 @@ struct LineSegment
 	ofVec2f dir1;
 	ofVec2f dir2;
 
+	ofVec2f bisectorLeft;
+	ofVec2f bisectorRight;
+
 	LineSegment()
 	{
 
@@ -37,6 +40,18 @@ struct LineSegment
 
 		dir1 = (v2 - v1).normalized();
 		dir2 = (v1 - v2).normalized();
+	}
+
+	LineSegment(ofPoint _v1, ofPoint _v2, ofVec2f _bisectorLeft, ofVec2f _bisectorRight)
+	{
+		v1 = _v1;
+		v2 = _v2;
+
+		dir1 = (v2 - v1).normalized();
+		dir2 = (v1 - v2).normalized();
+
+		bisectorLeft = _bisectorLeft;
+		bisectorRight = _bisectorRight;
 	}
 
 	bool operator==(const LineSegment& rhs) const
@@ -405,8 +420,27 @@ public:
 		// store the original edges
 		for (size_t i = 0; i < polygon.size(); i++)
 		{
+			int prev2 = polygon.getWrappedIndex(i - 2);
 			int prev = polygon.getWrappedIndex(i - 1);
-			LineSegment lineSegment = LineSegment(polygon[prev], polygon[i]);
+			int next = polygon.getWrappedIndex(i + 1);
+
+			ofVec2f eEdge = (polygon[i] - polygon[prev]).normalized();
+			ofVec2f ePrev = (polygon[prev2] - polygon[prev]).normalized();
+			ofVec2f eNext = (polygon[next] - polygon[i]).normalized();
+
+			// compute bisectors
+			ofVec2f bisectorLeft = (ePrev * -1 + eEdge).normalized();
+			ofVec2f bisectorRight = (eEdge + eNext).normalized();
+
+			// flip bisector for reflex vertices
+			bool leftReflex = (IntersectionHelper::det(eEdge, ePrev) < 0);
+			bool rightReflex = (IntersectionHelper::det(eEdge * -1, eNext) < 0);
+			
+			bisectorLeft *= -1;
+			bisectorRight *= -1;
+
+			// construct line segments
+			LineSegment lineSegment = LineSegment(polygon[prev], polygon[i], bisectorLeft, bisectorRight);
 			originalEdges.push_back(lineSegment);
 		}
 	};
