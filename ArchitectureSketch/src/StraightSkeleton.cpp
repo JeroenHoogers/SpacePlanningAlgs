@@ -8,7 +8,7 @@ bool Node::getNextEvent(Event* nextEvent)
 
 	bool reflex = isReflex();
 
-	if (reflex)
+	if (reflex && false)
 	{
 		SLAV* slav = pLav->pSlav;
 

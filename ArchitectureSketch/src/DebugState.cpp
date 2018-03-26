@@ -30,6 +30,9 @@ void DebugState::setup()
 	polygon.addVertex(ofPoint(20, 400));
 	polygon.addVertex(ofPoint(350, 600));
 	polygon.addVertex(ofPoint(400, 700));
+	polygon.addVertex(ofPoint(410, 750));
+
+
 	polygon.addVertex(ofPoint(800, 400));
 	polygon.addVertex(ofPoint(600, 20));
 	polygon.close();

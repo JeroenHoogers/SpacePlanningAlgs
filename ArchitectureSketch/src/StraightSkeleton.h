@@ -173,9 +173,9 @@ struct Node
 		ofVec2f e1 = (prev->p - p).normalized();
 		ofVec2f e2 = (next->p - p).normalized();
 
-		float cross = e1.x * e2.y - e1.x * e2.y;
+		float d = IntersectionHelper::det(e1, e2);
 
-		return cross < 0;
+		return d < 0;
 	}
 
 	// compute bisector
