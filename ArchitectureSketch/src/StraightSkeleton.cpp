@@ -57,7 +57,7 @@ bool Node::getNextEvent(Event* nextEvent)
 					if (detLeft > 0 && detRight < 0 && detEdge < 0)
 					{
 						float dist = p.distance(bIntersection);
-						float time = IntersectionHelper::getDistanceToEdge(edge.v1, edge.v2, bIntersection);
+						float time = IntersectionHelper::getDistanceToLine(edge.v1, edge.v2, bIntersection);
 
 						if (mindist > dist)
 						{
@@ -76,7 +76,7 @@ bool Node::getNextEvent(Event* nextEvent)
 	if (IntersectionHelper::intersectRays(p, bisector, prev->p, prev->bisector, &intersection))
 	{
 		float dist = p.distance(intersection);
-		float time = IntersectionHelper::getDistanceToEdge(edgeLeft.v1, edgeLeft.v2, intersection);
+		float time = IntersectionHelper::getDistanceToLine(edgeLeft.v1, edgeLeft.v2, intersection);
 
 		if (mindist > dist)
 		{
@@ -91,7 +91,7 @@ bool Node::getNextEvent(Event* nextEvent)
 	if (IntersectionHelper::intersectRays(p, bisector, next->p, next->bisector, &intersection))
 	{
 		float dist = p.distance(intersection);
-		float time = IntersectionHelper::getDistanceToEdge(edgeRight.v1, edgeRight.v2, intersection);
+		float time = IntersectionHelper::getDistanceToLine(edgeRight.v1, edgeRight.v2, intersection);
 
 		if (mindist > dist)
 		{

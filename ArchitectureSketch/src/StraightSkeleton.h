@@ -219,10 +219,25 @@ public:
 		computeBisectors();
 	};
 
-	// construct from chain
-	LAV(const Node* head, SLAV* slav)
+	// Construct LAV from chain
+	LAV(Node* _head, SLAV* slav)
 	{
+		struct Node* v = _head;
+		head = _head;	
+		length = 1;
 
+		v = v->next;
+
+		// check how many vertices are in the chain
+		while (v != head)
+		{
+			length++;
+			v = v->next;
+
+			// guard against infinite loop (if length becomes too big)
+			if (length > 100)
+				break;
+		}
 	}
 
 	~LAV()

@@ -194,7 +194,21 @@ public:
 		return false;
 	};
 
-	static float getDistanceToEdge(ofPoint v1, ofPoint v2, ofPoint p)
+	static float getDistanceToLine(const ofPoint& v1, const ofPoint& v2, const ofPoint& p)
+	{
+		ofVec2f diff = v2 - v1;
+		float d = det(p, diff);
+
+		float distance = abs(d + det(v2, v1)) / diff.length();
+		
+		// DEBUG: draw distance
+		//ofDrawBitmapString(ofToString(distance), p);
+
+		//u.normalize();
+		return distance;
+	}
+
+	static float getDistanceToEdge(const ofPoint& v1, const ofPoint& v2, const ofPoint& p)
 	{
 		// calculate difference vectors
 		ofVec2f u = v2 - v1;
@@ -209,13 +223,18 @@ public:
 		// calculate the projection of p on the edge
 		ofPoint q = v1 + u * t;
 
-		//q.z = 0;
-		//p.z = 0;
-		//ofSetColor(255, 30, 30);
-		//ofLine(p, q);
+		ofSetColor(255, 30, 30);
+		ofLine(p, q);
+
+		ofLine(v1, p);
+		ofLine(v2, p);
+
+		float d2 = getDistanceToLine(v1, v2, p);
+		float dist = p.distance(q);
+		ofDrawBitmapString(ofToString(dist), p);
 
 		// return the squared distance from p to q
-		return p.distance(q);
+		return dist;
 	}
 
 	static ofVec2f getProjectedPointOnLine(ofPoint v1, ofPoint v2, ofPoint p)
