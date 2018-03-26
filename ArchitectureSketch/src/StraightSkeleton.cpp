@@ -123,7 +123,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-	//	i.z = e.distance;
+		i.z = e.distance;
 
 		// add arcs to the skeleton
 		arcs.push_back(LineSegment(v1, i));
@@ -149,11 +149,12 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 		ofPoint v1 = e.v1->p;
 		ofPoint v2 = e.v2->p;
 
-		struct Node* newNode = pLav->unify(e.v1, e.v2, e.intersection);
-
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-	//	i.z = e.distance;
+		i.z = e.distance;
+
+		struct Node* newNode = pLav->unify(e.v1, e.v2, i);
+
 
 		arcs.push_back(LineSegment(v1, i));
 		arcs.push_back(LineSegment(v2, i));

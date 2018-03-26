@@ -5,6 +5,7 @@
 #include "MeshHelper.h" 
 #include "ArchitectureProgram.h"
 #include "Measurements.h"
+#include "StraightSkeleton.h"
 
 struct Subdivision
 {
@@ -67,6 +68,8 @@ private:
 	void applyExtrusions(ofPolyline &floorshape, int floor);
 
 	void generateMesh();
+
+	void generateRoof();
 
 public:
 	ofRectangle boundingBox = ofRectangle(-10, -20, 20, 30);

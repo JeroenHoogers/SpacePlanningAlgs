@@ -171,7 +171,6 @@ void ArchitectureState::draw()
 	light.setPosition(-camera.getGlobalPosition() + ofVec3f(0,2,0));
 	light.lookAt(ofVec3f(0, 0, 0));
 
-//	ofBackgroundGradient(ofColor(210, 210, 210), ofColor(170, 170, 170));
 	ofBackground(ofColor(200));
 
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
@@ -504,11 +503,9 @@ void ArchitectureState::matingModeChanged(bool &val)
 			geneticAlgorithm.matingStrat = EMatingStrategy::Gene;
 
 	}
-
 	// TODO: add boolean params
 	//geneticAlgorithm.groupGenes = mGroupGenes.get();
 }
-
 
 //--------------------------------------------------------------
 bool ArchitectureState::isBuildingValid(Building& building)
@@ -582,60 +579,61 @@ void ArchitectureState::evaluateCandidates()
 
 	//while(!done)
 	//{
-		// find selected indices
-		for (int i = 0; i < selectedIndices.size(); i++)
-		{
-			geneticAlgorithm.select(selectedIndices[i]);
-		}
+	// find selected indices
+	for (int i = 0; i < selectedIndices.size(); i++)
+	{
+		geneticAlgorithm.select(selectedIndices[i]);
+	}
 
-		if (selectedIndices.size() > 0)
-		{
-			// let the genetic algorithm generate offspring based on the selection
-			geneticAlgorithm.generateOffspring();
-		}
-		else
-		{
-			geneticAlgorithm.generateRandomPopulation();
-			//setupEvolution();
-		}
+	if (selectedIndices.size() > 0)
+	{
+		// let the genetic algorithm generate offspring based on the selection
+		geneticAlgorithm.generateOffspring();
+	}
+	else
+	{
+		geneticAlgorithm.generateRandomPopulation();
+		//setupEvolution();
+	}
 
-		// generate phenotypes for the new population
-		for (int i = 0; i < geneticAlgorithm.population.size(); i++)
-		{
-			//for (int j = 0; j < 100; j++)
-			//{
-			buildings[i].LoadFromGenotype(geneticAlgorithm.population[i], *pProgram);
-
-			// evaluate candidate
-			if (isBuildingValid(buildings[i]))
-			{
-				candidates.push_back(i);
-				if(candidates.size() <= tiles)
-					buildings[i].GenerateBuilding();
-			}
-
-
-			//	// force area to be at least minimum area
-			//	if (buildings[i].GetTotalArea() >= targetArea)
-			//		break;
-			//}
-
-			//if()
-			//buildings[i].GenerateBuilding();
-		}
-
-		// generate building for candidates
-		// Inifinite loop potential
-		//if (candidates.size() >= tiles)
+	// generate phenotypes for the new population
+	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
+	{
+		//for (int j = 0; j < 100; j++)
 		//{
-			//for (int i = 0; i < candidates.size(); i++)
-			//{
-			//	buildings[candidates[i]].GenerateBuilding();
-			//}
+		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i], *pProgram);
 
-			//done = true;
-			selectedIndices.clear();
+		// evaluate candidate
+		if (isBuildingValid(buildings[i]))
+		{
+			candidates.push_back(i);
+			if (candidates.size() <= tiles)
+			{
+				buildings[i].GenerateBuilding();
+			}
+		}
+
+		//	// force area to be at least minimum area
+		//	if (buildings[i].GetTotalArea() >= targetArea)
+		//		break;
 		//}
+
+		//if()
+		//buildings[i].GenerateBuilding();
+	}
+
+	// generate building for candidates
+	// Inifinite loop potential
+	//if (candidates.size() >= tiles)
+	//{
+		//for (int i = 0; i < candidates.size(); i++)
+		//{
+		//	buildings[candidates[i]].GenerateBuilding();
+		//}
+
+		//done = true;
+	selectedIndices.clear();
+	//}
 
 		// do a subselection of buildings
 	//}

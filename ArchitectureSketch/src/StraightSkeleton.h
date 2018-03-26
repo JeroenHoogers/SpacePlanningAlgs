@@ -430,7 +430,6 @@ static class StraightSkeleton
 public:
 
 	// Compute the straight skeleton of the polygon
-	static vector<LineSegment> CreateSkeleton(ofPolyline& polygon, int steps = 0);
 
 };
 

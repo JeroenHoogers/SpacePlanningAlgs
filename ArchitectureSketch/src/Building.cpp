@@ -272,6 +272,34 @@ void Building::generateMesh()
 }
 
 //--------------------------------------------------------------
+void Building::generateRoof()
+{
+	int floors = floorShapes.size();
+
+	if (floorShapes.size() <= 0)
+		return;
+
+	// 2d to 3d matrix
+	ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+
+	// generate straight skeleton
+	vector<LineSegment> roofEdges = StraightSkeleton::CreateSkeleton(floorShapes[floors - 1], 200);
+
+	float height = floorHeight * floors;
+	
+	for (size_t i = 0; i < roofEdges.size(); i++)
+	{
+		// TODO: give height
+		// TODO: generate planes
+		ofPolyline roofEdge;
+		roofEdge.addVertex(mat * roofEdges[i].v1 + ofPoint(0, height));
+		roofEdge.addVertex(mat * roofEdges[i].v2 + ofPoint(0, height));
+
+		lines.push_back(roofEdge);
+	}
+}
+
+//--------------------------------------------------------------
 void Building::GenerateBuilding()
 {
 	// generate the floor shapes
@@ -279,6 +307,9 @@ void Building::GenerateBuilding()
 
 	// generate the building mesh using the floor shapes
 	generateMesh();
+
+	// generate roof
+	generateRoof();
 }
 
 //--------------------------------------------------------------
