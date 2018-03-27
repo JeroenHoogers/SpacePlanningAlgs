@@ -31,8 +31,6 @@ void DebugState::setup()
 	polygon.addVertex(ofPoint(350, 600));
 	polygon.addVertex(ofPoint(400, 700));
 	polygon.addVertex(ofPoint(410, 750));
-
-
 	polygon.addVertex(ofPoint(800, 400));
 	polygon.addVertex(ofPoint(600, 20));
 	polygon.close();
@@ -75,19 +73,44 @@ void DebugState::draw()
 		//	ofDrawCircle(intersection, 4);
 		//}
 
-		//ofSetColor(20);
+		ofSetColor(20);
 
 
 		polygon.draw();
 
-		skeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
+		// generate straight skeleton
+		vector<LineSegment> arcs;
+
+		SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
+
+		// unpack tuple
+		std::tie(arcs, faces) = straightSkeleton;
+
+		skeleton = arcs;
+
 		ofSetLineWidth(2);
 		ofSetColor(20, 20, 200);
+		ofNoFill();
 
 		for (size_t i = 0; i < skeleton.size(); i++)
 		{
 			ofLine(skeleton[i].v1.x, skeleton[i].v1.y, skeleton[i].v2.x, skeleton[i].v2.y);
 		}
+
+		ofSetColor(200, 40, 40);
+		ofFill();
+		//for (size_t i = 0; i < faces.size(); i++)
+		//{
+			faces[3].draw();
+		//}
+
+		
+		//faces[2].draw();
+		//faces[4].draw();
+		//faces[0].draw();
+		//faces[3].draw();
+
+		ofNoFill();
 	}
 	ofPopMatrix();
 }

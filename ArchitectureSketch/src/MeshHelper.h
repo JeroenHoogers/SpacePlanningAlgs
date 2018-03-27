@@ -136,9 +136,9 @@ public:
 			//ofSetColor(0, 0, 255);
 			ofSetColor(60);
 
-			ofLine(v0, v0 + n0 * 0.15f);
-			ofLine(v1, v1 + n1 * 0.15f);
-			ofLine(v2, v2 + n2 * 0.15f);
+			ofLine(v0, v0 + n0 * 0.1f);
+			ofLine(v1, v1 + n1 * 0.1f);
+			ofLine(v2, v2 + n2 * 0.1f);
 		}
 	}
 

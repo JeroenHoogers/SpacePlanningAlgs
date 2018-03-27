@@ -11,6 +11,7 @@ class DebugState : public itg::ofxState<SharedData>
 {
 private:
 	vector<LineSegment> skeleton;
+	vector<ofPolyline> faces;
 
 	vector<LineSegment> rays;
 

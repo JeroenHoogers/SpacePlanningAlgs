@@ -10,6 +10,7 @@ struct LineSegment;
 struct Event;
 
 typedef tuple<vector<LineSegment>, vector<Event>> EventOutput;
+typedef tuple<vector<LineSegment>, vector<ofPolyline>> SSAlgOutput;
 
 //// Arc structure
 //struct SkeletonArc
@@ -455,6 +456,9 @@ public:
 
 	// handle split event
 	EventOutput HandleSplitEvent(Event e);
+
+	
+	vector<ofPolyline> ConstructFaces(vector<LineSegment> segments);
 };
 
 //--------------------------------------------------------------
@@ -464,7 +468,7 @@ static class StraightSkeleton
 public:
 
 	// Compute the straight skeleton of the polygon
-	static vector<LineSegment> CreateSkeleton(ofPolyline& polygon, int steps = 200);
+	static SSAlgOutput CreateSkeleton(ofPolyline& polygon, int steps = 200);
 
 };
 

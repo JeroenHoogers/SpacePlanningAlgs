@@ -5,9 +5,14 @@ static class IntersectionHelper
 {
 public:
 	
-	bool approx(float a, float b)
+	static bool approx(float a, float b)
 	{
 		return (a == b) || (abs(a - b) <= 0.001f);
+	}
+
+	static bool approx(const ofPoint& p1, const ofPoint& p2)
+	{
+		return p1.distance(p2) < 0.001f;
 	}
 
 	static float det(const ofVec2f& v1, const ofVec2f& v2)
@@ -138,9 +143,30 @@ public:
 		return (det > 0) ? 1 : 2; // CW or CCW
 	}
 
+	//static float orientation(const ofPoint& p1, const ofPoint& p2, const ofPoint& q)
+	//{
+	//	ofVec2f u = (p2 - p1).normalized();
+	//	ofVec2f v = (q - p1).normalized();
+
+	//	ofVec2f perp = ofVec2f(-u.y, u.x);
+
+
+	//	//float det =
+	//	//	(p2.y - p1.y) * (q.x - p2.x) -
+	//	//	(p2.x - p1.x) * (q.y - p2.y);
+
+	//	//float det = -u.x * v.y + u.y + v.x;
+
+	//	return perp.dot(v);
+	//	//if (abs(det) == 0) return 0; // collinear
+
+	//	//return (det > 0) ? 1 : 2; // CW or CCW
+	//}
 
 	// Returns the relative angle between vectors p1->p2 and p1->q 
 	// Range of the angle is beween [-PI, PI]
+
+
 
 	static float relativeAngle(const ofVec2f& v1, const ofVec2f& v2)
 	{

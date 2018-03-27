@@ -67,6 +67,7 @@ private:
 	float roof; // 0 for flat, 1 for hip
 
 	ofMesh buildingMesh;
+	ofMesh roofMesh;
 
 	vector<ofMesh> floorMeshes;
 

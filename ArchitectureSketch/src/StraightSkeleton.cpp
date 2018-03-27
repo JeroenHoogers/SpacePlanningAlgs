@@ -321,7 +321,114 @@ EventOutput SLAV::HandleSplitEvent(Event e)
 }
 
 //--------------------------------------------------------------
-vector<LineSegment> StraightSkeleton::CreateSkeleton(ofPolyline& polygon, int steps)
+vector<ofPolyline> SLAV::ConstructFaces(vector<LineSegment> segments)
+{
+	vector<ofPolyline> faces;
+
+	// loop original edges to construct faces
+	for (size_t i = 0; i < originalEdges.size(); i++)
+	{
+		ofPolyline face;
+		face.addVertex(originalEdges[i].v1);
+		face.addVertex(originalEdges[i].v2);
+
+		bool done = false;
+
+		while (!done)
+		{
+			// loop line segments to find the next edge
+			ofPoint pCur = face[face.size() - 1];
+			ofPoint pPrev = face[face.size() - 2];
+
+			// store candidate to find the leftmost point compared to the last edge
+			ofPoint candidate;
+			bool hasCandidate = false;
+			//float minAngle = 0;
+
+			for (size_t j = 0; j < segments.size(); j++)
+			{
+				ofPoint pNext = ofPoint();
+				bool connected = false;
+				if (IntersectionHelper::approx(segments[j].v1, pCur) && !IntersectionHelper::approx(segments[j].v2, pPrev))
+				{
+					pNext = segments[j].v2;
+					connected = true;
+				}
+				else if (IntersectionHelper::approx(segments[j].v2,pCur) && !IntersectionHelper::approx(segments[j].v1, pPrev))
+				{
+					pNext = segments[j].v1;
+					connected = true;
+				}
+
+				if (connected)
+				{
+
+					//float angle = IntersectionHelper::relativeAngle((pCur - pPrev).normalized(), (pNext - pCur).normalized());
+					
+					// if the angle is less then our current candidate, store this candidate
+					if (!hasCandidate)
+					{
+						hasCandidate = true;
+						candidate = pNext;
+						//minAngle = angle;
+					}
+					else  // check if this point lies left of the line segment 
+					{
+						if (IntersectionHelper::orientation(pPrev, pCur, pNext) != IntersectionHelper::orientation(pPrev, pCur, candidate))
+						{
+							if (IntersectionHelper::orientation(pPrev, pCur, pNext) == 1)
+							{
+								hasCandidate = true;
+								candidate = pNext;
+							}
+						}
+						else if (IntersectionHelper::orientation(pCur, candidate, pNext) == 1)
+						{
+							hasCandidate = true;
+							candidate = pNext;
+						}
+					}
+
+					if (i == 3)
+					{
+						ofSetLineWidth(6);
+						ofSetColor(50, 200, 50);
+						ofDrawLine(pCur, pNext);
+
+						ofSetLineWidth(2);
+						ofSetColor(255, 255, 50);
+						ofDrawLine(pCur, pNext + (pNext - pCur));
+					}
+				}
+			}
+
+			// add next vertex to polyline
+			if (hasCandidate && face.size() < 25)
+			{
+				if (IntersectionHelper::approx(candidate, originalEdges[i].v2))
+				{
+					done = true;
+					face.close();
+				}
+				else
+					face.addVertex(candidate);
+			}
+			else
+			{
+				// this is most likely the last vertex, check if it connects to the original edge
+				done = true;
+		//		face.close();
+			}
+		}
+
+		faces.push_back(face);
+	}
+
+	return faces;
+}
+
+//--------------------------------------------------------------
+SSAlgOutput StraightSkeleton::CreateSkeleton(ofPolyline& polygon, int steps)
 {
 	// construct event queue
 	priority_queue<Event, vector<Event>, std::greater<Event>> eventQueue;
@@ -397,5 +504,8 @@ vector<LineSegment> StraightSkeleton::CreateSkeleton(ofPolyline& polygon, int st
 		steps--;
 	}
 
-	return skeleton;
+	// construct faces
+	vector<ofPolyline> faces = slav.ConstructFaces(skeleton);
+
+	return SSAlgOutput(skeleton, faces);
 }

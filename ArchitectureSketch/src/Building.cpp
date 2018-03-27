@@ -283,6 +283,8 @@ void Building::generateMesh()
 //--------------------------------------------------------------
 void Building::generateRoof()
 {
+	roofMesh.clear();
+
 	// only create a mesh for sloped roofs
 	if (roofType != ERoofType::Hip)
 		return;
@@ -293,29 +295,46 @@ void Building::generateRoof()
 		return;
 
 	// 2d to 3d matrix
-	//ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+	ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
 
-	ofMatrix4x4 mat = ofMatrix4x4(
-		1, 0, 0, 0,
-		0, 0, 0.25f + roof, 0,
-		0, 1, 0, 0,
-		0, 0, 0, 1);
+	//ofMatrix4x4 mat = ofMatrix4x4(
+	//	1, 0, 0, 0,
+	//	0, 0, 0.25f + roof, 0,
+	//	0, 1, 0, 0,
+	//	0, 0, 0, 1);
+
+
 
 	// generate straight skeleton
-	vector<LineSegment> roofEdges = StraightSkeleton::CreateSkeleton(floorShapes[floors - 1], 200);
+	vector<LineSegment> arcs;
+	vector<ofPolyline> faces;
+
+	SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(floorShapes[floors - 1], 200);
+
+	// unpack tuple
+	std::tie(arcs, faces) = straightSkeleton;
+	
 
 	float height = floorHeight * floors;
 	
-	for (size_t i = 0; i < roofEdges.size(); i++)
+	for (size_t i = 0; i < arcs.size(); i++)
 	{
 		// TODO: give height
 		// TODO: generate planes
 		ofPolyline roofEdge;
-		roofEdge.addVertex(mat * roofEdges[i].v1 + ofPoint(0, height));
-		roofEdge.addVertex(mat * roofEdges[i].v2 + ofPoint(0, height));
+		roofEdge.addVertex(mat * arcs[i].v1 + ofPoint(0, height));
+		roofEdge.addVertex(mat * arcs[i].v2 + ofPoint(0, height));
 
 		lines.push_back(roofEdge);
 	}
+
+	// add cap
+	for (size_t i = 0; i < faces.size(); i++)
+	{
+		MeshHelper::AddCap(roofMesh, faces[i], ofPoint(0, height));
+	}
+
+	roofMesh.setupIndicesAuto();
 }
 
 //--------------------------------------------------------------
@@ -363,6 +382,9 @@ void Building::draw(int floor)
 	{
 		ofSetColor(255);
 		buildingMesh.drawFaces();
+		
+		if (roofType == ERoofType::Hip)
+			roofMesh.drawFaces();
 	}
 	else
 	{
@@ -394,5 +416,6 @@ void Building::draw(int floor)
 
 	// DEBUG: draw normals
 	MeshHelper::drawNormals(buildingMesh);
+	MeshHelper::drawNormals(roofMesh);
 };
 
