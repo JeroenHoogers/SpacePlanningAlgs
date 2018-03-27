@@ -7,6 +7,14 @@
 #include "Measurements.h"
 #include "StraightSkeleton.h"
 
+
+enum struct ERoofType
+{
+	Flat,
+	Hip,
+	Gable
+};
+
 struct Subdivision
 {
 	Subdivision(float pos)
@@ -54,6 +62,9 @@ private:
 	float floorHeight = 3.0f; // 3 m
 	//float ceilingHeight = 0.3f; // 30 cm
 	//float wallWidth = 0.2f; // 20 cm
+
+	ERoofType roofType;
+	float roof; // 0 for flat, 1 for hip
 
 	ofMesh buildingMesh;
 

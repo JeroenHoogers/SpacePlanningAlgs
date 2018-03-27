@@ -128,6 +128,15 @@ void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
 
 	// TODO: derive nr of floors from area
 	//floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
+	int roofSelector = floorf(gt[2] * 2.0f);
+
+	if (roofSelector == 0)
+		roofType = ERoofType::Flat;
+	else
+		roofType = ERoofType::Hip;
+
+	roof = gt[2] / 2.0f; // roof param
+	
 	
 	floors = program.stories;
 	// TODO: separate subdivs and extrusions
@@ -274,13 +283,23 @@ void Building::generateMesh()
 //--------------------------------------------------------------
 void Building::generateRoof()
 {
+	// only create a mesh for sloped roofs
+	if (roofType != ERoofType::Hip)
+		return;
+
 	int floors = floorShapes.size();
 
 	if (floorShapes.size() <= 0)
 		return;
 
 	// 2d to 3d matrix
-	ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+	//ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+
+	ofMatrix4x4 mat = ofMatrix4x4(
+		1, 0, 0, 0,
+		0, 0, 0.25f + roof, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1);
 
 	// generate straight skeleton
 	vector<LineSegment> roofEdges = StraightSkeleton::CreateSkeleton(floorShapes[floors - 1], 200);
@@ -309,7 +328,7 @@ void Building::GenerateBuilding()
 	generateMesh();
 
 	// generate roof
-	//generateRoof();
+	generateRoof();
 }
 
 //--------------------------------------------------------------

@@ -81,12 +81,12 @@ void DebugState::draw()
 		polygon.draw();
 
 		skeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
-		ofSetLineWidth(1);
+		ofSetLineWidth(2);
 		ofSetColor(20, 20, 200);
 
 		for (size_t i = 0; i < skeleton.size(); i++)
 		{
-			ofLine(skeleton[i].v1, skeleton[i].v2);
+			ofLine(skeleton[i].v1.x, skeleton[i].v1.y, skeleton[i].v2.x, skeleton[i].v2.y);
 		}
 	}
 	ofPopMatrix();
@@ -121,7 +121,7 @@ void DebugState::mouseDragged(int x, int y, int button)
 	// drag vertices
 	for (size_t i = 0; i < polygon.size(); i++)
 	{
-		if (polygon[i].distance(mousePos) < 10.0f)
+		if (polygon[i].distance(mousePos) < 15.0f)
 		{
 			polygon[i] = mousePos;
 			break;

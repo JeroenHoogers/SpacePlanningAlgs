@@ -8,7 +8,8 @@ bool Node::getNextEvent(Event* nextEvent)
 
 	bool reflex = isReflex();
 
-	if (reflex)
+	// Detect split events for reflex vertices
+	if (reflex && false)
 	{
 		SLAV* slav = pLav->pSlav;
 
@@ -124,7 +125,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		//i.z = e.distance;
+		i.z = e.distance;
 
 		// add arcs to the skeleton
 		arcs.push_back(LineSegment(v1, i));
@@ -138,8 +139,11 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 		e.v1->prev->active = false;
 
 		// remove this lav from the list since we have reached the apex
-		activeLavs.erase(
-			find(activeLavs.begin(), activeLavs.end(), pLav));
+		if (find(activeLavs.begin(), activeLavs.end(), pLav) != activeLavs.end())
+		{
+			activeLavs.erase(
+				find(activeLavs.begin(), activeLavs.end(), pLav));
+		}
 
 		// delete lav
 		delete pLav;
@@ -152,7 +156,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		//i.z = e.distance;
+		i.z = e.distance;
 
 		struct Node* newNode = pLav->unify(e.v1, e.v2, i);
 
@@ -254,14 +258,20 @@ EventOutput SLAV::HandleSplitEvent(Event e)
 	vector<LAV*> newLavs;
 	
 	// delete current lav
-	activeLavs.erase(
-		find(activeLavs.begin(), activeLavs.end(), pLav));
+	if (find(activeLavs.begin(), activeLavs.end(), pLav) != activeLavs.end())
+	{
+		activeLavs.erase(
+			find(activeLavs.begin(), activeLavs.end(), pLav));
+	}
 
 	if (pLav != vLeft->pLav)
 	{
 		// split event merges 2 lavs
-		activeLavs.erase(
-			find(activeLavs.begin(), activeLavs.end(), vLeft->pLav));
+		if (find(activeLavs.begin(), activeLavs.end(), vLeft->pLav) != activeLavs.end())
+		{
+			activeLavs.erase(
+				find(activeLavs.begin(), activeLavs.end(), vLeft->pLav));
+		}
 
 		newLavs.push_back(new LAV(v1, this));
 	}
