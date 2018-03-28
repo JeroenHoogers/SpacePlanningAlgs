@@ -238,6 +238,8 @@ public:
 	// Construct LAV from chain
 	LAV(Node* _head, SLAV* slav)
 	{
+		pSlav = slav;
+
 		struct Node* v = _head;
 		head = _head;	
 		length = 1;

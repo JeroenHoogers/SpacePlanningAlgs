@@ -200,6 +200,9 @@
     <ClInclude Include="src\DebugState.h">
       <Filter>src\States</Filter>
     </ClInclude>
+    <ClInclude Include="src\GeneticVariable.h">
+      <Filter>src\Evolution</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

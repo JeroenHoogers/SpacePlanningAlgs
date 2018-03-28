@@ -202,6 +202,7 @@ src;
   <ItemGroup>
     <ClInclude Include="src\ArchitectureProgram.h" />
     <ClInclude Include="src\DebugState.h" />
+    <ClInclude Include="src\GeneticVariable.h" />
     <ClInclude Include="src\IntersectionHelper.h" />
     <ClInclude Include="src\MassConverter.h" />
     <ClInclude Include="src\Measurements.h" />

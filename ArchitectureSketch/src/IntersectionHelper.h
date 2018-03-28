@@ -43,6 +43,8 @@ public:
 		ofPoint i = p1 + d1 * u;
 		(*intersection) = i;
 
+		ofDrawCircle(i, 3.0f);
+		ofSetColor(100, 100, 250);
 			//ofDrawCircle(i, 3.0f);
 			//ofSetColor(100, 100, 100);
 

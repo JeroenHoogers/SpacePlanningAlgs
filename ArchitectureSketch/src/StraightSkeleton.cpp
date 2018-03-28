@@ -9,7 +9,7 @@ bool Node::getNextEvent(Event* nextEvent)
 	bool reflex = isReflex();
 
 	// Detect split events for reflex vertices
-	if (reflex && false)
+	if (reflex)
 	{
 		SLAV* slav = pLav->pSlav;
 
@@ -30,7 +30,8 @@ bool Node::getNextEvent(Event* nextEvent)
 
 			// TODO: check intersection
 			ofPoint intersection;
-			if (IntersectionHelper::intersectLines(selfEdge.v1, selfEdge.dir1, edge.v1, edge.dir1, &intersection))
+			if (IntersectionHelper::intersectLines(selfEdge.v1, selfEdge.dir1, edge.v1, edge.dir1, &intersection) &&
+				!IntersectionHelper::approx(intersection, p))
 			{
 				ofVec2f linVec = (p - intersection).normalized();
 				ofVec2f edgeVec = edge.dir1;
@@ -125,7 +126,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		i.z = e.distance;
+		//i.z = e.distance;
 
 		// add arcs to the skeleton
 		arcs.push_back(LineSegment(v1, i));
@@ -156,7 +157,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		i.z = e.distance;
+		//i.z = e.distance;
 
 		struct Node* newNode = pLav->unify(e.v1, e.v2, i);
 
@@ -258,20 +259,20 @@ EventOutput SLAV::HandleSplitEvent(Event e)
 	vector<LAV*> newLavs;
 	
 	// delete current lav
-	if (find(activeLavs.begin(), activeLavs.end(), pLav) != activeLavs.end())
-	{
+	//if (find(activeLavs.begin(), activeLavs.end(), pLav) != activeLavs.end())
+	//{
 		activeLavs.erase(
 			find(activeLavs.begin(), activeLavs.end(), pLav));
-	}
+	//}
 
 	if (pLav != vLeft->pLav)
 	{
 		// split event merges 2 lavs
-		if (find(activeLavs.begin(), activeLavs.end(), vLeft->pLav) != activeLavs.end())
-		{
+		//if (find(activeLavs.begin(), activeLavs.end(), vLeft->pLav) != activeLavs.end())
+		//{
 			activeLavs.erase(
 				find(activeLavs.begin(), activeLavs.end(), vLeft->pLav));
-		}
+		//}
 
 		newLavs.push_back(new LAV(v1, this));
 	}
@@ -388,17 +389,6 @@ vector<ofPolyline> SLAV::ConstructFaces(vector<LineSegment> segments)
 							candidate = pNext;
 						}
 					}
-
-					if (i == 3)
-					{
-						ofSetLineWidth(6);
-						ofSetColor(50, 200, 50);
-						ofDrawLine(pCur, pNext);
-
-						ofSetLineWidth(2);
-						ofSetColor(255, 255, 50);
-						ofDrawLine(pCur, pNext + (pNext - pCur));
-					}
 				}
 			}
 
@@ -502,6 +492,9 @@ SSAlgOutput StraightSkeleton::CreateSkeleton(ofPolyline& polygon, int steps)
 		}
 
 		steps--;
+
+		if (steps == 0)
+			ofDrawBitmapString("type: " + (e.type == EEventType::EdgeEvent) ? "edge" : "split", ofPoint(10,10));
 	}
 
 	// construct faces
