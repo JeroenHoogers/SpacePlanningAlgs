@@ -9,7 +9,7 @@ bool Node::getNextEvent(Event* nextEvent)
 	bool reflex = isReflex();
 
 	// Detect split events for reflex vertices
-	if (reflex)
+	if (reflex && false)
 	{
 		SLAV* slav = pLav->pSlav;
 
@@ -108,6 +108,7 @@ bool Node::getNextEvent(Event* nextEvent)
 	// TODO: handle the case where there are no events
 	return hasEvent;
 }
+
 //--------------------------------------------------------------
 EventOutput SLAV::HandleEdgeEvent(Event e)
 {
@@ -126,7 +127,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		//i.z = e.distance;
+		i.z = e.distance;
 
 		// add arcs to the skeleton
 		arcs.push_back(LineSegment(v1, i));
@@ -157,7 +158,7 @@ EventOutput SLAV::HandleEdgeEvent(Event e)
 
 		// compute intersection point (store distance in z-coord)
 		ofPoint i = e.intersection;
-		//i.z = e.distance;
+		i.z = e.distance;
 
 		struct Node* newNode = pLav->unify(e.v1, e.v2, i);
 
