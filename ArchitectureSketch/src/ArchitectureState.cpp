@@ -217,7 +217,7 @@ void ArchitectureState::draw()
 	ofSetColor(10);
 	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlgorithm.currentGeneration), 10, 20);
 	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 200, 20);
-	ofDrawBitmapStringHighlight("R: Generate next gen,   H: Hide gui", ofPoint(ofGetWidth() * 0.5f - 150, 20));
+	ofDrawBitmapStringHighlight("R: Generate next gen,  A: Accept design", ofPoint(ofGetWidth() * 0.5f - 150, 20));
 
 	//ofDrawBitmapStringHighlight("Inhabs: " + ofToString(pProgram->inhabitants), ofGetWidth() - 200, 20);
 	if (mShowGui)
@@ -306,7 +306,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	glDepthRange(0.0, 1.0);
 	
 	ofFill();
-	ofSetColor(255);
+	ofSetColor(20);
 	ofDrawArrow(ofVec3f(0, 1, -18), ofVec3f(0, 1, -15), 0.3f);
 
 	// disable depth testing

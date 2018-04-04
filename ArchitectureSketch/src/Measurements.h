@@ -1,11 +1,6 @@
 #pragma once
 #include "ofMain.h"
 
-enum Room
-{
-
-};
-
 class Measurements
 {
 private:
