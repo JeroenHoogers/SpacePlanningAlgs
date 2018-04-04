@@ -60,7 +60,7 @@ void DebugState::draw()
 		//ofTranslate(20, 20);
 		ofSetColor(100);
 		ofSetLineWidth(2.0f);
-		for (size_t i = 0; i < rays.size() -1; i++)
+		for (size_t i = 0; i < rays.size(); i++)
 		{
 			ofDrawLine(rays[i].v1, rays[i].v2);
 			ofDrawCircle(rays[i].v1, 3);
@@ -86,15 +86,25 @@ void DebugState::draw()
 
 		polygon.draw();
 
-		ofSetColor(255, 0, 0);
-		left.draw();
-
 		ofSetColor(0, 0, 255);
 		right.draw();
 
+		ofPolyline lleft;
+		ofPolyline lright;
+		IntersectionHelper::splitPolygon(left, rays[1].v1, rays[1].v2 - rays[1].v1, &lleft, &lright);
+
+		ofSetColor(255, 0, 0);
+		lleft.draw();
+
+		ofSetColor(0, 255, 0);
+		lright.draw();
+
 		ofSetColor(20);
-		ofDrawBitmapString(ofToString(left.getArea()), left.getCentroid2D());
+
+		//ofDrawBitmapString(ofToString(left.getArea()), left.getCentroid2D());
 		ofDrawBitmapString(ofToString(right.getArea()), right.getCentroid2D());
+		ofDrawBitmapString(ofToString(lleft.getArea()), lleft.getCentroid2D());
+		ofDrawBitmapString(ofToString(lright.getArea()), lright.getCentroid2D());
 
 		//// generate straight skeleton
 		//vector<LineSegment> arcs;

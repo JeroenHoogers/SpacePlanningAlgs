@@ -181,6 +181,9 @@ src;
   <ItemGroup>
     <ClCompile Include="src\Building.cpp" />
     <ClCompile Include="src\DebugState.cpp" />
+    <ClCompile Include="src\Evolver.cpp" />
+    <ClCompile Include="src\ExteriorEvolver.cpp" />
+    <ClCompile Include="src\InteriorEvolver.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="src\ArchitectureState.cpp" />
@@ -202,7 +205,10 @@ src;
   <ItemGroup>
     <ClInclude Include="src\ArchitectureProgram.h" />
     <ClInclude Include="src\DebugState.h" />
+    <ClInclude Include="src\Evolver.h" />
+    <ClInclude Include="src\ExteriorEvolver.h" />
     <ClInclude Include="src\GeneticVariable.h" />
+    <ClInclude Include="src\InteriorEvolver.h" />
     <ClInclude Include="src\IntersectionHelper.h" />
     <ClInclude Include="src\MassConverter.h" />
     <ClInclude Include="src\Measurements.h" />
@@ -212,8 +218,6 @@ src;
     <ClInclude Include="src\EvolutionState.h" />
     <ClInclude Include="src\GeneticAlgorithm.h" />
     <ClInclude Include="src\MeshHelper.h" />
-    <ClInclude Include="src\PhenotypeConverter.h" />
-    <ClInclude Include="src\PopulationFilter.h" />
     <ClInclude Include="src\ProgramState.h" />
     <ClInclude Include="src\ProjectState.h" />
     <ClInclude Include="src\SharedData.h" />

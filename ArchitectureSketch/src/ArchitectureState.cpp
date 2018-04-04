@@ -558,6 +558,14 @@ bool ArchitectureState::isBuildingValid(Building& building)
 }
 
 //--------------------------------------------------------------
+void ArchitectureState::gotoNextStep()
+{
+	// TODO: check if one solution has been accepted
+	if (currentStep == EEvolutionStep::Exterior)
+		currentStep = EEvolutionStep::Interior;
+}
+
+//--------------------------------------------------------------
 void ArchitectureState::evaluateCandidates()
 {
 	cout << "current generation: " << geneticAlgorithm.currentGeneration << endl;

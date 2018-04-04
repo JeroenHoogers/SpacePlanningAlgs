@@ -8,6 +8,7 @@
 #include "Building.h"
 #include "Measurements.h"
 #include "ArchitectureProgram.h"
+#include "InteriorEvolver.h"
 
 #define ArchitectureState_StateName "ArchitectureState"
 
@@ -56,10 +57,18 @@
 //	Mass m3;
 //};
 
+enum struct EEvolutionStep
+{
+	Exterior,
+	Interior,
+	Elements
+};
+
+
 class ArchitectureState : public itg::ofxState<SharedData>
 {
 private:
-
+	EEvolutionStep currentStep;
 	ofLight light;
 	ofxEasyCam camera;
 
@@ -131,6 +140,7 @@ public:
 	void draw();
 	void drawGUI();
 	void drawTile(ofRectangle viewport, int index);
+	void gotoNextStep();
 
 //	Building convertGenotype(Genotype genotype);
 
