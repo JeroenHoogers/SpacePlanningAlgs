@@ -58,62 +58,77 @@ void DebugState::draw()
 	ofPushMatrix();
 	{
 		//ofTranslate(20, 20);
-		
+		ofSetColor(100);
 		ofSetLineWidth(2.0f);
-		//for (size_t i = 0; i < rays.size(); i++)
-		//{
-		//	ofDrawLine(rays[i].v1, rays[i].v2);
-		//	ofDrawCircle(rays[i].v1, 3);
-		//}
+		for (size_t i = 0; i < rays.size() -1; i++)
+		{
+			ofDrawLine(rays[i].v1, rays[i].v2);
+			ofDrawCircle(rays[i].v1, 3);
+		}
 
-		//ofSetColor(20);
-		//ofPoint intersection;
-		//if (IntersectionHelper::intersectRays(
+	//	ofDrawCircle(rays[1].v2, 3);
+
+		ofSetColor(20);
+		ofPoint intersection;
+		//if (IntersectionHelper::intersectRayLineSegment(
 		//	rays[0].v1, rays[0].v2 - rays[0].v1, 
-		//	rays[1].v1, rays[1].v2 - rays[1].v1, 
+		//	rays[1].v1, rays[1].v2, 
 		//	&intersection))
 		//{
 		//	ofDrawCircle(intersection, 4);
 		//}
 
-		ofSetColor(20);
+		ofPolyline left;
+		ofPolyline right;
+		IntersectionHelper::splitPolygon(polygon, rays[0].v1, rays[0].v2 - rays[0].v1, &left, &right);
 
+		ofSetColor(20);
 
 		polygon.draw();
 
-		// generate straight skeleton
-		vector<LineSegment> arcs;
+		ofSetColor(255, 0, 0);
+		left.draw();
 
-		SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
+		ofSetColor(0, 0, 255);
+		right.draw();
 
-		// unpack tuple
-		std::tie(arcs, faces) = straightSkeleton;
+		ofSetColor(20);
+		ofDrawBitmapString(ofToString(left.getArea()), left.getCentroid2D());
+		ofDrawBitmapString(ofToString(right.getArea()), right.getCentroid2D());
 
-		skeleton = arcs;
+		//// generate straight skeleton
+		//vector<LineSegment> arcs;
 
-		ofSetLineWidth(2);
-		ofSetColor(20, 20, 200);
-		ofNoFill();
+		//SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
 
-		for (size_t i = 0; i < skeleton.size(); i++)
-		{
-			ofLine(skeleton[i].v1.x, skeleton[i].v1.y, skeleton[i].v2.x, skeleton[i].v2.y);
-		}
+		//// unpack tuple
+		//std::tie(arcs, faces) = straightSkeleton;
 
-		ofSetColor(200, 40, 40);
-		ofFill();
-		//for (size_t i = 0; i < faces.size(); i++)
+		//skeleton = arcs;
+
+		//ofSetLineWidth(2);
+		//ofSetColor(20, 20, 200);
+		//ofNoFill();
+
+		//for (size_t i = 0; i < skeleton.size(); i++)
 		//{
-			faces[3].draw();
+		//	ofLine(skeleton[i].v1.x, skeleton[i].v1.y, skeleton[i].v2.x, skeleton[i].v2.y);
 		//}
 
-		
-		//faces[2].draw();
-		//faces[4].draw();
-		//faces[0].draw();
-		//faces[3].draw();
+		//ofSetColor(200, 40, 40);
+		//ofFill();
+		////for (size_t i = 0; i < faces.size(); i++)
+		////{
+		////	faces[3].draw();
+		////}
 
-		ofNoFill();
+		//
+		////faces[2].draw();
+		////faces[4].draw();
+		////faces[0].draw();
+		////faces[3].draw();
+
+		//ofNoFill();
 	}
 	ofPopMatrix();
 }
@@ -144,29 +159,29 @@ void DebugState::mousePressed(int x, int y, int button)
 void DebugState::mouseDragged(int x, int y, int button)
 {
 	ofPoint mousePos = ofPoint(x, y);
-	// drag vertices
-	for (size_t i = 0; i < polygon.size(); i++)
-	{
-		if (polygon[i].distance(mousePos) < 15.0f)
-		{
-			polygon[i] = mousePos;
-			break;
-		}
-	}
-
-
-	//for (size_t i = 0; i < rays.size(); i++)
+	//// drag vertices
+	//for (size_t i = 0; i < polygon.size(); i++)
 	//{
-	//	if (rays[i].v1.distance(mousePos) < 10.0f)
+	//	if (polygon[i].distance(mousePos) < 15.0f)
 	//	{
-	//		rays[i].v1 = mousePos;
-	//		break;
-	//	}
-
-	//	if (rays[i].v2.distance(mousePos) < 10.0f)
-	//	{
-	//		rays[i].v2 = mousePos;
+	//		polygon[i] = mousePos;
 	//		break;
 	//	}
 	//}
+
+
+	for (size_t i = 0; i < rays.size(); i++)
+	{
+		if (rays[i].v1.distance(mousePos) < 20.0f)
+		{
+			rays[i].v1 = mousePos;
+			break;
+		}
+
+		if (rays[i].v2.distance(mousePos) < 20.0f)
+		{
+			rays[i].v2 = mousePos;
+			break;
+		}
+	}
 }

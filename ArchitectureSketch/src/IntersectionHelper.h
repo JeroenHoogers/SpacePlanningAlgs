@@ -20,6 +20,7 @@ public:
 		return v1.x * v2.y - v1.y * v2.x;
 	}
 
+	//--------------------------------------------------------------
 	static bool intersectLines(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
 	{
 		//ofSetColor(255, 20, 20);
@@ -54,14 +55,76 @@ public:
 		//return false;
 	}
 
+	//--------------------------------------------------------------
+	static bool splitPolygon(const ofPolyline& polygon, const ofPoint& p, const ofVec2f& d, ofPolyline* left, ofPolyline* right)
+	{
+		bool intersects = false;
+
+		// remove vertices from left and right polygons
+		left->clear();
+		right->clear();
+
+		// loop segments
+		for (size_t i = 0; i < polygon.size(); i++)
+		{
+			if (orientation(p, p + d, polygon[i]) == 1)
+			{
+				left->addVertex(polygon[i]);
+			}
+			else
+			{
+				right->addVertex(polygon[i]);
+			}
+
+			int j = polygon.getWrappedIndex(i + 1);
+
+			ofPoint intersection;
+			if (intersectRayLineSegment(p, d, polygon[i], polygon[j], &intersection))
+			{
+				left->addVertex(intersection);
+				right->addVertex(intersection);
+
+				intersects = true;
+			}
+		}
+
+		// close both polygons
+		left->close();
+		right->close();
+
+		return intersects;
+	}
+
+	//--------------------------------------------------------------
+	static bool intersectRayLineSegment(const ofPoint& p, const ofVec2f& d1, const ofPoint& q1, const ofPoint& q2, ofPoint* intersection)
+	{
+		ofVec2f d2 = q2 - q1;
+		float d = det(d1, d2);
+
+		if (d == 0)
+			return false;
+
+		ofVec2f diff = q1 - p;
+
+		float u = det(diff, d2) / d;
+		float v = det(diff, d1) / d;
+
+		if (u >= 0 && v <= 1 && v >= 0)
+		{
+			ofPoint i = p + d1 * u;
+			(*intersection) = i;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	//--------------------------------------------------------------
 	static bool intersectRays(const ofPoint& p1, const ofVec2f& d1, const ofPoint& p2, const ofVec2f& d2, ofPoint* intersection)
 	{
-		//ofSetColor(255, 20, 20);
-		//ofLine(p1, p1 + d1 * 50);
-		//ofLine(p2, p2 + d2 * 50);
-
 		float d = det(d1, d2);
-		//float det1 = d2.y * d1.x - d2.x * d1.y;
+
 		if (d == 0)
 			return false;
 
@@ -70,14 +133,6 @@ public:
 
 		float u = det(diff, d2) / d;
 		float v = det(diff, d1) / d;
-
-
-		//ofVec2f diff = p2 - p1;
-	/*	float u = (d2.x * dy - d2.y - dx) / det;
-		float v = (d1.x * dy - d1.y - dx) / det;*/
-
-		//ofLine(p1, p1 + d1 * u);
-		//ofLine(p2, p2 + d2 * v);
 
 		if (u >= 0 && v >= 0)
 		{
@@ -90,28 +145,16 @@ public:
 			return true;
 		}
 
-		// if both u and v are positive, the rays intersect
-		//if (u >= 0 && v >= 0)
-		//{
-		//	ofPoint i = ofPoint(p1.x + u * d1.x, p1.y + u * d1.y);
-
-		//	ofDrawCircle(i, 3.0f);
-		//	ofSetColor(100, 100, 100);
-
-		//	(*intersection) = i;
-		////	(*intersection) = p1 + d1 * u;
-		//	//(*intersection) = p2 + d2 * u;
-		//	return true;
-		//}
-
 		return false;
 	}
 
+	//--------------------------------------------------------------
 	static int ccw(const ofPoint& p1, const ofPoint& p2, const ofPoint& q) 
 	{
 		return (p2.x - p1.x) * (q.y - p1.y) - (q.x - p1.x) * (p2.y - p1.y);
 	}
 
+	//--------------------------------------------------------------
 	static bool intersects(const ofPoint& p1, const ofPoint& p2, const ofPoint& q1, const ofPoint& q2) 
 	{
 		if (ccw(p1, p2, q1) * ccw(p1, p2, q2) > 0) return false;
@@ -169,7 +212,7 @@ public:
 	// Range of the angle is beween [-PI, PI]
 
 
-
+	//--------------------------------------------------------------
 	static float relativeAngle(const ofVec2f& v1, const ofVec2f& v2)
 	{
 		float dot = v1.dot(v2);
@@ -201,6 +244,7 @@ public:
 	}
 
 	// Determines if line segments (p1,p2) and (q1,q2) intersect
+	//--------------------------------------------------------------
 	static bool doIntersect(const ofPoint& p1, const ofPoint& p2, const ofPoint& q1, const ofPoint& q2)
 	{
 		// find orientations
@@ -214,14 +258,15 @@ public:
 			return true;
 
 		// special cases when 3 points are colinear we have to check whether an endpoint touches the line segment
-		//if (o1 == 0 && onSegment(p1, p2, q1)) return true;
-		//if (o2 == 0 && onSegment(p1, p2, q2)) return true;
-		//if (o3 == 0 && onSegment(q1, q2, p1)) return true;
-		//if (o4 == 0 && onSegment(q1, q2, p2)) return true;
+		if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+		if (o2 == 0 && onSegment(p1, p2, q2)) return true;
+		if (o3 == 0 && onSegment(q1, q2, p1)) return true;
+		if (o4 == 0 && onSegment(q1, q2, p2)) return true;
 
 		return false;
 	};
 
+	//--------------------------------------------------------------
 	static float getDistanceToLine(const ofPoint& v1, const ofPoint& v2, const ofPoint& p)
 	{
 		ofVec2f diff = v2 - v1;
@@ -236,6 +281,7 @@ public:
 		return distance;
 	}
 
+	//--------------------------------------------------------------
 	static float getDistanceToEdge(const ofPoint& v1, const ofPoint& v2, const ofPoint& p)
 	{
 		// calculate difference vectors
@@ -265,6 +311,7 @@ public:
 		return dist;
 	}
 
+	//--------------------------------------------------------------
 	static ofVec2f getProjectedPointOnLine(ofPoint v1, ofPoint v2, ofPoint p)
 	{
 		// calculate difference vectors
@@ -276,7 +323,6 @@ public:
 		// projection vector along e1
 		float t = dot / e1.lengthSquared();
 		t = ofClamp(t, 0, 1);
-		//t = Mathf.Clamp01(t);
 
 		//ofVec2f e2Proj = (dot * e1) / e1.lengthSquared();
 		// calculate the projection of p on the edge
