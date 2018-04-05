@@ -10,7 +10,6 @@ struct SplitTreeNode
 	SplitTreeNode* rightChild;  // Pointer to the right subtree.
 };
 
-
 // This is the layer between the genetic algorithm and the architecture state
 class InteriorEvolver : public Evolver
 {
@@ -26,7 +25,7 @@ public:
 
 	void setup(ArchitectureProgram* program, ofPolyline floorshape);
 
-	void generate();
+	void generate(vector<int> selection);
 
 	void computeFitness();
 };

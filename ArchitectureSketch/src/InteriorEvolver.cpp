@@ -26,7 +26,7 @@ void InteriorEvolver::computeFitness()
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::generate()
+void InteriorEvolver::generate(vector<int> selection)
 {
 
 }

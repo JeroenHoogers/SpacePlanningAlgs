@@ -34,8 +34,8 @@ void ArchitectureState::stateEnter()
 		ofPoint(pProgram->lotWidth * 0.5f, 0, -pProgram->lotDepth * 0.5f));
 	lotPolygon.close();
 
-
-	evaluateCandidates();
+	pCurrentEvolver->generate(selectedIndices);
+	//evaluateCandidates();
 }
 
 //--------------------------------------------------------------
@@ -132,32 +132,40 @@ void ArchitectureState::setup()
 
 	pProgram = &getSharedData().program;
 
-	setupEvolution();
-}
-
-//--------------------------------------------------------------
-void ArchitectureState::setupEvolution()
-{
-	// setup genetic algorithm
+	// create evolvers
 	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
-	geneticAlgorithm.setup(1000, 19, mMutationRate.get(), mMutationAmount.get());
+	exteriorEvolver.setup(tiles, pProgram);
 
-	buildings.clear();
+	currentStep = EEvolutionStep::Exterior;
+	pCurrentEvolver = &exteriorEvolver;
+	//interiorEvolver.setup()
 
-	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
-	{
-		Building building = Building();
-	//	building.LoadFromGenotype(geneticAlgorithm.population[i]);
-	//	building.GenerateBuilding();
-
-		buildings.push_back(building);
-	}
-
-	candidates.clear();
-
-	// evaluate all candidates
-	evaluateCandidates();
+	//setupEvolution();
 }
+
+////--------------------------------------------------------------
+//void ArchitectureState::setupEvolution()
+//{
+//	// setup genetic algorithm
+//	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
+//	geneticAlgorithm.setup(1000, 19, mMutationRate.get(), mMutationAmount.get());
+//
+//	buildings.clear();
+//
+//	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
+//	{
+//		Building building = Building();
+//	//	building.LoadFromGenotype(geneticAlgorithm.population[i]);
+//	//	building.GenerateBuilding();
+//
+//		buildings.push_back(building);
+//	}
+//
+//	candidates.clear();
+//
+//	// evaluate all candidates
+//	evaluateCandidates();
+//}
 
 //--------------------------------------------------------------
 void ArchitectureState::update()
@@ -215,7 +223,7 @@ void ArchitectureState::draw()
 
 	// show generation
 	ofSetColor(10);
-	ofDrawBitmapStringHighlight("Generation: " + ofToString(geneticAlgorithm.currentGeneration), 10, 20);
+	ofDrawBitmapStringHighlight("Generation: " + ofToString(pCurrentEvolver->generation), 10, 20);
 	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 200, 20);
 	ofDrawBitmapStringHighlight("R: Generate next gen,  A: Accept design", ofPoint(ofGetWidth() * 0.5f - 150, 20));
 
@@ -229,15 +237,10 @@ void ArchitectureState::draw()
 //--------------------------------------------------------------
 void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 {
-	if (tileIndex >= candidates.size())
-		return;
-
-	int index = candidates[tileIndex];
-
-	// show selection
+	// draw green background to show selection
 	for (int i = 0; i < selectedIndices.size(); i++)
 	{
-		if (selectedIndices[i] == index)
+		if (selectedIndices[i] == tileIndex)
 		{
 			ofFill();
 			ofSetColor(50, 180, 50, 80);
@@ -245,6 +248,28 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 			break;
 		}
 	}
+
+	switch (currentStep)
+	{
+	case EEvolutionStep::Exterior:
+		drawExteriorTile(viewport, tileIndex);
+		break;
+	case EEvolutionStep::Interior:
+		break;
+	case EEvolutionStep::Elements:
+		break;
+	default:
+		break;
+	}
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
+{
+	Building* pBuilding = exteriorEvolver.getBuildingAt(index);
+
+	if (pBuilding == NULL)
+		return;
 
 	ofSetLineWidth(1.5);
 	ofEnableDepthTest();
@@ -262,11 +287,11 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	ofSetColor(255);
 	ofFill();
 
-	buildings[index].draw(visibleFloor);
+	pBuilding->draw(visibleFloor);
 
 	// draw scale model
 	ofSetColor(30);
-	ofRectangle boundingRect = buildings[index].GetFloorBoundingBox(0);
+	ofRectangle boundingRect = pBuilding->GetFloorBoundingBox(0);
 
 	ofDrawCylinder(boundingRect.getMinX() - 1.0f, 0.9f, 0, 0.2f, 1.8f);
 	ofDrawCylinder(boundingRect.getMaxX() + 1.0f, 0.9f, 0, 0.2f, 1.8f);
@@ -291,7 +316,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 
 	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
 	glDepthRange(0.0005, 1.0);
-	
+
 	ofPushMatrix();
 	{
 		//ofRotateX(-90);
@@ -304,7 +329,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	ofPopMatrix();
 
 	glDepthRange(0.0, 1.0);
-	
+
 	ofFill();
 	ofSetColor(20);
 	ofDrawArrow(ofVec3f(0, 1, -18), ofVec3f(0, 1, -15), 0.3f);
@@ -319,12 +344,18 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	camera.end();
 
 	ofPoint p = viewport.getBottomLeft() + ofVec2f(5, -5);
-	
+
 	ofColor bgCol = ofColor::gray;
-	if (buildings[index].GetTotalArea() >= targetArea)
+	if (pBuilding->GetTotalArea() >= targetArea)
 		bgCol = ofColor::forestGreen;
 
-	ofDrawBitmapStringHighlight("Area: " + ofToString(buildings[index].GetTotalArea()) + " m2", p, bgCol);
+	ofDrawBitmapStringHighlight("Area: " + ofToString(pBuilding->GetTotalArea()) + " m2", p, bgCol);
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
+{
+
 }
 
 //--------------------------------------------------------------
@@ -436,48 +467,48 @@ void ArchitectureState::mouseReleased(int x, int y, int button)
 		int tilew = (ofGetWidth() / mTilesHorizontal.get());
 		int tileh = (ofGetHeight() / mTilesVertical.get());
 
+		// TODO: pass tile index to the evolver
 		// calculate index based on mouse position
 		int tileIndex = (x / tilew) + (y / tileh) * mTilesHorizontal.get();
 		bool removed = false;
 
-		if (tileIndex < candidates.size())
+
+		for (int i = 0; i < selectedIndices.size(); i++)
 		{
-			int index = candidates[tileIndex];
-
-			for (int i = 0; i < selectedIndices.size(); i++)
+			// remove index
+			if (selectedIndices[i] == tileIndex)
 			{
-				// remove index
-				if (selectedIndices[i] == index)
-				{
-					selectedIndices.erase(selectedIndices.begin() + i);
-					removed = true;
-					break;
-				}
+				selectedIndices.erase(selectedIndices.begin() + i);
+				removed = true;
+				break;
 			}
-
-			if (!removed)
-				selectedIndices.push_back(index);
 		}
+
+		if (!removed)
+			selectedIndices.push_back(tileIndex);
 	}
 }
 
 //--------------------------------------------------------------
 void ArchitectureState::generateButtonPressed()
 {
-	evaluateCandidates();
+	pCurrentEvolver->generate(selectedIndices);
+	selectedIndices.clear();
+	//evaluateCandidates();
 }
 
 //--------------------------------------------------------------
 void ArchitectureState::majorParameterChanged(int& val)
 {
-	setupEvolution();
+//	setupEvolution();
 }
 
 //--------------------------------------------------------------
 void ArchitectureState::minorParameterChanged(float& val)
 {
-	geneticAlgorithm.mutationRate = mMutationRate.get();
-	geneticAlgorithm.mutationAmount = mMutationAmount.get();
+	// TODO: fix algorithm settings
+	//geneticAlgorithm.mutationRate = mMutationRate.get();
+	//geneticAlgorithm.mutationAmount = mMutationAmount.get();
 }
 
 //--------------------------------------------------------------
@@ -492,15 +523,15 @@ void ArchitectureState::matingModeChanged(bool &val)
 
 		val = true;
 
-		// change mating mode
-		if (mCrossoverSwitch.get())
-			geneticAlgorithm.matingStrat = EMatingStrategy::SwitchSource;
+		//// change mating mode
+		//if (mCrossoverSwitch.get())
+		//	geneticAlgorithm.matingStrat = EMatingStrategy::SwitchSource;
 
-		if (mCrossoverInterpolate.get())
-			geneticAlgorithm.matingStrat = EMatingStrategy::Interpolate;
+		//if (mCrossoverInterpolate.get())
+		//	geneticAlgorithm.matingStrat = EMatingStrategy::Interpolate;
 
-		if (mCrossoverGene.get())
-			geneticAlgorithm.matingStrat = EMatingStrategy::Gene;
+		//if (mCrossoverGene.get())
+		//	geneticAlgorithm.matingStrat = EMatingStrategy::Gene;
 
 	}
 	// TODO: add boolean params
@@ -508,141 +539,12 @@ void ArchitectureState::matingModeChanged(bool &val)
 }
 
 //--------------------------------------------------------------
-bool ArchitectureState::isBuildingValid(Building& building)
-{
-	// get minimum area
-	int stories = pProgram->stories;
-	int inhabitants = pProgram->inhabitants;
-
-	float minimumArea = Measurements::getMinimumArea(inhabitants, stories);
-
-	// area check
-	if (building.GetTotalArea() < minimumArea)
-		return false;
-
-	ofRectangle lotRect = pProgram->getLotRectangle();
-
-	for (size_t i = 0; i < building.floorShapes.size(); i++)
-	{
-		ofRectangle bb = building.floorShapes[i].getBoundingBox();
-		ofRectangle intersection = lotRect.getIntersection(bb);
-
-		// check whether the mass is inside the bounds of the plot
-		if (intersection != bb)
-			return false;
-
-		// minimum line segment distance check
-		for (size_t j = 0; j < building.floorShapes[i].size(); j++)
-		{
-			// TODO: Check if correct
-			// filter odd angles
-			float angle = building.floorShapes[i].getAngleAtIndex(j);
-			if(angle < 45.0f || angle > 135.0f)
-				return false;
-
-			// check minimum wall length
-			ofPoint p = building.floorShapes[i][j];
-			ofPoint q = building.floorShapes[i][(j + 1) % building.floorShapes[i].size()];
-			float dist = p.distance(q);
-
-			if (dist > 0.0f && dist < 1.0f)
-				return false;
-		}
-
-		// check for invalid (self-intersecting) geometry
-		if (MeshHelper::hasSelfIntersections(building.floorShapes[i]))
-			return false;
-	}
-
-	return true;
-}
-
-//--------------------------------------------------------------
 void ArchitectureState::gotoNextStep()
 {
 	// TODO: check if one solution has been accepted
 	if (currentStep == EEvolutionStep::Exterior)
+	{
+		pCurrentEvolver = &interiorEvolver;
 		currentStep = EEvolutionStep::Interior;
-}
-
-//--------------------------------------------------------------
-void ArchitectureState::evaluateCandidates()
-{
-	cout << "current generation: " << geneticAlgorithm.currentGeneration << endl;
-
-	candidates.clear();
-
-	//// mark survivors from the last generation
-	//for (int i = 0; i < mSelectionRectangles.size(); i++)
-	//{
-	//	if (i < nrSelected)
-	//		mSelectionRectangles[i].prevSelected = true;
-	//	else
-	//		mSelectionRectangles[i].prevSelected = false;
-	//}
-
-	//massModels.clear();
-	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
-	bool done = false;
-
-	//while(!done)
-	//{
-	// find selected indices
-	for (int i = 0; i < selectedIndices.size(); i++)
-	{
-		geneticAlgorithm.select(selectedIndices[i]);
 	}
-
-	if (selectedIndices.size() > 0)
-	{
-		// let the genetic algorithm generate offspring based on the selection
-		geneticAlgorithm.generateOffspring();
-	}
-	else
-	{
-		geneticAlgorithm.generateRandomPopulation();
-		//setupEvolution();
-	}
-
-	// generate phenotypes for the new population
-	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
-	{
-		//for (int j = 0; j < 100; j++)
-		//{
-		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i], *pProgram);
-
-		// evaluate candidate
-		if (isBuildingValid(buildings[i]))
-		{
-			candidates.push_back(i);
-			if (candidates.size() <= tiles)
-			{
-				buildings[i].GenerateBuilding();
-			}
-		}
-
-		//	// force area to be at least minimum area
-		//	if (buildings[i].GetTotalArea() >= targetArea)
-		//		break;
-		//}
-
-		//if()
-		//buildings[i].GenerateBuilding();
-	}
-
-	// generate building for candidates
-	// Inifinite loop potential
-	//if (candidates.size() >= tiles)
-	//{
-		//for (int i = 0; i < candidates.size(); i++)
-		//{
-		//	buildings[candidates[i]].GenerateBuilding();
-		//}
-
-		//done = true;
-	selectedIndices.clear();
-	//}
-
-		// do a subselection of buildings
-	//}
 }

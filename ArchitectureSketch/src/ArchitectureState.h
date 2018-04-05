@@ -8,6 +8,7 @@
 #include "Building.h"
 #include "Measurements.h"
 #include "ArchitectureProgram.h"
+#include "ExteriorEvolver.h"
 #include "InteriorEvolver.h"
 
 #define ArchitectureState_StateName "ArchitectureState"
@@ -112,15 +113,14 @@ private:
 	//ofxPanel programmeGui;
 	//ofParameter<int> mInhabitants = ofParameter<int>("Num of Inhabitants", 4, 1, 7);
 	//ofParameter<int> mStories = ofParameter<int>("Num of Stories", 2, 1, 3);
-
-	vector<Building> buildings;
-	vector<int> candidates;
 	//vector<MassModel> massModels;
 	//MassModel testModel;
 
 	vector<int> selectedIndices;
 
-	GeneticAlgorithm geneticAlgorithm;
+	ExteriorEvolver exteriorEvolver;
+	InteriorEvolver interiorEvolver;
+	Evolver* pCurrentEvolver;
 
 	bool initialized = false;
 
@@ -140,6 +140,9 @@ public:
 	void draw();
 	void drawGUI();
 	void drawTile(ofRectangle viewport, int index);
+	void drawExteriorTile(ofRectangle viewport, int index);
+	void drawInteriorTile(ofRectangle viewport, int index);
+
 	void gotoNextStep();
 
 //	Building convertGenotype(Genotype genotype);
@@ -157,10 +160,6 @@ public:
 	void boolParameterChanged(bool &val);
 
 	void matingModeChanged(bool &val);
-
-	void numInhabitantsChanged(int &val);
-
-	bool isBuildingValid(Building& building);
 
 	void evaluateCandidates();
 };
