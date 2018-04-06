@@ -371,7 +371,7 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 	ofPushMatrix();
 	{
 		ofNoFill();
-		ofSetColor(40);
+		ofSetColor(0);
 		
 		ofTranslate(viewport.x + viewport.width * 0.5f, viewport.y + viewport.height * 0.5f);
 		ofScale(ratio, ratio);
@@ -381,11 +381,21 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 		interiorEvolver.floorshape.draw();
 
 		// draw rooms
+		ofSetColor(40);
 		ofSetLineWidth(1.5f);
 
-		for (int i = 0; i < pInterior->size(); i++)
+		if (pInterior != NULL)
 		{
-			(*pInterior)[i].shape.draw();
+			for (int i = 0; i < pInterior->size(); i++)
+			{
+				ofFill();
+				
+				(*pInterior)[i].shape.draw();
+				
+				// draw room name and area
+				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
+				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", (*pInterior)[i].shape.getCentroid2D());
+			}
 		}
 
 		// TODO: draw rooms

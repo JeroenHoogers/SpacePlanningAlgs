@@ -23,7 +23,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = rooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(200, splits * 2, 0.2f, 0.4f);
+	roomOptimizationAlgorithm.setup(20, splits * 2, 0.2f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + rooms);
@@ -32,6 +32,8 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	{
 		vector<InteriorRoom> interior = vector<InteriorRoom>();
 		interiors.push_back(interior);
+
+		trees.push_back(constructTestTree());
 	}
 
 	candidates.clear();
@@ -118,10 +120,10 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	}
 
 	// done with evolution, pick the genome with the highest fitness as our optimal room division
-	SplitTreeNode* root = constructTestTree();
+	//SplitTreeNode* root = constructTestTree();
 	
 	// create phenotype
-	vector<InteriorRoom> interior = generateRooms(optimalSplits, root, floorshape);
+	vector<InteriorRoom> interior = generateRooms(optimalSplits, trees[treeIndex], floorshape);
 
 	return interior;
 }
@@ -132,7 +134,8 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 {
 	float fitness = 0;
 
-	SplitTreeNode* root = constructTestTree();
+	SplitTreeNode* root = trees[treeIndex];
+		//constructTestTree();
 
 	// recursively subdivide polygon into rooms
 	vector<InteriorRoom> rooms = generateRooms(splits, root, floorshape);
@@ -140,6 +143,7 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 	// check room sizes
 	for (int i = 0; i < rooms.size(); i++)
 	{
+		// TODO: should be proportional
 		float areaDiff = abs(rooms[i].getArea() - rooms[i].pRoom->area);
 		fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
@@ -187,12 +191,19 @@ void InteriorEvolver::generate(vector<int> selection)
 		//setupEvolution();
 	}
 
-	// compute optimal interior division for these tree structures
-	for (int i = 0; i < geneticTreeAlgorithm.population.size(); i++)
+	if (floorshape.size() > 2)
 	{
-		candidates.push_back(i);
+		// compute optimal interior division for these tree structures
+		for (int i = 0; i < geneticTreeAlgorithm.population.size(); i++)
+		{
+			candidates.push_back(i);
 
-		//interiors[i] = optimizeInterior(i);
+			// optimize interiors
+			//trees[i] = constructTestTree();
+			interiors[i] = optimizeInterior(i);
+		}
+
+		//interiors[0] = optimizeInterior(0);
 	}
 }
 
@@ -230,13 +241,13 @@ vector<InteriorRoom> InteriorEvolver::generateRooms(const vector<Split>& splits,
 		if (splits[si].axis == 0)
 		{
 			// x-axis
-			rayPos = ofPoint(ofLerp(bb->getLeft(), bb->getRight(), pos), 0);
+			rayPos = ofPoint(ofLerp(bb->getLeft(), bb->getRight(), pos), -10);
 			rayDir = ofVec2f(0, 1);
 		}
 		else
 		{
 			// y-axis
-			rayPos = ofPoint(0, ofLerp(bb->getTop(), bb->getBottom(), pos));
+			rayPos = ofPoint(-10, ofLerp(bb->getTop(), bb->getBottom(), pos));
 			rayDir = ofVec2f(1, 0);
 		}
 
@@ -247,7 +258,7 @@ vector<InteriorRoom> InteriorEvolver::generateRooms(const vector<Split>& splits,
 
 		// continue recursion in left and right subtrees
 		vector<InteriorRoom> roomsLeft = generateRooms(splits, node->leftChild, leftShape);
-		vector<InteriorRoom> roomsRight = generateRooms(splits, node->leftChild, rightShape);
+		vector<InteriorRoom> roomsRight = generateRooms(splits, node->rightChild, rightShape);
 
 		// add results to the current 
 		rooms.insert(rooms.end(), roomsLeft.begin(), roomsLeft.end());

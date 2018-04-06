@@ -8,10 +8,12 @@ struct Room
 	float area;
 	float min;
 	float max;
+	string code;
 
-	Room(string _name, float _area)
+	Room(string _name, string _code, float _area)
 	{
 		name = _name;
+		code = _code;
 		area = _area;
 
 		// calculate from area using 2:1 ratio rule
@@ -19,9 +21,10 @@ struct Room
 		max = min * 2;
 	}
 
-	Room(string _name, float _area, float _min, float _max)
+	Room(string _name, string _code, float _area, float _min, float _max)
 	{
 		name = _name;
+		code = _code;
 		area = _area;
 		min = _min;
 		max = _max;
@@ -50,11 +53,11 @@ public:
 	ArchitectureProgram()
 	{
 		// add test rooms
-		rooms.push_back(Room("Mstr. Bedroom", 20.0f));
-		rooms.push_back(Room("Bathroom", 3.75f));
-		rooms.push_back(Room("Living", 30.0f));
-		rooms.push_back(Room("Kitchen", 9.0f));
-		rooms.push_back(Room("Bedroom", 13.0f));
+		rooms.push_back(Room("Mstr. Bedroom", "M. Bed", 20.0f));
+		rooms.push_back(Room("Bathroom", "Ba", 3.75f));
+		rooms.push_back(Room("Living", "Li", 30.0f));
+		rooms.push_back(Room("Kitchen", "Ki", 9.0f));
+		rooms.push_back(Room("Bedroom", "Be", 13.0f));
 	}
 
 //private:
