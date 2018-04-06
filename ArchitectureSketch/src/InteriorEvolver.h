@@ -68,6 +68,16 @@ struct InteriorRoom
 	{
 		return abs(shape.getArea());
 	}
+
+	float getMinDim()
+	{
+		return fminf(shape.getBoundingBox().getWidth(), shape.getBoundingBox().getHeight());
+	}
+
+	float getMaxDim()
+	{
+		return fmaxf(shape.getBoundingBox().getWidth(), shape.getBoundingBox().getHeight());
+	}
 };
 
 

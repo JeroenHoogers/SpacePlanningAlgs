@@ -23,7 +23,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = rooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(20, splits * 2, 0.2f, 0.4f);
+	roomOptimizationAlgorithm.setup(50, splits * 2, 0.2f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + rooms);
@@ -73,13 +73,13 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	roomOptimizationAlgorithm.generateRandomPopulation();
 
 	// store the optimal index
-	int optimalIndex;
+	int optimalIndex = 0;
 	vector<Split> optimalSplits;
 
 	// TODO: store all fitness values together with the splits in order to perform a better selection
 	for (int gen = 0; gen <= optimizationGenerations; gen++)
 	{
-		float maxFitness = 0;
+		float maxFitness = -1;
 
 		// generate next generation
 		roomOptimizationAlgorithm.generateOffspring();
@@ -91,6 +91,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 		{	
 			genotype = roomOptimizationAlgorithm.population[i];
 
+			splits.clear();
 			// create splits
 			for (int j = 0; j < genotype.size(); j += 2)
 			{
@@ -108,6 +109,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			// if this fitness is the new optimal
 			if (fitness > maxFitness)
 			{
+				maxFitness = fitness;
 				optimalIndex = i;
 
 				// if this is the last generation, store the splits
@@ -117,6 +119,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 		}
 
 		// TODO: select fittest 2 individuals
+		roomOptimizationAlgorithm.select(optimalIndex);
 	}
 
 	// done with evolution, pick the genome with the highest fitness as our optimal room division
@@ -145,13 +148,24 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 	{
 		// TODO: should be proportional
 		float areaDiff = abs(rooms[i].getArea() - rooms[i].pRoom->area);
-		fitness += ofClamp(10 - areaDiff, 0, 10);
+		fitness += ofClamp(10.0f - (areaDiff / rooms[i].pRoom->area) * 10.0f, 0, 10);
 	}
 
-	// check room dims
+	// check room ratio 
 	for (int i = 0; i < rooms.size(); i++)
 	{
+		float minDim = rooms[i].getMinDim();
+		float maxDim = rooms[i].getMaxDim();
+
+		float minDiff = abs(rooms[i].getMinDim() - rooms[i].pRoom->min);
+		float maxDiff = abs(rooms[i].getMaxDim() - rooms[i].pRoom->max);
+
+		if (rooms[i].pRoom->min <= minDim)
+			fitness += 3;
 		
+		if (rooms[i].pRoom->max >= maxDim)
+			fitness += 3;
+
 		//fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
 
