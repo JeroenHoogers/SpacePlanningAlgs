@@ -200,6 +200,7 @@ src;
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="src\GeneticTreeAlgorithm.cpp" />
     <ClCompile Include="src\StraightSkeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +234,7 @@ src;
     <ClInclude Include="..\..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxState.h" />
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxStateMachine.h" />
+    <ClInclude Include="src\GeneticTreeAlgorithm.h" />
     <ClInclude Include="src\StraightSkeleton.h" />
   </ItemGroup>
   <ItemGroup>

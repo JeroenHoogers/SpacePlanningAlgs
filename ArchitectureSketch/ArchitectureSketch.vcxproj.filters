@@ -73,6 +73,9 @@
     <ClCompile Include="src\Evolver.cpp">
       <Filter>src\Evolution</Filter>
     </ClCompile>
+    <ClCompile Include="src\GeneticTreeAlgorithm.cpp">
+      <Filter>src\Evolution</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -213,6 +216,9 @@
       <Filter>src\Evolution</Filter>
     </ClInclude>
     <ClInclude Include="src\Evolver.h">
+      <Filter>src\Evolution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GeneticTreeAlgorithm.h">
       <Filter>src\Evolution</Filter>
     </ClInclude>
   </ItemGroup>

@@ -89,9 +89,23 @@ void ProgramState::draw()
 
 	mTerracedLeftToggle.draw();
 	mTerracedRightToggle.draw();
-
+	
 	mAcceptButton.draw();
 	
+	// draw list of rooms
+	string roomlist = "";
+	float total = 0;
+	for (int i = 0; i < pProgram->rooms.size(); i++)
+	{
+		total += pProgram->rooms[i].area;
+		roomlist += "\n";
+		roomlist += pProgram->rooms[i].name + ": \t" + ofToString(pProgram->rooms[i].area) + " m2";
+	}
+	roomlist += "\n\nTotal: \t\t" + ofToString(total) + " m2";
+
+
+	ofDrawBitmapStringHighlight(roomlist, ofPoint(20, 400));
+
 	// draw the map
 	drawSiteLayout();
 }

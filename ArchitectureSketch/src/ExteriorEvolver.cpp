@@ -25,7 +25,6 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
 	{
 		Building building = Building();
-
 		buildings.push_back(building);
 	}
 

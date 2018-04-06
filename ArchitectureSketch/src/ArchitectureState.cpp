@@ -135,6 +135,7 @@ void ArchitectureState::setup()
 	// create evolvers
 	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
 	exteriorEvolver.setup(tiles, pProgram);
+	interiorEvolver.setup(tiles, pProgram);
 
 	currentStep = EEvolutionStep::Exterior;
 	pCurrentEvolver = &exteriorEvolver;
@@ -255,6 +256,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 		drawExteriorTile(viewport, tileIndex);
 		break;
 	case EEvolutionStep::Interior:
+		drawInteriorTile(viewport, tileIndex);
 		break;
 	case EEvolutionStep::Elements:
 		break;
@@ -355,7 +357,40 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 //--------------------------------------------------------------
 void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 {
+	vector<InteriorRoom>* pInterior = interiorEvolver.getInteriorAt(index);
 
+	// get lot rectangle
+	ofRectangle lot = pProgram->getLotRectangle();
+
+	// calculate ratio
+	float ratioW = viewport.width / lot.width;
+	float ratioH = viewport.height / lot.height;
+
+	float ratio = fminf(ratioW, ratioH);
+
+	ofPushMatrix();
+	{
+		ofNoFill();
+		ofSetColor(40);
+		
+		ofTranslate(viewport.x + viewport.width * 0.5f, viewport.y + viewport.height * 0.5f);
+		ofScale(ratio, ratio);
+		// draw floor outline
+		ofSetLineWidth(3.0f);
+
+		interiorEvolver.floorshape.draw();
+
+		// draw rooms
+		ofSetLineWidth(1.5f);
+
+		for (int i = 0; i < pInterior->size(); i++)
+		{
+			(*pInterior)[i].shape.draw();
+		}
+
+		// TODO: draw rooms
+	}
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------
@@ -444,6 +479,11 @@ void ArchitectureState::keyPressed(int key)
 	if (key == 'r')
 	{
 		generateButtonPressed();
+	}
+
+	if (key == 'a')
+	{
+		gotoNextStep();
 	}
 }
 
@@ -544,7 +584,16 @@ void ArchitectureState::gotoNextStep()
 	// TODO: check if one solution has been accepted
 	if (currentStep == EEvolutionStep::Exterior)
 	{
-		pCurrentEvolver = &interiorEvolver;
-		currentStep = EEvolutionStep::Interior;
+		if (selectedIndices.size() == 1)
+		{
+			int tile = selectedIndices[0];
+			ofPolyline floor = exteriorEvolver.getBuildingAt(tile)->floorShapes[0];
+
+			interiorEvolver.setFloorShape(floor);
+			pCurrentEvolver = &interiorEvolver;
+			currentStep = EEvolutionStep::Interior;
+
+			selectedIndices.clear();
+		}
 	}
 }

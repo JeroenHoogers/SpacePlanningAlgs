@@ -26,7 +26,6 @@ void GeneticAlgorithm::setup(int popSize, int n)
 	generateRandomPopulation();
 }
 
-
 //--------------------------------------------------------------
 void GeneticAlgorithm::setup(int popSize, int n, float mutRate, float mutAmount)
 {
