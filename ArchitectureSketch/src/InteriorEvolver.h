@@ -93,7 +93,7 @@ private:
 	int rooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 20;
+	int optimizationGenerations = 25;
 
 	GeneticAlgorithm roomOptimizationAlgorithm;
 	GeneticTreeAlgorithm geneticTreeAlgorithm;

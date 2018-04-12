@@ -177,10 +177,10 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 		float maxDiff = abs(rooms[i].getMaxDim() - rooms[i].pRoom->max);
 
 		if (rooms[i].pRoom->min <= minDim)
-			fitness += 3;
+			fitness += 2;
 		
 		if (rooms[i].pRoom->max >= maxDim)
-			fitness += 3;
+			fitness += 2;
 
 		//fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
