@@ -23,7 +23,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = rooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(50, splits * 2, 0.2f, 0.4f);
+	roomOptimizationAlgorithm.setup(80, splits * 2, 0.2f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + rooms);
@@ -72,22 +72,23 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	// generate the first population
 	roomOptimizationAlgorithm.generateRandomPopulation();
 
-	// store the optimal index
-	int optimalIndex = 0;
+	vector<float> fitnesses;
+	vector<Split> splits;
 	vector<Split> optimalSplits;
 
 	// TODO: store all fitness values together with the splits in order to perform a better selection
 	for (int gen = 0; gen <= optimizationGenerations; gen++)
 	{
-		//float maxFitness = -1;
-
 		// generate next generation
 		roomOptimizationAlgorithm.generateOffspring();
 
 		// convert
-		vector<Split> splits;
-		vector<float> fitnesses;
 		float totalFitness = 0;
+		fitnesses.clear();
+		splits.clear();
+
+		float maxfitness = -1.0f;
+		int optimalIndex = -1;
 
 		Genotype genotype;
 		for (int i = 0; i < roomOptimizationAlgorithm.population.size(); i++)
@@ -95,6 +96,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			genotype = roomOptimizationAlgorithm.population[i];
 
 			splits.clear();
+
 			// create splits
 			for (int j = 0; j < genotype.size(); j += 2)
 			{
@@ -111,27 +113,29 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			totalFitness += fitness;
 			fitnesses.push_back(fitness);
 
-			// if this fitness is the new optimal
-			//if (fitness > maxFitness)
-			//{
-			//	maxFitness = fitness;
+			// find the best best individual of the last generation
+
+			if (fitness > maxfitness)
+			{
+				maxfitness = fitness;
 				optimalIndex = i;
 
-				// if this is the last generation, store the splits
 				if (gen == optimizationGenerations)
+				{
 					optimalSplits = splits;
-			//}
+				}
+			}
 		}
 
-
-		// 
-		for (int i = 0; i < length; i++)
+		if (treeIndex == 0)
 		{
-			 
+			cout << "gen: " << gen << ", total fitness: " << totalFitness << ", highest fitness:" << maxfitness << endl;
 		}
 
 		// TODO: select fittest 2 individuals
-		roomOptimizationAlgorithm.select(optimalIndex);
+		//roomOptimizationAlgorithm.select(optimalIndex);
+
+		roomOptimizationAlgorithm.selectByFitness(fitnesses);
 	}
 
 	// done with evolution, pick the genome with the highest fitness as our optimal room division

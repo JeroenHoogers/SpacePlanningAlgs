@@ -49,9 +49,6 @@
     <ClCompile Include="src\EvolutionState.cpp">
       <Filter>src\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\GeneticAlgorithm.cpp">
-      <Filter>src\Evolution</Filter>
-    </ClCompile>
     <ClCompile Include="src\Building.cpp">
       <Filter>src\Architecture</Filter>
     </ClCompile>
@@ -75,6 +72,9 @@
     </ClCompile>
     <ClCompile Include="src\GeneticTreeAlgorithm.cpp">
       <Filter>src\Evolution</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GeneticAlgorithm.cpp">
+      <Filter>src\GeneticAlgorithm</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +119,9 @@
     </Filter>
     <Filter Include="src\Geometry">
       <UniqueIdentifier>{9388e629-91b8-422e-a7ce-cb25aab3f9cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\GeneticAlgorithm">
+      <UniqueIdentifier>{fdf46fa6-f4dc-4cba-9c11-c4f32956eec3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -179,9 +182,6 @@
     <ClInclude Include="src\MeshHelper.h">
       <Filter>src\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="src\GeneticAlgorithm.h">
-      <Filter>src\Evolution</Filter>
-    </ClInclude>
     <ClInclude Include="src\Building.h">
       <Filter>src\Architecture</Filter>
     </ClInclude>
@@ -220,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="src\GeneticTreeAlgorithm.h">
       <Filter>src\Evolution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GeneticAlgorithm.h">
+      <Filter>src\GeneticAlgorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

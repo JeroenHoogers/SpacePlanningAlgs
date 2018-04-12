@@ -15,8 +15,6 @@ enum class EMutationStrategy {
 	Elitism 
 };
 
-
-
 // TODO: implement as abstract template class instead to allow multiple implementations
 class GeneticAlgorithm
 {
@@ -62,9 +60,9 @@ public:
 
 	// select a single individual from the population for offspring
 	void select(int index);
+	void selectByFitness(vector<float> fitnesses);
 
 	Genotype crossover(Genotype parent1, Genotype parent2, float probability);
 	Genotype crossoverInterpolation(Genotype parent1, Genotype parent2);
 	Genotype crossoverSwitchGenotype(Genotype parent1, Genotype parent2, int frequency);
-
 };

@@ -74,8 +74,65 @@ void GeneticAlgorithm::select(int index)
 }
 
 //--------------------------------------------------------------
+void GeneticAlgorithm::selectByFitness(vector<float> fitnesses)
+{
+	selectedIndices.clear();
+
+	// calculate fitness sum
+	float totalFitness = 0;
+
+	for (int i = 0; i < fitnesses.size(); i++)
+	{
+		totalFitness += fitnesses[i];
+	}
+
+	// refill population
+	for (int i = 0; i < populationSize; i++)
+	{
+		// pick a member based on fitness
+		float rand = ofRandom(totalFitness);
+
+		float cumulativeFitness = 0;
+		for (int j = 0; j < fitnesses.size(); j++)
+		{
+			cumulativeFitness += fitnesses[j];
+			if (rand <= cumulativeFitness)
+			{
+				selectedIndices.push_back(j);
+				break;
+			}
+		}
+	}
+
+	// pick new population based on fitness
+	//population.clear();
+}
+
+// TODO: crossover should be based on a probability
+// TODO: mutation should be based on a probability
+//--------------------------------------------------------------
 void GeneticAlgorithm::generateOffspring()
 {	
+	// fitness based selection has been performed
+	if (selectedIndices.size() == population.size())
+	{
+		// TODO: could probably be made more efficient (vector reserve)
+		// store old population temporary
+		vector<Genotype> pop = population;
+
+		// clear population
+		population.clear();
+
+		for (int i = population.size(); i < selectedIndices.size(); i++)
+		{	
+			// fill population
+			population.push_back(pop[selectedIndices[i]]);
+
+			// do mutation
+			population[i] = mutate(population[i]);
+		}
+	}
+
 	if (selectedIndices.size() == 0) // no selection 
 	{
 		// clear population
