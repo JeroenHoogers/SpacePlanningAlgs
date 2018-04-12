@@ -21,7 +21,7 @@ void GeneticAlgorithm::setup(int popSize, int n)
 	numGenes = n;
 
 	matingStrat = EMatingStrategy::SwitchSource;
-
+	
 	// fill first gen with random data
 	generateRandomPopulation();
 }

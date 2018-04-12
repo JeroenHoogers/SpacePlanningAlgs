@@ -15,6 +15,8 @@ enum class EMutationStrategy {
 	Elitism 
 };
 
+
+
 // TODO: implement as abstract template class instead to allow multiple implementations
 class GeneticAlgorithm
 {

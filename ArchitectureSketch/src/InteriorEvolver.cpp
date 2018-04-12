@@ -79,13 +79,16 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	// TODO: store all fitness values together with the splits in order to perform a better selection
 	for (int gen = 0; gen <= optimizationGenerations; gen++)
 	{
-		float maxFitness = -1;
+		//float maxFitness = -1;
 
 		// generate next generation
 		roomOptimizationAlgorithm.generateOffspring();
 
 		// convert
 		vector<Split> splits;
+		vector<float> fitnesses;
+		float totalFitness = 0;
+
 		Genotype genotype;
 		for (int i = 0; i < roomOptimizationAlgorithm.population.size(); i++)
 		{	
@@ -105,17 +108,26 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 
 			// compute fitness
 			float fitness = computeInteriorFitness(splits, treeIndex);
+			totalFitness += fitness;
+			fitnesses.push_back(fitness);
 
 			// if this fitness is the new optimal
-			if (fitness > maxFitness)
-			{
-				maxFitness = fitness;
+			//if (fitness > maxFitness)
+			//{
+			//	maxFitness = fitness;
 				optimalIndex = i;
 
 				// if this is the last generation, store the splits
 				if (gen == optimizationGenerations)
 					optimalSplits = splits;
-			}
+			//}
+		}
+
+
+		// 
+		for (int i = 0; i < length; i++)
+		{
+			 
 		}
 
 		// TODO: select fittest 2 individuals

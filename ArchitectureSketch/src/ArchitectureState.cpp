@@ -394,7 +394,7 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 				
 				// draw room name and area
 				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
-				ofPoint p = (*pInterior)[i].shape.getCentroid2D();
+				ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
 				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
 			}
 		}
