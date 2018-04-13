@@ -90,13 +90,14 @@ private:
 	int splits;
 
 	// amount of rooms (leaves in the binary tree)
-	int rooms;
+	int nRooms;
 
 	// number of generations used by the room sizing algorithm
 	int optimizationGenerations = 25;
 
 	GeneticAlgorithm roomOptimizationAlgorithm;
 	GeneticTreeAlgorithm geneticTreeAlgorithm;
+	GeneticAlgorithm adjacencyWeightsAlgorithm;
 
 	// use this for tree structure evolution
 	vector<SplitTreeNode*> trees;
@@ -121,9 +122,12 @@ public:
 	vector<InteriorRoom> optimizeInterior(int treeIndex);
 
 	float computeInteriorFitness(const vector<Split>& splits, int treeIndex);
+	bool checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2);
 
 	vector<InteriorRoom> generateRooms(const vector<Split>& splits, SplitTreeNode* node, const ofPolyline& shape);
 
 	SplitTreeNode* constructTestTree();
+
+	void drawDebug(ofPoint p, int tile) override;
 };
 

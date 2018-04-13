@@ -217,6 +217,16 @@ void ArchitectureState::draw()
 		ofDrawRectangle(x, y, 0, x + tilew, y + tileh);
 	}
 	//drawGUI();
+
+
+	if (showDebug)
+	{	
+		// calculate index based on mouse position
+		int tileIndex = floorf(mousePos.x / tilew) + floorf(mousePos.y / tileh) * mTilesHorizontal.get();
+
+		// draw debug menu
+		pCurrentEvolver->drawDebug(mousePos, tileIndex);
+	}
 	
 	// Make sure the camera can be interacted with
 	camera.begin();
@@ -428,6 +438,11 @@ void ArchitectureState::keyPressed(int key)
 {
 	float dist = camera.getDistance();
 
+	if (key == 'q')
+	{
+		showDebug = !showDebug;
+	}
+
 	// visible floor down
 	if (key == '[')
 	{
@@ -502,23 +517,29 @@ void ArchitectureState::keyPressed(int key)
 void ArchitectureState::mousePressed(int x, int y, int button)
 {
 	if (button == 0)
-		mousePos = ofPoint(x, y);
+		clickPos = ofPoint(x, y);
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::mouseMoved(int x, int y)
+{
+	mousePos = ofPoint(x, y);
 }
 
 //--------------------------------------------------------------
 void ArchitectureState::mouseReleased(int x, int y, int button)
 {
+
 	if (button == 0)
 	{
 		// if mouse hasn't moved do selection
-		if (mousePos != ofPoint(x, y))
+		if (clickPos != ofPoint(x, y))
 			return;
 
 		// calculate tile dimensions
 		int tilew = (ofGetWidth() / mTilesHorizontal.get());
 		int tileh = (ofGetHeight() / mTilesVertical.get());
 
-		// TODO: pass tile index to the evolver
 		// calculate index based on mouse position
 		int tileIndex = (x / tilew) + (y / tileh) * mTilesHorizontal.get();
 		bool removed = false;

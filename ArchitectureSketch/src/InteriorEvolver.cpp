@@ -14,19 +14,22 @@ InteriorEvolver::~InteriorEvolver()
 void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 {
 	// TODO: Allow multiple floor shapes
-
 	// base setup
 	Evolver::setup(_tiles, _pProgram);
 
 	// calculate the number of rooms and splits
-	rooms = pProgram->rooms.size();
-	splits = rooms - 1;
+	nRooms = pProgram->rooms.size();
+	splits = nRooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
 	roomOptimizationAlgorithm.setup(80, splits * 2, 0.2f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
-	geneticTreeAlgorithm.setup(tiles, splits + rooms);
+	geneticTreeAlgorithm.setup(tiles, splits + nRooms);
+
+	// distinct adjacency combinations (n-1) choose 2
+	int adjacencies = (nRooms * (nRooms - 1)) / 2;
+	adjacencyWeightsAlgorithm.setup(tiles, adjacencies);
 
 	for (int i = 0; i < tiles; i++)
 	{
@@ -71,6 +74,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 
 	// generate the first population
 	roomOptimizationAlgorithm.generateRandomPopulation();
+
 
 	vector<float> fitnesses;
 	vector<Split> splits;
@@ -151,7 +155,10 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 //--------------------------------------------------------------
 float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int treeIndex)
 {
-	float fitness = 0;
+	float areaFitness = 0;
+	float ratioFitness = 0;
+	float adjFitness = 0;
+
 
 	SplitTreeNode* root = trees[treeIndex];
 		//constructTestTree();
@@ -164,7 +171,7 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 	{
 		// TODO: should be proportional
 		float areaDiff = abs(rooms[i].getArea() - rooms[i].pRoom->area);
-		fitness += ofClamp(10.0f - (areaDiff / rooms[i].pRoom->area) * 10.0f, 0, 10);
+		areaFitness += ofClamp(10.0f - (areaDiff / rooms[i].pRoom->area) * 10.0f, 0, 10);
 	}
 
 	// check room ratio 
@@ -177,17 +184,60 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 		float maxDiff = abs(rooms[i].getMaxDim() - rooms[i].pRoom->max);
 
 		if (rooms[i].pRoom->min <= minDim)
-			fitness += 2;
+			ratioFitness += 2;
 		
 		if (rooms[i].pRoom->max >= maxDim)
-			fitness += 2;
+			ratioFitness += 2;
 
 		//fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
 
-	// TODO: adjacency test
+
+	// obtain adjacency weights
+	Genotype adjWeights = adjacencyWeightsAlgorithm.population[treeIndex];
+	int adjacencies = (nRooms * (nRooms - 1)) / 2;
+
+	// check all room combinations for adjacencies
+	for (int i = 0; i < rooms.size()-1; i++)
+	{
+		for (int j = i+1; j < rooms.size(); j++)
+		{
+			// check if the rooms are adjacent
+			if (checkAdjacency(rooms[i], rooms[j]))
+			{
+				// rooms are adjacent, add weight^2 * 10 to the fitness
+
+				// i is the minimum index
+				int n = nRooms - i;
+				int offset = adjacencies - (n * (n - 1)) / 2;
+				int offset2 = j - i - 1;
+
+				float w = adjWeights[offset + offset2];
+
+				// TODO: add adjacency weight to fitness function
+				// square / cube weight to get proper influence 
+				adjFitness += 10 * w * w;
+			}
+		}
+	}
+
+	float fitness = areaFitness * 1 + ratioFitness * 0 + adjFitness * 2;
 
 	return fitness;
+}
+
+
+//--------------------------------------------------------------
+bool InteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2)
+{
+	// TODO: should work for all shapes
+	ofRectangle bb1 = r1.shape.getBoundingBox();
+	ofRectangle bb2 = r2.shape.getBoundingBox();
+
+	bool xOverlap = fabsf(bb2.getCenter().x - bb1.getCenter().x) <= (bb2.getWidth() + bb1.getWidth()) * 0.5f;
+	bool yOverlap = fabsf(bb2.getCenter().y - bb1.getCenter().y) <= (bb2.getHeight() + bb1.getHeight()) * 0.5f;
+
+	return xOverlap && yOverlap;
 }
 
 //--------------------------------------------------------------
@@ -205,6 +255,7 @@ void InteriorEvolver::generate(vector<int> selection)
 
 			// select the indices in the genetic algorithm
 			geneticTreeAlgorithm.select(index);
+			adjacencyWeightsAlgorithm.select(index);
 		}
 	}
 
@@ -214,10 +265,12 @@ void InteriorEvolver::generate(vector<int> selection)
 	{
 		// let the genetic algorithm generate offspring based on the selection
 		geneticTreeAlgorithm.generateOffspring();
+		adjacencyWeightsAlgorithm.generateOffspring();
 	}
 	else
 	{
 		geneticTreeAlgorithm.generateRandomPopulation();
+		adjacencyWeightsAlgorithm.generateRandomPopulation();
 		//setupEvolution();
 	}
 
@@ -236,6 +289,44 @@ void InteriorEvolver::generate(vector<int> selection)
 		//interiors[0] = optimizeInterior(0);
 	}
 }
+
+//--------------------------------------------------------------
+void InteriorEvolver::drawDebug(ofPoint p, int tile)
+{
+	if (tile >= adjacencyWeightsAlgorithm.population.size())
+		return;
+
+	string debugString = "";
+
+	Genotype adjWeights = adjacencyWeightsAlgorithm.population[tile];
+	int adjacencies = (nRooms * (nRooms - 1)) / 2;
+
+	for (int i = 0; i < nRooms - 1; i++)
+	{
+		for (int j = i + 1; j < nRooms; j++)
+		{
+			// i is the minimum index
+			int n = nRooms - i;
+			int offset = adjacencies - (n * (n - 1)) / 2;
+			int offset2 = j - i - 1;
+
+			float w = roundf(adjWeights[offset + offset2] * 1000.0f) / 1000.0f;
+
+			bool adjacent = false;
+			if (interiors.size() > tile && interiors[tile].size() >= nRooms)
+			{
+				adjacent = checkAdjacency(interiors[tile][i], interiors[tile][j]);
+
+				debugString += ofToString(tile) + " (" + interiors[tile][i].pRoom->code + "," + interiors[tile][j].pRoom->code + "): \t" + ofToString(w) + "\t" + ofToString(adjacent) + "\n";
+			}
+			//adjacent = checkAdjacency(rooms[i], rooms[j]);
+		}
+	}
+
+	// draw adjacencies for current tile
+	ofDrawBitmapStringHighlight(debugString, p);
+}
+
 
 // Recursive algorithm to construct interior rooms
 //--------------------------------------------------------------

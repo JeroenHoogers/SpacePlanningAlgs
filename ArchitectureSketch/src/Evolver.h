@@ -23,5 +23,7 @@ public:
 
 	void select(int index);
 	virtual void generate(vector<int> selection) = 0;
+
+	virtual void drawDebug(ofPoint p, int tile) {};
 };
 

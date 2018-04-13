@@ -77,11 +77,14 @@ private:
 	int minStories = 1;
 	int maxStories = 3;
 
+	bool showDebug = false;
+
 	int visibleFloor = -1;
 
 	bool mShowGui;
 
 	ofPoint mousePos;
+	ofPoint clickPos;
 
 	ArchitectureProgram* pProgram;
 
@@ -131,6 +134,7 @@ public:
 	void stateEnter();
 	void stateExit();
 	void mousePressed(int x, int y, int button);
+	void mouseMoved(int x, int y);
 	void mouseReleased(int x, int y, int button);
 
 	void setup();
