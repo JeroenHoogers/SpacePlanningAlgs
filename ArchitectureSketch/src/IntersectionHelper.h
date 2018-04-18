@@ -39,20 +39,15 @@ public:
 		float u = det(diff, d2) / d;
 		float v = det(diff, d1) / d;
 
-		//if (u >= 0 && v >= 0)
-		//{
 		ofPoint i = p1 + d1 * u;
 		(*intersection) = i;
 
 		ofDrawCircle(i, 3.0f);
 		ofSetColor(100, 100, 250);
-			//ofDrawCircle(i, 3.0f);
-			//ofSetColor(100, 100, 100);
+		//ofDrawCircle(i, 3.0f);
+		//ofSetColor(100, 100, 100);
 
-			return true;
-		//}
-
-		//return false;
+		return true;
 	}
 
 	//--------------------------------------------------------------

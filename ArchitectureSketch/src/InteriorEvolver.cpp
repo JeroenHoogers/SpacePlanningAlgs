@@ -22,7 +22,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = nRooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(80, splits * 2, 0.2f, 0.4f);
+	roomOptimizationAlgorithm.setup(100, splits * 2, 0.2f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + nRooms);
@@ -74,7 +74,6 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 
 	// generate the first population
 	roomOptimizationAlgorithm.generateRandomPopulation();
-
 
 	vector<float> fitnesses;
 	vector<Split> splits;
@@ -146,7 +145,9 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	//SplitTreeNode* root = constructTestTree();
 	
 	// create phenotype
-	vector<InteriorRoom> interior = generateRooms(optimalSplits, trees[treeIndex], floorshape);
+	
+	vector<InteriorRoom> interior;
+	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
 	return interior;
 }
@@ -159,12 +160,12 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 	float ratioFitness = 0;
 	float adjFitness = 0;
 
-
 	SplitTreeNode* root = trees[treeIndex];
 		//constructTestTree();
 
 	// recursively subdivide polygon into rooms
-	vector<InteriorRoom> rooms = generateRooms(splits, root, floorshape);
+	vector<InteriorRoom> rooms;
+	generateRooms(splits, root, floorshape, rooms);
 
 	// check room sizes
 	for (int i = 0; i < rooms.size(); i++)
@@ -221,7 +222,7 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 		}
 	}
 
-	float fitness = areaFitness * 1 + ratioFitness * 0 + adjFitness * 2;
+	float fitness = areaFitness * 1 + ratioFitness * 1 + adjFitness * 1;
 
 	return fitness;
 }
@@ -330,9 +331,9 @@ void InteriorEvolver::drawDebug(ofPoint p, int tile)
 
 // Recursive algorithm to construct interior rooms
 //--------------------------------------------------------------
-vector<InteriorRoom> InteriorEvolver::generateRooms(const vector<Split>& splits, SplitTreeNode* node, const ofPolyline& shape)
+void InteriorEvolver::generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms)
 {
-	vector<InteriorRoom> rooms;
+	//vector<InteriorRoom> rooms;
 
 	// recurse left child
 	if(node->isLeaf())
@@ -348,15 +349,16 @@ vector<InteriorRoom> InteriorEvolver::generateRooms(const vector<Split>& splits,
 
 		// check if the index is valid, otherwise return
 		if (si >= splits.size())
-			return rooms;
+			return;
 
 		// compute left and right polygons
 		ofPoint rayPos;
 		ofVec2f rayDir;
+		
 		const ofRectangle* bb = &shape.getBoundingBox();
 
 		// make sure the cut is not all the way at the start or end
-		float pos = splits[si].position * 0.9f + 0.05f;
+		float pos = splits[si].position * 0.8f + 0.1f;
 
 		// create split
 		if (splits[si].axis == 0)
@@ -378,15 +380,16 @@ vector<InteriorRoom> InteriorEvolver::generateRooms(const vector<Split>& splits,
 		IntersectionHelper::splitPolygon(shape, rayPos, rayDir, &leftShape, &rightShape);
 
 		// continue recursion in left and right subtrees
-		vector<InteriorRoom> roomsLeft = generateRooms(splits, node->leftChild, leftShape);
-		vector<InteriorRoom> roomsRight = generateRooms(splits, node->rightChild, rightShape);
+	//	vector<InteriorRoom> roomsLeft = generateRooms(splits, node->leftChild, leftShape);
+	//	vector<InteriorRoom> roomsRight = generateRooms(splits, node->rightChild, rightShape);
 
-		// add results to the current 
-		rooms.insert(rooms.end(), roomsLeft.begin(), roomsLeft.end());
-		rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
+		generateRooms(splits, node->leftChild, leftShape, rooms);
+		generateRooms(splits, node->rightChild, rightShape, rooms);
+
+		//// add results to the current 
+		//rooms.insert(rooms.end(), roomsLeft.begin(), roomsLeft.end());
+		//rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
 	}
-
-	return rooms;
 }
 
 //--------------------------------------------------------------

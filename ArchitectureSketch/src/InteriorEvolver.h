@@ -31,7 +31,7 @@ struct SplitTreeNode
 		delete rightChild;
 	}
 
-	bool isLeaf()
+	bool isLeaf() const
 	{
 		return (leftChild == NULL || rightChild == NULL);
 	}
@@ -57,26 +57,28 @@ struct InteriorRoom
 {
 	Room* pRoom;
 	ofPolyline shape;
+	ofRectangle bb;
 
 	InteriorRoom(Room* _pRoom, ofPolyline _shape)
 	{
 		pRoom = _pRoom;
 		shape = _shape;
+		bb = shape.getBoundingBox();
 	}
 
-	float getArea()
+	float getArea() const
 	{
 		return abs(shape.getArea());
 	}
 
-	float getMinDim()
+	float getMinDim() const
 	{
-		return fminf(shape.getBoundingBox().getWidth(), shape.getBoundingBox().getHeight());
+		return fminf(bb.getWidth(), bb.getHeight());
 	}
 
-	float getMaxDim()
+	float getMaxDim() const
 	{
-		return fmaxf(shape.getBoundingBox().getWidth(), shape.getBoundingBox().getHeight());
+		return fmaxf(bb.getWidth(), bb.getHeight());
 	}
 };
 
@@ -124,7 +126,7 @@ public:
 	float computeInteriorFitness(const vector<Split>& splits, int treeIndex);
 	bool checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2);
 
-	vector<InteriorRoom> generateRooms(const vector<Split>& splits, SplitTreeNode* node, const ofPolyline& shape);
+	void generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms);
 
 	SplitTreeNode* constructTestTree();
 

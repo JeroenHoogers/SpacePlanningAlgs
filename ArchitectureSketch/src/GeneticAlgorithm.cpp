@@ -129,6 +129,7 @@ void GeneticAlgorithm::generateOffspring()
 			population.push_back(pop[selectedIndices[i]]);
 
 			// do mutation
+			// TODO: perform random crossover 
 			population[i] = mutate(population[i]);
 		}
 	}
