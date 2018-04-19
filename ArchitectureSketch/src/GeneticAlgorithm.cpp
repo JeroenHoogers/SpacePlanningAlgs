@@ -80,14 +80,24 @@ void GeneticAlgorithm::selectByFitness(vector<float> fitnesses)
 
 	// calculate fitness sum
 	float totalFitness = 0;
+	float maxFitness = 0;
+	int best = 0;
 
 	for (int i = 0; i < fitnesses.size(); i++)
 	{
 		totalFitness += fitnesses[i];
+
+		if (maxFitness < fitnesses[i])
+		{
+			maxFitness = fitnesses[i];
+			best = i;
+		}
 	}
 
+	selectedIndices.push_back(best);
+
 	// refill population
-	for (int i = 0; i < populationSize; i++)
+	for (int i = 1; i < populationSize; i++)
 	{
 		// pick a member based on fitness
 		float rand = ofRandom(totalFitness);
@@ -121,15 +131,16 @@ void GeneticAlgorithm::generateOffspring()
 		vector<Genotype> pop = population;
 
 		// clear population
-		population.clear();
+		//population.clear();
 
-		for (int i = population.size(); i < selectedIndices.size(); i++)
+		for (int i = 0; i < selectedIndices.size(); i++)
 		{	
 			// fill population
-			population.push_back(pop[selectedIndices[i]]);
+			//population.push_back(pop[selectedIndices[i]]);
+
+			population[i] = pop[selectedIndices[i]];
 
 			// do mutation
-			// TODO: perform random crossover 
 			population[i] = mutate(population[i]);
 		}
 	}
@@ -276,6 +287,7 @@ Genotype GeneticAlgorithm::mutate(Genotype genotype)
 			// adjust 
 			genotype[i] += ofRandom(-mutationAmount, mutationAmount);
 
+			// TODO: implement different wrapping method to avoid values to get stuck at 0 or 1
 			// clamp the mutation to a legal value
 			genotype[i] = ofClamp(genotype[i], 0, 1);
 		}

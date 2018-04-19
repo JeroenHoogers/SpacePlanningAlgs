@@ -171,7 +171,8 @@ void ArchitectureState::setup()
 //--------------------------------------------------------------
 void ArchitectureState::update()
 {
-
+	if (currentStep == EEvolutionStep::Interior)
+		interiorEvolver.optimizeInteriors();
 }
 
 //--------------------------------------------------------------

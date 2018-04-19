@@ -163,10 +163,10 @@ void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
 
 		// calculate angle
 		float angle = 0;
-		if (gt[i + 3] < 0.1f)
-			angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
-		if (gt[i + 3] > 0.9f)
-			angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
+		//if (gt[i + 3] < 0.1f)
+		//	angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
+		//if (gt[i + 3] > 0.9f)
+		//	angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
 
 		// create subdivs
 		//subdivs.push_back(Subdivision(gt[i]));

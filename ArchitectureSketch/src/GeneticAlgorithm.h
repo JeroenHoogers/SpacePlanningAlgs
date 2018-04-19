@@ -10,17 +10,10 @@ enum class EMatingStrategy {
 	Interpolate		// generate a percentage p per gene and interpolate the gene value based on this percentage v = p1(p) + p2(1-p)
 };
 
-enum class EMutationStrategy { 
-	Combinatorial, 
-	Elitism 
-};
-
 // TODO: implement as abstract template class instead to allow multiple implementations
 class GeneticAlgorithm
 {
 private:
-
-	EMutationStrategy mutationStrat;
 								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
 	bool allowSurvival = true; // survival 
 

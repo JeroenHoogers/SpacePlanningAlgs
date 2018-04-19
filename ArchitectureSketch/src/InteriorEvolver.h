@@ -95,7 +95,8 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 25;
+	int optimizationGenerations = 50;
+	//int gen = 0;
 
 	GeneticAlgorithm roomOptimizationAlgorithm;
 	GeneticTreeAlgorithm geneticTreeAlgorithm;
@@ -122,6 +123,8 @@ public:
 	void generate(vector<int> selection);
 
 	vector<InteriorRoom> optimizeInterior(int treeIndex);
+
+	void optimizeInteriors();
 
 	float computeInteriorFitness(const vector<Split>& splits, int treeIndex);
 	bool checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2);

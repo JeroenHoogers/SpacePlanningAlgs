@@ -66,15 +66,33 @@ vector<InteriorRoom>* InteriorEvolver::getInteriorAt(int tile)
 }
 
 //--------------------------------------------------------------
+void InteriorEvolver::optimizeInteriors()
+{
+	//if (gen >= optimizationGenerations)
+	//	return;
+
+	//// compute optimal interior division for these tree structures
+	//for (int i = 0; i < geneticTreeAlgorithm.population.size(); i++)
+	//{
+	//	// optimize interiors
+	//	interiors[i] = optimizeInterior(i);
+
+	//}
+
+	//gen++;
+}
+
+//--------------------------------------------------------------
 vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 {
 	// TODO: get split tree using treeIndex
-
 	// for now just construct a balanced binary tree
 
-	// generate the first population
-	roomOptimizationAlgorithm.generateRandomPopulation();
-
+	//if (gen == 0)
+	//{
+		// generate the first population
+		roomOptimizationAlgorithm.generateRandomPopulation();
+	//}
 	vector<float> fitnesses;
 	vector<Split> splits;
 	vector<Split> optimalSplits;
@@ -82,6 +100,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	// TODO: store all fitness values together with the splits in order to perform a better selection
 	for (int gen = 0; gen <= optimizationGenerations; gen++)
 	{
+
 		// generate next generation
 		roomOptimizationAlgorithm.generateOffspring();
 
@@ -117,16 +136,12 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			fitnesses.push_back(fitness);
 
 			// find the best best individual of the last generation
-
 			if (fitness > maxfitness)
 			{
 				maxfitness = fitness;
-				optimalIndex = i;
 
-				if (gen == optimizationGenerations)
-				{
-					optimalSplits = splits;
-				}
+				optimalIndex = i;
+				optimalSplits = splits;
 			}
 		}
 
@@ -148,6 +163,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	
 	vector<InteriorRoom> interior;
 	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
+
 
 	return interior;
 }
@@ -185,10 +201,10 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 		float maxDiff = abs(rooms[i].getMaxDim() - rooms[i].pRoom->max);
 
 		if (rooms[i].pRoom->min <= minDim)
-			ratioFitness += 2;
+			ratioFitness += 3;
 		
 		if (rooms[i].pRoom->max >= maxDim)
-			ratioFitness += 2;
+			ratioFitness += 3;
 
 		//fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
@@ -222,7 +238,7 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 		}
 	}
 
-	float fitness = areaFitness * 1 + ratioFitness * 1 + adjFitness * 1;
+	float fitness = areaFitness * 1 + ratioFitness * 1 + adjFitness * 0;
 
 	return fitness;
 }
@@ -301,6 +317,14 @@ void InteriorEvolver::drawDebug(ofPoint p, int tile)
 
 	Genotype adjWeights = adjacencyWeightsAlgorithm.population[tile];
 	int adjacencies = (nRooms * (nRooms - 1)) / 2;
+	
+	for (int i = 0; i < nRooms; i++)
+	{
+		float area = roundf(interiors[tile][i].getArea() * 10.0f) / 10.0f;
+		debugString += interiors[tile][i].pRoom->code + " \t t: " + ofToString(interiors[tile][i].pRoom->area) + " m2, \t a: " + ofToString(area) + " m2\n";
+	}
+
+	debugString += "\n";
 
 	for (int i = 0; i < nRooms - 1; i++)
 	{
@@ -318,7 +342,7 @@ void InteriorEvolver::drawDebug(ofPoint p, int tile)
 			{
 				adjacent = checkAdjacency(interiors[tile][i], interiors[tile][j]);
 
-				debugString += ofToString(tile) + " (" + interiors[tile][i].pRoom->code + "," + interiors[tile][j].pRoom->code + "): \t" + ofToString(w) + "\t" + ofToString(adjacent) + "\n";
+				debugString += " (" + interiors[tile][i].pRoom->code + "," + interiors[tile][j].pRoom->code + "): \t" + ofToString(w) + "\t" + ofToString(adjacent) + "\n";
 			}
 			//adjacent = checkAdjacency(rooms[i], rooms[j]);
 		}
@@ -395,6 +419,7 @@ void InteriorEvolver::generateRooms(const vector<Split>& splits, const SplitTree
 //--------------------------------------------------------------
 SplitTreeNode* InteriorEvolver::constructTestTree()
 {
+	// TODO: generate this tree randomly
 	SplitTreeNode* root = new SplitTreeNode(0);
 	SplitTreeNode* lc = new SplitTreeNode(1);
 	SplitTreeNode* rc = new SplitTreeNode(2);

@@ -30,11 +30,11 @@ private:
 
 	// program parameters
 	ofParameter<int> mInhabitants = ofParameter<int>("Inhabitants", 4, 1, 7);
-	ofParameter<int> mStories = ofParameter<int>("Stories", 2, 1, 3);
+	ofParameter<int> mStories = ofParameter<int>("Stories", 1, 1, 3);
 
 	// site parameters
-	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 10, 5, 25);
-	ofParameter<int> mDepth = ofParameter<int>("Lot depth (m)", 10, 5, 25);
+	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 15, 5, 25);
+	ofParameter<int> mDepth = ofParameter<int>("Lot depth (m)", 15, 5, 25);
 
 	ofParameter<bool> mTerracedLeft = ofParameter<bool>("Terraced Left", false);
 	ofParameter<bool> mTerracedRight = ofParameter<bool>("Terraced Right", false);

@@ -37,11 +37,11 @@ public:
 	bool terracedLeft = false;
 	bool terracedRight = false;
 
-	int lotWidth = 25;
-	int lotDepth = 25;
+	int lotWidth = 15;
+	int lotDepth = 15;
 
 	int inhabitants = 4;
-	int stories = 2;
+	int stories = 1;
 
 	ofRectangle getLotRectangle()
 	{
@@ -53,7 +53,7 @@ public:
 	ArchitectureProgram()
 	{
 		// add test rooms
-		rooms.push_back(Room("Mstr. Bedroom", "M. Bed", 20.0f));
+		rooms.push_back(Room("Mstr. Bedroom", "M. Be", 20.0f));
 		rooms.push_back(Room("Bathroom", "Ba", 3.75f));
 		rooms.push_back(Room("Living", "Li", 30.0f));
 		rooms.push_back(Room("Kitchen", "Ki", 9.0f));
