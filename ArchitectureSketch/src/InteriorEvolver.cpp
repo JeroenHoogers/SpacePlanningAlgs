@@ -112,20 +112,20 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 		float maxfitness = -1.0f;
 		int optimalIndex = -1;
 
-		Genotype genotype;
+		Genotype* pGenotype;
 		for (int i = 0; i < roomOptimizationAlgorithm.population.size(); i++)
 		{	
-			genotype = roomOptimizationAlgorithm.population[i];
+			pGenotype = &roomOptimizationAlgorithm.population[i];
 
 			splits.clear();
 
 			// create splits
-			for (int j = 0; j < genotype.genes.size(); j += 2)
+			for (int j = 0; j < pGenotype->genes.size(); j += 2)
 			{
 				splits.push_back(
 					Split(
-						genotype.genes[j],								// position
-						fminf(floorf(genotype.genes[j+1] * 2.0), 1.0)		// axis
+						pGenotype->genes[j],								// position
+						fminf(floorf(pGenotype->genes[j+1] * 2.0), 1.0)		// axis
 					)
 				);	
 			}
@@ -134,7 +134,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			float fitness = computeInteriorFitness(splits, treeIndex);
 			totalFitness += fitness;
 
-			genotype.fitness = fitness;
+			pGenotype->fitness = fitness;
 
 //			fitnesses.push_back(fitness);
 
@@ -156,7 +156,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 		// TODO: select fittest 2 individuals
 		//roomOptimizationAlgorithm.select(optimalIndex);
 
-		roomOptimizationAlgorithm.selectByFitness(fitnesses);
+		//roomOptimizationAlgorithm.selectByFitness(fitnesses);
 	}
 
 	// done with evolution, pick the genome with the highest fitness as our optimal room division

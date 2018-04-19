@@ -69,6 +69,9 @@ DNA GeneticAlgorithm::generateRandomDna()
 //--------------------------------------------------------------
 void GeneticAlgorithm::select(int index)
 {
+	// set fitness to 1
+	population[index].fitness = 1;
+
 	if(index >= 0 && index < population.size())
 		selectedIndices.push_back(index);
 }
@@ -139,10 +142,25 @@ void GeneticAlgorithm::generateOffspring()
 		}
 	}
 
+	// TODO: select multiple individuals
+	// TODO: different for selected
 	// elitism, copy the best individuals of the population without any mutation
-	if(elitism)
-		temp.push_back(population[fittestIndex]);
-
+	if (elitism)
+	{
+		// selection based elitism
+		if (selectedIndices.size() > 0)
+		{
+			for (size_t i = 0; i < selectedIndices.size(); i++)
+			{
+				temp.push_back(Genotype(population[selectedIndices[i]].genes));
+			}
+		}
+		else // automated
+		{
+			temp.push_back(Genotype(population[fittestIndex].genes));
+		}
+	}
+		
 	// create new population
 	while (temp.size() < population.size() - 1)
 	{
@@ -159,6 +177,7 @@ void GeneticAlgorithm::generateOffspring()
 
 		// add offspring to new generation
 		temp.push_back(Genotype(offspring1));
+		temp.push_back(Genotype(offspring2));
 	}
 
 	// in some cases where the population size is uneven, we need to add 1 extra individual
@@ -378,42 +397,27 @@ vector<float> GeneticAlgorithm::rouletteSelection(float totalFitness)
 
 
 //--------------------------------------------------------------
-void GeneticAlgorithm::crossover(vector<float>* offspring1, vector<float>* offspring2)
+void GeneticAlgorithm::crossover(DNA* offspring1, DNA* offspring2)
 {
-	// TODO: crossover
+	// crossover
 	if (offspring1->size() != offspring2->size())
 		return;
 
 	for (size_t i = 0; i < offspring1->size(); i++)
 	{
-		
+		// crossover genes independently
+		//		useOtherGene = ofRandom(1) < probability;
+
+		// crossover genes
+		if (ofRandom(1) < 0.5f)
+		{
+			// do crossover
+			// swap genes
+			float v = (*offspring1)[i];
+			(*offspring1)[i] = (*offspring2)[i];
+			(*offspring2)[i] = v;
+		}
 	}
-
-	//Genotype child = parent1;
-
-	//bool useOtherGene = false;
-
-	//// 2^N possible values and randomly select a few to be in the new population, also add the original parents
-	//for (size_t i = 0; i < child.size(); i++)
-	//{
-	//	if (groupGenes)
-	//	{
-	//		// use the same genes for the entire group
-	//		if (i % groupSize == 0)
-	//			useOtherGene = ofRandom(1) < probability;
-	//	}
-	//	else
-	//	{
-	//		// crossover genes independently
-	//		useOtherGene = ofRandom(1) < probability;
-	//	}
-
-	//	//useOtherGene = ofRandom(1) < probability;
-
-	//	if (useOtherGene)
-	//		child[i] = parent2[i];
-	//}
-
 }
 
 
