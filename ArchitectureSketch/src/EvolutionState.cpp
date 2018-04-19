@@ -169,7 +169,7 @@ void EvolutionState::draw()
 			ofSetColor(255);
 			ofDrawBitmapStringHighlight(ofToString(i) + " | " + ofToString(diff), 0, -10);
 
-			drawGenotype(geneticAlg.population[mSelectionRectangles[i].index]);
+			drawGenotype(geneticAlg.population[mSelectionRectangles[i].index].genes);
 		}
 		ofPopMatrix();
 	}

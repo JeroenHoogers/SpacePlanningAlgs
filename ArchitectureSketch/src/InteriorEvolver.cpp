@@ -120,12 +120,12 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			splits.clear();
 
 			// create splits
-			for (int j = 0; j < genotype.size(); j += 2)
+			for (int j = 0; j < genotype.genes.size(); j += 2)
 			{
 				splits.push_back(
 					Split(
-						genotype[j],								// position
-						fminf(floorf(genotype[j+1] * 2.0), 1.0)		// axis
+						genotype.genes[j],								// position
+						fminf(floorf(genotype.genes[j+1] * 2.0), 1.0)		// axis
 					)
 				);	
 			}
@@ -133,7 +133,10 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 			// compute fitness
 			float fitness = computeInteriorFitness(splits, treeIndex);
 			totalFitness += fitness;
-			fitnesses.push_back(fitness);
+
+			genotype.fitness = fitness;
+
+//			fitnesses.push_back(fitness);
 
 			// find the best best individual of the last generation
 			if (fitness > maxfitness)
@@ -211,7 +214,7 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 
 
 	// obtain adjacency weights
-	Genotype adjWeights = adjacencyWeightsAlgorithm.population[treeIndex];
+	DNA adjWeights = adjacencyWeightsAlgorithm.population[treeIndex].genes;
 	int adjacencies = (nRooms * (nRooms - 1)) / 2;
 
 	// check all room combinations for adjacencies
@@ -315,7 +318,7 @@ void InteriorEvolver::drawDebug(ofPoint p, int tile)
 
 	string debugString = "";
 
-	Genotype adjWeights = adjacencyWeightsAlgorithm.population[tile];
+	DNA adjWeights = adjacencyWeightsAlgorithm.population[tile].genes;
 	int adjacencies = (nRooms * (nRooms - 1)) / 2;
 	
 	for (int i = 0; i < nRooms; i++)

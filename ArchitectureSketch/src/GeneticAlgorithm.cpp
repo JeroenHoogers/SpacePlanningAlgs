@@ -50,20 +50,20 @@ void GeneticAlgorithm::generateRandomPopulation()
 
 	for (size_t i = 0; i < populationSize; i++)
 	{
-		population.push_back(generateRandomDna());
+		population.push_back(Genotype(generateRandomDna()));
 	}
 }
 
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::generateRandomDna()
+DNA GeneticAlgorithm::generateRandomDna()
 {
-	Genotype genotype = Genotype();
+	DNA genes = DNA();
 	for (size_t i = 0; i < numGenes; i++)
 	{
-		genotype.push_back(ofRandom(1));
+		genes.push_back(ofRandom(1));
 	}
 
-	return genotype;
+	return genes;
 }
 
 //--------------------------------------------------------------
@@ -74,7 +74,7 @@ void GeneticAlgorithm::select(int index)
 }
 
 //--------------------------------------------------------------
-void GeneticAlgorithm::selectByFitness(vector<float> fitnesses)
+void GeneticAlgorithm::selectByFitness(const vector<float>& fitnesses)
 {
 	selectedIndices.clear();
 
@@ -118,157 +118,217 @@ void GeneticAlgorithm::selectByFitness(vector<float> fitnesses)
 	//population.clear();
 }
 
-// TODO: crossover should be based on a probability
-// TODO: mutation should be based on a probability
 //--------------------------------------------------------------
 void GeneticAlgorithm::generateOffspring()
-{	
-	// fitness based selection has been performed
-	if (selectedIndices.size() == population.size())
+{
+	vector<Genotype> temp;
+
+	// calculate fitness sum
+	float totalFitness = 0;
+	float maxFitness = 0;
+	int fittestIndex = 0;
+
+	for (int i = 0; i < population.size(); i++)
 	{
-		// TODO: could probably be made more efficient (vector reserve)
-		// store old population temporary
-		vector<Genotype> pop = population;
+		totalFitness += population[i].fitness;
 
-		// clear population
-		//population.clear();
-
-		for (int i = 0; i < selectedIndices.size(); i++)
-		{	
-			// fill population
-			//population.push_back(pop[selectedIndices[i]]);
-
-			population[i] = pop[selectedIndices[i]];
-
-			// do mutation
-			population[i] = mutate(population[i]);
+		if (maxFitness < population[i].fitness)
+		{
+			maxFitness = population[i].fitness;
+			fittestIndex = i;
 		}
 	}
 
-	if (selectedIndices.size() == 0) // no selection 
+	// elitism, copy the best individuals of the population without any mutation
+	if(elitism)
+		temp.push_back(population[fittestIndex]);
+
+	// create new population
+	while (temp.size() < population.size() - 1)
 	{
-		// clear population
-		population.clear();
+		// select 2 members of the old population using roulette selection
+		DNA offspring1 = rouletteSelection(totalFitness);
+		DNA offspring2 = rouletteSelection(totalFitness);
 
-		// create new random population
-		generateRandomPopulation();
+		// crossover
+		crossover(&offspring1, &offspring2);
+
+		// mutate
+		mutate(&offspring1);
+		mutate(&offspring2);
+
+		// add offspring to new generation
+		temp.push_back(Genotype(offspring1));
 	}
-	else if (selectedIndices.size() == 1) // mutate single 
+
+	// in some cases where the population size is uneven, we need to add 1 extra individual
+	if (temp.size() == population.size() - 1)
 	{
-		// mutate single
-		Genotype selected = population[selectedIndices[0]];
-
-		// clear population
-		population.clear();
-
-		// add selected individual (optional)
-		if (allowSurvival)
-		{
-			population.push_back(selected);
-		}
-
-		// populate the rest with mutations of the selected genotype
-		for (int i = population.size(); i < populationSize; i++)
-		{
-			population.push_back(mutate(selected));
-		}
+		DNA offspring = rouletteSelection(totalFitness);
+		mutate(&offspring);
+		temp.push_back(Genotype(offspring));
 	}
-	else if (selectedIndices.size() == 2) // mate
-	{
-		// mate 2 parents
-		Genotype parent1 = population[selectedIndices[0]];
-		Genotype parent2 = population[selectedIndices[1]];
 
-		// clear population
-		population.clear();
-
-		// add selected individuals (optional)
-		if (allowSurvival)
-		{
-			population.push_back(parent1);
-			population.push_back(parent2);
-		}
-
-		// populate the rest with mutations of the selected genotype
-		for (int i = population.size(); i < populationSize; i++)
-		{
-			Genotype child;
-
-			switch (matingStrat)
-			{
-			default:
-			case EMatingStrategy::SwitchSource:
-				child = crossoverSwitchGenotype(parent1, parent2, 3);
-				break;
-			case EMatingStrategy::Gene:
-				child = crossover(parent1, parent2, 0.5f);
-				break;
-			case EMatingStrategy::Interpolate:
-				child = crossoverInterpolation(parent1, parent2);
-				break;
-			}
-
-			//Genotype child = crossover(parent1, parent2, 0.5f);
-			
-			//Genotype child = crossoverInterpolation(parent1, parent2);
-
-			population.push_back(mutate(child));
-			
-		}
-	}
-	else if (selectedIndices.size() > 2)
-	{
-		vector<Genotype> parents;
-
-		for (int i = 0; i < selectedIndices.size(); i++)
-		{
-			parents.push_back(population[selectedIndices[i]]);
-		}
-
-		// clear population
-		population.clear();
-
-		// add selected individuals (optional)
-		if (allowSurvival)
-		{
-			for (int i = 0; i < parents.size(); i++)
-			{
-				population.push_back(parents[i]);
-			}
-		}
-
-		float prob = 1.0f / selectedIndices.size();
-
-		// populate the rest with mutations of the selected genotype
-		for (int i = population.size(); i < populationSize; i++)
-		{
-			// TODO: this is not a probabilistically fair approach
-			Genotype child = parents[0];
-
-			for (size_t j = 1; j < parents.size(); j++)
-			{
-				child = crossover(child, parents[j], prob);
-			}
-
-			//population.push_back(child);
-			population.push_back(mutate(child));
-		}
-	}
-	
-	// remove selection
-	selectedIndices.clear();
+	// replace population
+	population.swap(temp);
 
 	// increase generation counter
 	currentGeneration++;
 }
+//
+//// TODO: crossover should be based on a probability
+//// TODO: mutation should be based on a probability
+////--------------------------------------------------------------
+//void GeneticAlgorithm::generateOffspring()
+//{
+//	//// fitness based selection has been performed
+//	//if (selectedIndices.size() == population.size())
+//	//{
+//	//	// TODO: could probably be made more efficient (vector reserve)
+//	//	// store old population temporary
+//	//	vector<Genotype> pop = population;
+//
+//	//	// clear population
+//	//	//population.clear();
+//
+//	//	for (int i = 0; i < selectedIndices.size(); i++)
+//	//	{	
+//	//		// fill population
+//	//		//population.push_back(pop[selectedIndices[i]]);
+//
+//	//		population[i] = pop[selectedIndices[i]];
+//
+//	//		// do mutation
+//	//		population[i] = mutate(population[i]);
+//	//	}
+//	//}
+//
+//	if (selectedIndices.size() == 0) // no selection 
+//	{
+//		// clear population
+//		population.clear();
+//
+//		// create new random population
+//		generateRandomPopulation();
+//	}
+//	else if (selectedIndices.size() == 1) // mutate single 
+//	{
+//		// mutate single
+//		Genotype selected = population[selectedIndices[0]];
+//
+//		// clear population
+//		population.clear();
+//
+//		// add selected individual (optional)
+//		if (elitism)
+//		{
+//			population.push_back(selected);
+//		}
+//
+//		// populate the rest with mutations of the selected genotype
+//		for (int i = population.size(); i < populationSize; i++)
+//		{
+//			mutate(&selected.genes);
+//			population.push_back(selected);
+//		}
+//	}
+//	else if (selectedIndices.size() == 2) // mate
+//	{
+//		// mate 2 parents
+//		DNA parent1 = population[selectedIndices[0]].genes;
+//		DNA parent2 = population[selectedIndices[1]].genes;
+//
+//		// clear population
+//		population.clear();
+//
+//		// add selected individuals (optional)
+//		if (elitism)
+//		{
+//			population.push_back(parent1);
+//			population.push_back(parent2);
+//		}
+//
+//		// populate the rest with mutations of the selected genotype
+//		for (int i = population.size(); i < populationSize; i++)
+//		{
+//			DNA child;
+//
+//			switch (matingStrat)
+//			{
+//			default:
+//			case EMatingStrategy::SwitchSource:
+//				child = crossoverSwitchGenotype(parent1, parent2, 3);
+//				break;
+//			case EMatingStrategy::Gene:
+//				child = crossover(parent1, parent2, 0.5f);
+//				break;
+//			case EMatingStrategy::Interpolate:
+//				child = crossoverInterpolation(parent1, parent2);
+//				break;
+//			}
+//
+//			//Genotype child = crossover(parent1, parent2, 0.5f);
+//			
+//			//Genotype child = crossoverInterpolation(parent1, parent2);
+//			mutate(&child);
+//
+//			population.push_back(Genotype(child));
+//			
+//		}
+//	}
+//	else if (selectedIndices.size() > 2)
+//	{
+//		vector<Genotype> parents;
+//
+//		for (int i = 0; i < selectedIndices.size(); i++)
+//		{
+//			parents.push_back(population[selectedIndices[i]]);
+//		}
+//
+//		// clear population
+//		population.clear();
+//
+//		// add selected individuals (optional)
+//		if (elitism)
+//		{
+//			for (int i = 0; i < parents.size(); i++)
+//			{
+//				population.push_back(parents[i]);
+//			}
+//		}
+//
+//		float prob = 1.0f / selectedIndices.size();
+//
+//		// populate the rest with mutations of the selected genotype
+//		for (int i = population.size(); i < populationSize; i++)
+//		{
+//			// TODO: this is not a probabilistically fair approach
+//			DNA child = parents[0].genes;
+//
+//			for (size_t j = 1; j < parents.size(); j++)
+//			{
+//				child = crossover(child, parents[j], prob);
+//			}
+//
+//			//population.push_back(child);
+//			population.push_back(mutate(&child));
+//		}
+//	}
+//	
+//	// remove selection
+//	selectedIndices.clear();
+//
+//	// increase generation counter
+//	currentGeneration++;
+//}
 
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::mutate(Genotype genotype)
+void GeneticAlgorithm::mutate(DNA* genes)
 {
 	//vector<float> genotype;
 	bool mutateGene = false;
 
-	for (size_t i = 0; i < genotype.size(); i++)
+	for (size_t i = 0; i < genes->size(); i++)
 	{
 		if (groupGenes)
 		{
@@ -285,21 +345,82 @@ Genotype GeneticAlgorithm::mutate(Genotype genotype)
 		if (mutateGene)
 		{
 			// adjust 
-			genotype[i] += ofRandom(-mutationAmount, mutationAmount);
+			(*genes)[i] += ofRandom(-mutationAmount, mutationAmount);
 
 			// TODO: implement different wrapping method to avoid values to get stuck at 0 or 1
 			// clamp the mutation to a legal value
-			genotype[i] = ofClamp(genotype[i], 0, 1);
+			(*genes)[i] = ofClamp((*genes)[i], 0, 1);
+		}
+	}
+}
+
+
+//--------------------------------------------------------------
+vector<float> GeneticAlgorithm::rouletteSelection(float totalFitness)
+{
+	// pick a member based on fitness
+	float rand = ofRandom(totalFitness);
+
+	float cumulativeFitness = 0.0f;
+
+	for (int i = 0; i < population.size(); i++)
+	{
+		cumulativeFitness += population[i].fitness;
+
+		if (rand <= cumulativeFitness)
+		{
+			return population[i].genes;
 		}
 	}
 
-	return genotype;
+	return vector<float>();
 }
 
+
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::crossover(Genotype parent1, Genotype parent2, float probability)
+void GeneticAlgorithm::crossover(vector<float>* offspring1, vector<float>* offspring2)
 {
-	Genotype child = parent1;
+	// TODO: crossover
+	if (offspring1->size() != offspring2->size())
+		return;
+
+	for (size_t i = 0; i < offspring1->size(); i++)
+	{
+		
+	}
+
+	//Genotype child = parent1;
+
+	//bool useOtherGene = false;
+
+	//// 2^N possible values and randomly select a few to be in the new population, also add the original parents
+	//for (size_t i = 0; i < child.size(); i++)
+	//{
+	//	if (groupGenes)
+	//	{
+	//		// use the same genes for the entire group
+	//		if (i % groupSize == 0)
+	//			useOtherGene = ofRandom(1) < probability;
+	//	}
+	//	else
+	//	{
+	//		// crossover genes independently
+	//		useOtherGene = ofRandom(1) < probability;
+	//	}
+
+	//	//useOtherGene = ofRandom(1) < probability;
+
+	//	if (useOtherGene)
+	//		child[i] = parent2[i];
+	//}
+
+}
+
+
+//--------------------------------------------------------------
+DNA GeneticAlgorithm::crossover(const DNA& parent1, const DNA& parent2, float probability)
+{
+	DNA child = parent1;
 
 	bool useOtherGene = false;
 
@@ -328,9 +449,9 @@ Genotype GeneticAlgorithm::crossover(Genotype parent1, Genotype parent2, float p
 }
 
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::crossoverInterpolation(Genotype parent1, Genotype parent2)
+DNA GeneticAlgorithm::crossoverInterpolation(const DNA& parent1, const DNA& parent2)
 {
-	Genotype child = parent1;
+	DNA child = parent1;
 
 	float p = 0;
 
@@ -347,9 +468,9 @@ Genotype GeneticAlgorithm::crossoverInterpolation(Genotype parent1, Genotype par
 }
 
 //--------------------------------------------------------------
-Genotype GeneticAlgorithm::crossoverSwitchGenotype(Genotype parent1, Genotype parent2, int frequency)
+DNA GeneticAlgorithm::crossoverSwitchGenotype(const DNA& parent1, const DNA& parent2, int frequency)
 {
-	Genotype child = parent1;
+	DNA child = parent1;
 
 	vector<int> crossoverPoints = vector<int>();
 	bool useOtherGene = false;
@@ -384,16 +505,16 @@ Genotype GeneticAlgorithm::crossoverSwitchGenotype(Genotype parent1, Genotype pa
 
 
 //--------------------------------------------------------------
-float GeneticAlgorithm::absDifference(int index, Genotype target)
+float GeneticAlgorithm::absDifference(int index, DNA target)
 {
-	if (index < 0 || index >= population.size() || target.size() != population[index].size())
+	if (index < 0 || index >= population.size() || target.size() != population[index].genes.size())
 		return -1;
 
 	float accumulated = 0;
 
 	for (size_t i = 0; i < target.size(); i++)
 	{
-		accumulated += abs(target[i] - population[index][i]);
+		accumulated += abs(target[i] - population[index].genes[i]);
 	}
 
 	return accumulated;

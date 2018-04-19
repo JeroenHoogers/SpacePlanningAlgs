@@ -104,7 +104,7 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 }
 
 //--------------------------------------------------------------
-void Building::LoadFromGenotype(Genotype gt, ArchitectureProgram program)
+void Building::LoadFromGenotype(DNA gt, ArchitectureProgram program)
 {
 	// TODO: loosly couple building and program
 	// TODO: move this to exterior evolver

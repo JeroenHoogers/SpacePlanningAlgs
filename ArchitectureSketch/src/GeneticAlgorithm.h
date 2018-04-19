@@ -2,7 +2,18 @@
 
 #include "ofMain.h"
 
-typedef vector<float> Genotype;
+typedef vector<float> DNA;
+
+// Genotype structure
+struct Genotype
+{
+	DNA genes;
+	float fitness;
+
+	Genotype() : genes(vector<float>()), fitness(0.0f) { };
+	Genotype(DNA _genes) : genes(_genes), fitness(0.0f) { };
+	Genotype(DNA _genes, float _fitness) : genes(_genes), fitness(_fitness) { };
+};
 
 enum class EMatingStrategy { 
 	SwitchSource,	// switch source parent at some frequency
@@ -15,10 +26,11 @@ class GeneticAlgorithm
 {
 private:
 								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
-	bool allowSurvival = true; // survival 
+	bool elitism = true;		// Let the best few of a population survive without mutation
 
 public:
 	vector<Genotype> population;
+
 	vector<int> selectedIndices;
 
 	EMatingStrategy matingStrat;
@@ -27,9 +39,11 @@ public:
 
 	int numGenes; // parameters
 
-	float mutationRate = 0.25; // probability of mutating a single gene
-	float mutationAmount = 0.4; // maximum mutation amount compared to original gene value (offset) 
+	float mutationRate = 0.25f; // probability of mutating a single gene
+	float mutationAmount = 0.4f; // maximum mutation amount compared to original gene value (offset) 
 	
+	float crossoverRate = 0.7f;
+
 	bool groupGenes = false;
 	int groupSize = 5;
 
@@ -42,20 +56,25 @@ public:
 	void setup(int popSize, int n);
 	void setup(int popSize, int n, float mutRate, float mutAmount);
 
-	float absDifference(int index, Genotype target);
+	float absDifference(int index, DNA target);
 
 	void generateRandomPopulation();
-	Genotype generateRandomDna();
+	DNA generateRandomDna();
 
-	Genotype mutate(Genotype genotype);
+	void mutate(DNA* genotype);
 
 	void generateOffspring();
+	//void generateOffspring(const vector<float>& fitnesses);
 
 	// select a single individual from the population for offspring
 	void select(int index);
-	void selectByFitness(vector<float> fitnesses);
+	void selectByFitness(const vector<float>& fitnesses);
 
-	Genotype crossover(Genotype parent1, Genotype parent2, float probability);
-	Genotype crossoverInterpolation(Genotype parent1, Genotype parent2);
-	Genotype crossoverSwitchGenotype(Genotype parent1, Genotype parent2, int frequency);
+	vector<float> rouletteSelection(float totalFitness);
+
+	void crossover(DNA* offspring1, DNA* offspring2);
+
+	DNA crossover(const DNA& parent1, const DNA& parent2, float probability);
+	DNA crossoverInterpolation(const DNA& parent1, const DNA& parent2);
+	DNA crossoverSwitchGenotype(const DNA& parent1, const DNA& parent2, int frequency);
 };

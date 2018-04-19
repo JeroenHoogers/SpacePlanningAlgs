@@ -82,7 +82,7 @@ void ExteriorEvolver::generate(vector<int> selection)
 	{
 		//for (int j = 0; j < 100; j++)
 		//{
-		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i], *pProgram);
+		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i].genes, *pProgram);
 
 		// filter candidates
 		if (isBuildingValid(buildings[i]))
