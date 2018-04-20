@@ -32,6 +32,8 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 
 	// evaluate all candidates
 	generate(vector<int>());
+
+	generation = 0;
 }
 
 //--------------------------------------------------------------
@@ -70,10 +72,13 @@ void ExteriorEvolver::generate(vector<int> selection)
 	{
 		// let the genetic algorithm generate offspring based on the selection
 		geneticAlgorithm.generateOffspring();
+
+		generation++;
 	}
 	else
 	{
 		geneticAlgorithm.generateRandomPopulation();
+		generation = 0;
 		//setupEvolution();
 	}
 

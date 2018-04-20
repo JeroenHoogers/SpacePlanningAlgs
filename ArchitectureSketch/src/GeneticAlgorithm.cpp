@@ -142,6 +142,9 @@ void GeneticAlgorithm::generateOffspring()
 		}
 	}
 
+
+
+
 	// TODO: select multiple individuals
 	// TODO: different for selected
 	// elitism, copy the best individuals of the population without any mutation
@@ -190,6 +193,9 @@ void GeneticAlgorithm::generateOffspring()
 
 	// replace population
 	population.swap(temp);
+
+	// remove selection
+	selectedIndices.clear();
 
 	// increase generation counter
 	currentGeneration++;

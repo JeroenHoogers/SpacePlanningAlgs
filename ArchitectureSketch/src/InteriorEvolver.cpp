@@ -167,7 +167,6 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	vector<InteriorRoom> interior;
 	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
-
 	return interior;
 }
 
@@ -241,7 +240,7 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 		}
 	}
 
-	float fitness = areaFitness * 1 + ratioFitness * 1 + adjFitness * 0;
+	float fitness = areaFitness * 1 + ratioFitness * 1 + adjFitness * 1;
 
 	return fitness;
 }
@@ -291,6 +290,8 @@ void InteriorEvolver::generate(vector<int> selection)
 	{
 		geneticTreeAlgorithm.generateRandomPopulation();
 		adjacencyWeightsAlgorithm.generateRandomPopulation();
+
+		generation = 0;
 		//setupEvolution();
 	}
 
@@ -308,6 +309,7 @@ void InteriorEvolver::generate(vector<int> selection)
 
 		//interiors[0] = optimizeInterior(0);
 	}
+	generation++;
 }
 
 //--------------------------------------------------------------
@@ -447,6 +449,38 @@ SplitTreeNode* InteriorEvolver::constructTestTree()
 
 	lclc->leftChild = lclclc;
 	lclc->rightChild = lcrcrc;
+
+	return root;
+}
+
+//--------------------------------------------------------------
+SplitTreeNode* InteriorEvolver::constructTestTree2()
+{
+	// TODO: generate this tree randomly
+	SplitTreeNode* root = new SplitTreeNode(0);
+	SplitTreeNode* lc = new SplitTreeNode(1);
+	SplitTreeNode* rc = new SplitTreeNode(0); // room 0
+
+	root->leftChild = lc;
+	root->rightChild = rc;
+
+	SplitTreeNode* lclc = new SplitTreeNode(2);
+	SplitTreeNode* lcrc = new SplitTreeNode(3);
+
+	lc->leftChild = lclc;
+	lc->rightChild = lcrc;
+
+	SplitTreeNode* lcrclc = new SplitTreeNode(1); // room 1
+	SplitTreeNode* lcrcrc = new SplitTreeNode(2); // room 2
+
+	lcrc->leftChild = lcrclc;
+	lcrc->rightChild = lcrcrc;
+
+	SplitTreeNode* lclclc = new SplitTreeNode(3); // room 3
+	SplitTreeNode* lclcrc = new SplitTreeNode(4); // room 4
+
+	lclc->leftChild = lclclc;
+	lclc->rightChild = lclcrc;
 
 	return root;
 }

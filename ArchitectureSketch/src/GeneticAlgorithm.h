@@ -27,6 +27,7 @@ class GeneticAlgorithm
 private:
 								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
 	bool elitism = true;		// Let the best few of a population survive without mutation
+	float elitismRate = 0.05f;
 
 public:
 	vector<Genotype> population;
@@ -42,7 +43,7 @@ public:
 	float mutationRate = 0.25f; // probability of mutating a single gene
 	float mutationAmount = 0.4f; // maximum mutation amount compared to original gene value (offset) 
 	
-	float crossoverRate = 0.7f;
+	float crossoverRate = 0.75f;
 
 	bool groupGenes = false;
 	int groupSize = 5;
@@ -61,7 +62,7 @@ public:
 	void generateRandomPopulation();
 	DNA generateRandomDna();
 
-	void mutate(DNA* genotype);
+	virtual void mutate(DNA* genotype);
 
 	void generateOffspring();
 	//void generateOffspring(const vector<float>& fitnesses);
@@ -72,7 +73,7 @@ public:
 
 	vector<float> rouletteSelection(float totalFitness);
 
-	void crossover(DNA* offspring1, DNA* offspring2);
+	virtual void crossover(DNA* offspring1, DNA* offspring2);
 
 	DNA crossover(const DNA& parent1, const DNA& parent2, float probability);
 	DNA crossoverInterpolation(const DNA& parent1, const DNA& parent2);

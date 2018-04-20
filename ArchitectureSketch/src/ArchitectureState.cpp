@@ -171,8 +171,8 @@ void ArchitectureState::setup()
 //--------------------------------------------------------------
 void ArchitectureState::update()
 {
-	if (currentStep == EEvolutionStep::Interior)
-		interiorEvolver.optimizeInteriors();
+	//if (currentStep == EEvolutionStep::Interior)
+	//	interiorEvolver.optimizeInteriors();
 }
 
 //--------------------------------------------------------------
@@ -530,7 +530,6 @@ void ArchitectureState::mouseMoved(int x, int y)
 //--------------------------------------------------------------
 void ArchitectureState::mouseReleased(int x, int y, int button)
 {
-
 	if (button == 0)
 	{
 		// if mouse hasn't moved do selection
@@ -627,6 +626,7 @@ void ArchitectureState::gotoNextStep()
 			currentStep = EEvolutionStep::Interior;
 
 			selectedIndices.clear();
+			pCurrentEvolver->generate(selectedIndices);
 		}
 	}
 }

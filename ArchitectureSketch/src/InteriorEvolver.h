@@ -95,7 +95,7 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 50;
+	int optimizationGenerations = 60;
 	//int gen = 0;
 
 	GeneticAlgorithm roomOptimizationAlgorithm;
@@ -132,6 +132,7 @@ public:
 	void generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms);
 
 	SplitTreeNode* constructTestTree();
+	SplitTreeNode* constructTestTree2();
 
 	void drawDebug(ofPoint p, int tile) override;
 };

@@ -1,8 +1,7 @@
 #pragma once
 #include "GeneticAlgorithm.h"
 
-class GeneticTreeAlgorithm :
-	public GeneticAlgorithm
+class GeneticTreeAlgorithm : public GeneticAlgorithm
 {
 private:
 	
