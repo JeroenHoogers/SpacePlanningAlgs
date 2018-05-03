@@ -4,40 +4,6 @@
 #include "Evolver.h"
 #include "IntersectionHelper.h"
 
-struct SplitTreeNode 
-{
-	int index;				// stores either the room index or the split index, depending on whether this is a leaf or not
-
-	SplitTreeNode* leftChild;   // Pointer to the left subtree.
-	SplitTreeNode* rightChild;  // Pointer to the right subtree.
-
-	SplitTreeNode(int _index)
-	{
-		index = _index;
-		leftChild = NULL;
-		rightChild = NULL;
-	}
-
-	SplitTreeNode(int _index, SplitTreeNode* _leftChild, SplitTreeNode* _rightChild)
-	{
-		index = _index;
-		leftChild = _leftChild;
-		rightChild = _rightChild;
-	}
-
-	~SplitTreeNode()
-	{
-		delete leftChild;
-		delete rightChild;
-	}
-
-	bool isLeaf() const
-	{
-		return (leftChild == NULL || rightChild == NULL);
-	}
-
-};
-
 struct Split
 {
 	float position;
@@ -49,6 +15,52 @@ struct Split
 	{
 		position = _position;
 		axis = _axis;
+	}
+};
+
+struct GridCell
+{
+	ofRectangle rect;
+	int roomId;
+	bool inside;
+
+	GridCell()
+	{
+
+	}
+
+	GridCell(ofRectangle _rect, bool _inside)
+	{
+		rect = _rect;
+		inside = _inside;
+	}
+};
+
+struct FloorGrid
+{
+	int rows = 0;
+	int cols = 0;
+
+	vector<GridCell> cells;
+
+	FloorGrid()
+	{
+
+	}
+
+	FloorGrid(int _rows, int _cols, vector<GridCell> _cells)
+	{
+		rows = _rows;
+		cols = _cols;
+		cells = _cells;
+	}
+
+	GridCell getCellAt(int x, int y)
+	{
+		if (x < 0 || x >= cols || y < 0 || y >= rows)
+			return GridCell();
+
+		return cells[x + y * cols];
 	}
 };
 
@@ -98,12 +110,19 @@ private:
 	int optimizationGenerations = 60;
 	//int gen = 0;
 
+	// total number of splits including 
+	// TODO: change this to additional splits?
+	int totalSplits = 8;
+
 	GeneticAlgorithm roomOptimizationAlgorithm;
 	GeneticTreeAlgorithm geneticTreeAlgorithm;
 	GeneticAlgorithm adjacencyWeightsAlgorithm;
 
 	// use this for tree structure evolution
-	vector<SplitTreeNode*> trees;
+	//vector<> ;
+
+	vector<Split> defaultSplits;
+
 
 	vector<vector<InteriorRoom>> interiors;
 	// TODO: 
@@ -118,21 +137,22 @@ public:
 	void setup(int _tiles, ArchitectureProgram* _pProgram);
 	void setFloorShape(ofPolyline _floorshape);
 
+	void computeDefaultSplits();
+
+	void constructGrid(const vector<Split>& splits);
+
 	vector<InteriorRoom>* getInteriorAt(int tile);
 
 	void generate(vector<int> selection);
 
-	vector<InteriorRoom> optimizeInterior(int treeIndex);
+	vector<InteriorRoom> optimizeInterior(int index);
 
 	void optimizeInteriors();
 
-	float computeInteriorFitness(const vector<Split>& splits, int treeIndex);
+	float computeInteriorFitness(const vector<Split>& splits, int index);
 	bool checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2);
 
-	void generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms);
-
-	SplitTreeNode* constructTestTree();
-	SplitTreeNode* constructTestTree2();
+	//void generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms);
 
 	void drawDebug(ofPoint p, int tile) override;
 };

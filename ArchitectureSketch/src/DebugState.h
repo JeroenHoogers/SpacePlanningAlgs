@@ -4,6 +4,7 @@
 #include "ofxState.h"
 #include "ofxGui.h"
 #include "StraightSkeleton.h"
+#include "InteriorEvolver.h"
 
 #define DebugState_StateName "DebugState"
 
@@ -16,6 +17,9 @@ private:
 	vector<LineSegment> rays;
 
 	ofPolyline polygon;
+	FloorGrid grid;
+	vector<Split> defaultSplits;
+
 	int steps = 0;
 
 public:
@@ -31,6 +35,8 @@ public:
 	void setup();
 	void update();
 	void draw();
+
+	void constructGrid();
 
 	string getName();
 	void keyPressed(int key);

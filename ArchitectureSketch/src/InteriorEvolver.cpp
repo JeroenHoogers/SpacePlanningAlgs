@@ -24,7 +24,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
 	roomOptimizationAlgorithm.setup(100, splits * 2, 0.2f, 0.4f);
 	
-	// TODO: initialize properly using leaves and splits
+	// initialize 
 	geneticTreeAlgorithm.setup(tiles, splits + nRooms);
 
 	// distinct adjacency combinations (n-1) choose 2
@@ -36,13 +36,117 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 		vector<InteriorRoom> interior = vector<InteriorRoom>();
 		interiors.push_back(interior);
 
-		trees.push_back(constructTestTree());
+		//trees.push_back(constructTestTree());
 	}
 
 	candidates.clear();
 
+	// compute default splits
+	computeDefaultSplits();
+
 	// do first generation
 	generate(vector<int>());
+}
+
+//--------------------------------------------------------------
+void InteriorEvolver::computeDefaultSplits()
+{
+	ofRectangle bb = floorshape.getBoundingBox();
+
+	for (int i = 0; i < floorshape.size(); i++)
+	{
+		int prev = floorshape.getWrappedIndex(i - 1);
+		int next = floorshape.getWrappedIndex(i + 1);
+
+		ofVec2f v1 = floorshape[i] - floorshape[prev];
+		ofVec2f v2 = floorshape[next] - floorshape[i];
+
+		// reflex angle
+		float angle = v1.angle(v2);
+		if (angle < 0)
+		{
+			// create x-split
+			defaultSplits.push_back(
+				Split((floorshape[i].x - bb.getMinX()) / bb.getWidth(), 0)
+			);
+
+			// create y-split
+			defaultSplits.push_back(
+				Split((floorshape[i].y - bb.getMinY()) / bb.getHeight(), 1)
+			);
+		}
+	}
+}
+
+// Constructs a rectangular grid based on the current floorshape and split positions
+//--------------------------------------------------------------
+void InteriorEvolver::constructGrid(const vector<Split>& splits)
+{
+	ofRectangle bb = floorshape.getBoundingBox();
+
+	// get relevant floorshape 
+	float minx = bb.getMinX();
+	float miny = bb.getMinY();
+	float w = bb.getWidth();
+	float h = bb.getHeight();
+
+	// divide floorshape into grid
+	int rows = 1;
+	int cols = 1;
+
+	vector<float> xs;
+	vector<float> ys;
+
+	// add grid boundary positions
+	xs.push_back(0);
+	xs.push_back(1);
+
+	ys.push_back(0);
+	ys.push_back(1);
+
+	vector<GridCell> cells;
+
+	// determine grid dimensions
+	for (int i = 0; i < splits.size(); i++)
+	{
+		if (splits[i].axis == 0)
+		{
+			cols++;
+			xs.push_back(splits[i].position);
+		}
+		else if (splits[i].axis == 1)
+		{
+			rows++;
+			ys.push_back(splits[i].position);
+		}
+	}
+
+	// sort x and y positions
+	sort(xs.begin(), xs.end());
+	sort(ys.begin(), ys.end());
+
+	for (int i = 0; i < ys.size() - 1; i++)
+	{
+		float cy = miny + ys[i] * h;
+		float ch = (ys[i + 1] - ys[i]) * h;
+
+		for (int j = 0; j < xs.size() - 1; j++)
+		{
+			float cx = minx + xs[j] * w;
+			float cw = (xs[j + 1] - xs[j]) * w;
+
+			// construct rectangle
+			ofRectangle rect = ofRectangle(cx, cy, cw, ch);
+
+			// check if this rectangle is part of the floorplan
+			bool contained = floorshape.inside(rect.getCenter());
+
+			// add cell to grid
+			cells.push_back(GridCell(rect, contained));
+		}
+	}
+
+	FloorGrid grid = FloorGrid(rows, cols, cells);
 }
 
 //--------------------------------------------------------------
@@ -100,7 +204,6 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	// TODO: store all fitness values together with the splits in order to perform a better selection
 	for (int gen = 0; gen <= optimizationGenerations; gen++)
 	{
-
 		// generate next generation
 		roomOptimizationAlgorithm.generateOffspring();
 
@@ -165,7 +268,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int treeIndex)
 	// create phenotype
 	
 	vector<InteriorRoom> interior;
-	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
+//	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
 	return interior;
 }
@@ -178,12 +281,12 @@ float InteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int t
 	float ratioFitness = 0;
 	float adjFitness = 0;
 
-	SplitTreeNode* root = trees[treeIndex];
+	//SplitTreeNode* root = trees[treeIndex];
 		//constructTestTree();
 
 	// recursively subdivide polygon into rooms
 	vector<InteriorRoom> rooms;
-	generateRooms(splits, root, floorshape, rooms);
+	//generateRooms(splits, root, floorshape, rooms);
 
 	// check room sizes
 	for (int i = 0; i < rooms.size(); i++)
@@ -357,130 +460,65 @@ void InteriorEvolver::drawDebug(ofPoint p, int tile)
 	ofDrawBitmapStringHighlight(debugString, p);
 }
 
-
-// Recursive algorithm to construct interior rooms
-//--------------------------------------------------------------
-void InteriorEvolver::generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms)
-{
-	//vector<InteriorRoom> rooms;
-
-	// recurse left child
-	if(node->isLeaf())
-	{
-		// this is a leaf, add it to the list of rooms
-		InteriorRoom ir = InteriorRoom(&pProgram->rooms[node->index], shape);
-		rooms.push_back(ir);
-	}
-	else
-	{
-		// this is a split node, divide the polygon using the split information
-		int si = node->index;
-
-		// check if the index is valid, otherwise return
-		if (si >= splits.size())
-			return;
-
-		// compute left and right polygons
-		ofPoint rayPos;
-		ofVec2f rayDir;
-		
-		const ofRectangle* bb = &shape.getBoundingBox();
-
-		// make sure the cut is not all the way at the start or end
-		float pos = splits[si].position * 0.8f + 0.1f;
-
-		// create split
-		if (splits[si].axis == 0)
-		{
-			// x-axis
-			rayPos = ofPoint(ofLerp(bb->getLeft(), bb->getRight(), pos), -10);
-			rayDir = ofVec2f(0, 1);
-		}
-		else
-		{
-			// y-axis
-			rayPos = ofPoint(-10, ofLerp(bb->getTop(), bb->getBottom(), pos));
-			rayDir = ofVec2f(1, 0);
-		}
-
-		// split the current polygon in half
-		ofPolyline leftShape;
-		ofPolyline rightShape;
-		IntersectionHelper::splitPolygon(shape, rayPos, rayDir, &leftShape, &rightShape);
-
-		// continue recursion in left and right subtrees
-	//	vector<InteriorRoom> roomsLeft = generateRooms(splits, node->leftChild, leftShape);
-	//	vector<InteriorRoom> roomsRight = generateRooms(splits, node->rightChild, rightShape);
-
-		generateRooms(splits, node->leftChild, leftShape, rooms);
-		generateRooms(splits, node->rightChild, rightShape, rooms);
-
-		//// add results to the current 
-		//rooms.insert(rooms.end(), roomsLeft.begin(), roomsLeft.end());
-		//rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
-	}
-}
-
-//--------------------------------------------------------------
-SplitTreeNode* InteriorEvolver::constructTestTree()
-{
-	// TODO: generate this tree randomly
-	SplitTreeNode* root = new SplitTreeNode(0);
-	SplitTreeNode* lc = new SplitTreeNode(1);
-	SplitTreeNode* rc = new SplitTreeNode(2);
-
-	root->leftChild = lc;
-	root->rightChild = rc;
-
-	SplitTreeNode* lclc = new SplitTreeNode(3);
-	SplitTreeNode* lcrc = new SplitTreeNode(0); // room 0
-
-	lc->leftChild = lclc;
-	lc->rightChild = lcrc;
-
-	SplitTreeNode* rclc = new SplitTreeNode(1); // room 1
-	SplitTreeNode* rcrc = new SplitTreeNode(2); // room 2
-
-	rc->leftChild = rclc;
-	rc->rightChild = rcrc;
-
-	SplitTreeNode* lclclc = new SplitTreeNode(3); // room 3
-	SplitTreeNode* lcrcrc = new SplitTreeNode(4); // room 4
-
-	lclc->leftChild = lclclc;
-	lclc->rightChild = lcrcrc;
-
-	return root;
-}
-
-//--------------------------------------------------------------
-SplitTreeNode* InteriorEvolver::constructTestTree2()
-{
-	// TODO: generate this tree randomly
-	SplitTreeNode* root = new SplitTreeNode(0);
-	SplitTreeNode* lc = new SplitTreeNode(1);
-	SplitTreeNode* rc = new SplitTreeNode(0); // room 0
-
-	root->leftChild = lc;
-	root->rightChild = rc;
-
-	SplitTreeNode* lclc = new SplitTreeNode(2);
-	SplitTreeNode* lcrc = new SplitTreeNode(3);
-
-	lc->leftChild = lclc;
-	lc->rightChild = lcrc;
-
-	SplitTreeNode* lcrclc = new SplitTreeNode(1); // room 1
-	SplitTreeNode* lcrcrc = new SplitTreeNode(2); // room 2
-
-	lcrc->leftChild = lcrclc;
-	lcrc->rightChild = lcrcrc;
-
-	SplitTreeNode* lclclc = new SplitTreeNode(3); // room 3
-	SplitTreeNode* lclcrc = new SplitTreeNode(4); // room 4
-
-	lclc->leftChild = lclclc;
-	lclc->rightChild = lclcrc;
-
-	return root;
-}
+//// Recursive algorithm to construct interior rooms
+////--------------------------------------------------------------
+//void InteriorEvolver::generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms)
+//{
+//	//vector<InteriorRoom> rooms;
+//
+//	// recurse left child
+//	if (node->isLeaf())
+//	{
+//		// this is a leaf, add it to the list of rooms
+//		InteriorRoom ir = InteriorRoom(&pProgram->rooms[node->index], shape);
+//		rooms.push_back(ir);
+//	}
+//	else
+//	{
+//		// this is a split node, divide the polygon using the split information
+//		int si = node->index;
+//
+//		// check if the index is valid, otherwise return
+//		if (si >= splits.size())
+//			return;
+//
+//		// compute left and right polygons
+//		ofPoint rayPos;
+//		ofVec2f rayDir;
+//
+//		const ofRectangle* bb = &shape.getBoundingBox();
+//
+//		// make sure the cut is not all the way at the start or end
+//		float pos = splits[si].position * 0.8f + 0.1f;
+//
+//		// create split
+//		if (splits[si].axis == 0)
+//		{
+//			// x-axis
+//			rayPos = ofPoint(ofLerp(bb->getLeft(), bb->getRight(), pos), -10);
+//			rayDir = ofVec2f(0, 1);
+//		}
+//		else
+//		{
+//			// y-axis
+//			rayPos = ofPoint(-10, ofLerp(bb->getTop(), bb->getBottom(), pos));
+//			rayDir = ofVec2f(1, 0);
+//		}
+//
+//		// split the current polygon in half
+//		ofPolyline leftShape;
+//		ofPolyline rightShape;
+//		IntersectionHelper::splitPolygon(shape, rayPos, rayDir, &leftShape, &rightShape);
+//
+//		// continue recursion in left and right subtrees
+//	//	vector<InteriorRoom> roomsLeft = generateRooms(splits, node->leftChild, leftShape);
+//	//	vector<InteriorRoom> roomsRight = generateRooms(splits, node->rightChild, rightShape);
+//
+//		generateRooms(splits, node->leftChild, leftShape, rooms);
+//		generateRooms(splits, node->rightChild, rightShape, rooms);
+//
+//		//// add results to the current 
+//		//rooms.insert(rooms.end(), roomsLeft.begin(), roomsLeft.end());
+//		//rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
+//	}
+//}
