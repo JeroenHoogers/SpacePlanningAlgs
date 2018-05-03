@@ -448,6 +448,12 @@ public:
 		}
 	};
 
+
+	~SLAV()
+	{
+		// TODO: handle deletion
+	}
+
 	bool empty()
 	{
 		return activeLavs.size() == 0;

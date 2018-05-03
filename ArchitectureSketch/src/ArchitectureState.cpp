@@ -378,6 +378,7 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 	float ratioH = viewport.height / lot.height;
 
 	float ratio = fminf(ratioW, ratioH);
+	//ratio *= camera.getDistance();
 
 	ofPushMatrix();
 	{
