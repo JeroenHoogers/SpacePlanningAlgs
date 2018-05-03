@@ -369,6 +369,7 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 {
 	vector<InteriorRoom>* pInterior = interiorEvolver.getInteriorAt(index);
+	FloorGrid* pFloor = &interiorEvolver.floors[index];
 
 	// get lot rectangle
 	ofRectangle lot = pProgram->getLotRectangle();
@@ -408,6 +409,20 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
 				ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
 				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
+			}
+		}
+
+		if (pFloor != NULL)
+		{
+			for (int i = 0; i < pFloor->cells.size(); i++)
+			{
+				if (pFloor->cells[i].inside)
+				{
+					ofFill();
+
+					ofSetColor((pFloor->cells[i].roomId) * 50);
+					ofRect(pFloor->cells[i].rect);
+				}
 			}
 		}
 

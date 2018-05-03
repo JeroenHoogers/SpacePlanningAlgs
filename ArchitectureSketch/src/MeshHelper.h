@@ -6,6 +6,7 @@
 static class MeshHelper
 {
 public:
+
 	//--------------------------------------------------------------
 	static void AddFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c) 
 	{

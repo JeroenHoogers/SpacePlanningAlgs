@@ -55,7 +55,7 @@ struct FloorGrid
 		cells = _cells;
 	}
 
-	GridCell getCellAt(int x, int y)
+	GridCell& getCellAt(int x, int y)
 	{
 		if (x < 0 || x >= cols || y < 0 || y >= rows)
 			return GridCell();
@@ -115,21 +115,25 @@ private:
 	int totalSplits = 8;
 
 	GeneticAlgorithm roomOptimizationAlgorithm;
-	GeneticTreeAlgorithm geneticTreeAlgorithm;
-	GeneticAlgorithm adjacencyWeightsAlgorithm;
+	GeneticAlgorithm selectionAlgorithm;
+	//GeneticTreeAlgorithm geneticTreeAlgorithm;
+	//GeneticAlgorithm adjacencyWeightsAlgorithm;
 
 	// use this for tree structure evolution
 	//vector<> ;
 
 	vector<Split> defaultSplits;
 
-
 	vector<vector<InteriorRoom>> interiors;
-	// TODO: 
+
+
 
 public:
 	// TODO: allow multiple floors
 	ofPolyline floorshape;
+
+	// TEMP
+	vector<FloorGrid> floors;
 
 	InteriorEvolver();
 	~InteriorEvolver();
@@ -139,7 +143,9 @@ public:
 
 	void computeDefaultSplits();
 
-	void constructGrid(const vector<Split>& splits);
+	FloorGrid constructGrid(const vector<Split>& splits);
+
+	void generateGridTopology(DNA genotype, FloorGrid* floorgrid);
 
 	vector<InteriorRoom>* getInteriorAt(int tile);
 
@@ -147,9 +153,7 @@ public:
 
 	vector<InteriorRoom> optimizeInterior(int index);
 
-	void optimizeInteriors();
-
-	float computeInteriorFitness(const vector<Split>& splits, int index);
+	float computeInteriorFitness(const FloorGrid& floorgrid);
 	bool checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2);
 
 	//void generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms);
