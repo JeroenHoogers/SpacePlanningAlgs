@@ -22,7 +22,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = nRooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(100, splits * 2, 0.2f, 0.3f);
+	roomOptimizationAlgorithm.setup(100, splits + 2, 0.2f, 0.3f);
 	
 	// initialize selection algorithm (stores room positions)
 	selectionAlgorithm.setup(tiles, nRooms * 2);
@@ -153,6 +153,15 @@ FloorGrid InteriorEvolver::constructGrid(const vector<Split>& splits)
 //--------------------------------------------------------------
 void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 {
+	ofRectangle bb = floorshape.getBoundingBox();
+
+	// get relevant floorshape 
+	float minx = bb.getMinX();
+	float miny = bb.getMinY();
+	float w = bb.getWidth();
+	float h = bb.getHeight();
+
+
 	int cols = floorgrid->cols;
 	int rows = floorgrid->rows;
 
@@ -160,26 +169,38 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		return;
 	
 	vector<ofPoint> roomCenters;
-
+	floorgrid->areas.clear();
+	
 	for (int i = 0; i < genotype.size(); i+=2)
 	{
-		ofPoint p = ofPoint(
-			fminf(floorf(genotype[i] * cols), cols - 1),
-			fminf(floorf(genotype[i+1] * rows), rows - 1)
-		);
+		//ofPoint p = ofPoint(
+		//	fminf(floorf(genotype[i] * cols), cols - 1),
+		//	fminf(floorf(genotype[i+1] * rows), rows - 1)
+		//);
+
+		//ofPoint p = ofPoint(
+		//	genotype[i] * cols,
+		//	genotype[i + 1] * rows
+		//);
+
+		ofPoint p = ofPoint(minx + genotype[i] * w, miny + genotype[i+1] * h);
+
+		floorgrid->areas.push_back(0);
 
 		roomCenters.push_back(p);
 	}
 
+	
+
 	float dist = 0;
-	ofPoint p;
 
 	// loop each cell
 	for (int i = 0; i < floorgrid->cells.size(); i++)
 	{
 		//for (int j = 0; j < rows; j++)
 		//{
-		p = ofPoint(i % rows, floorf(i / rows));
+		ofPoint p = floorgrid->cells[i].rect.getCenter();
+		//p = ofPoint(i % rows, floorf((float)i / (float)rows));
 
 		float mindist = INFINITY;
 		int roomIndex = 0;
@@ -187,7 +208,7 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		// iterate over room centerpoints to find the closest one
 		for (int k = 0; k < roomCenters.size(); k++)
 		{
-			dist = roomCenters[k].distanceSquared(p);
+			dist = roomCenters[k].distance(p);
 			if (dist < mindist)
 			{
 				mindist = dist;
@@ -195,11 +216,16 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 			}
 		}
 
+		if(floorgrid->cells[i].inside)
+			floorgrid->areas[roomIndex] += floorgrid->cells[i].rect.getArea();
+
 		floorgrid->cells[i].roomId = roomIndex;
 		// set room index based on closest centerpoint
 		//floorgrid->getCellAt(i, j).roomId = roomIndex;
 		//}
 	}
+
+	floorgrid->centers = roomCenters;
 }
 
 //--------------------------------------------------------------
@@ -315,8 +341,8 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 	// TODO: generate rooms
 
 	// create grid layout, by appending default splits to the dynamic splits
-	splits.insert(splits.end(), defaultSplits.begin(), defaultSplits.end());
-	floors[index] = constructGrid(splits);
+	optimalSplits.insert(optimalSplits.end(), defaultSplits.begin(), defaultSplits.end());
+	floors[index] = constructGrid(optimalSplits);
 	generateGridTopology(selectionAlgorithm.population[index].genes, &floors[index]);
 
 //	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
@@ -345,14 +371,14 @@ float InteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 	// compute room area fitness
 	for (int i = 0; i < nRooms; i++)
 	{
-		float area = 0;
+		float area = floorgrid.areas[i];
 
-		// sum the area of all rectangles
-		for (int j = 0; j < floorgrid.cells.size(); j++)
-		{
-			if (floorgrid.cells[j].inside && floorgrid.cells[j].roomId == i)
-				area += floorgrid.cells[j].rect.getArea();
-		}
+		//// sum the area of all rectangles
+		//for (int j = 0; j < floorgrid.cells.size(); j++)
+		//{
+		//	if (floorgrid.cells[j].inside && floorgrid.cells[j].roomId == i)
+		//		area += floorgrid.cells[j].rect.getArea();
+		//}
 
 		float areaDiff = abs(area - pProgram->rooms[i].area);
 		areaFitness += ofClamp(10.0f - (areaDiff / pProgram->rooms[i].area) * 10.0f, 0, 10);
@@ -438,14 +464,14 @@ void InteriorEvolver::generate(vector<int> selection)
 		// convert the tile indices to the indices used by the genetic algorithm
 		int tile = selection[i];
 
-		if (tile < candidates.size())
-		{
-			int index = candidates[tile];
+		//if (tile < candidates.size())
+		//{
+		//	int index = candidates[tile];
 
 			// select the indices in the genetic algorithm
-			selectionAlgorithm.select(index);
+			selectionAlgorithm.select(tile);
 			//adjacencyWeightsAlgorithm.select(index);
-		}
+		//}
 	}
 
 	candidates.clear();
@@ -485,21 +511,37 @@ void InteriorEvolver::generate(vector<int> selection)
 //--------------------------------------------------------------
 void InteriorEvolver::drawDebug(ofPoint p, int tile)
 {
-	//if (tile >= adjacencyWeightsAlgorithm.population.size())
-	//	return;
+	if (tile >= selectionAlgorithm.population.size())
+		return;
 
-	//string debugString = "";
+	string debugString = "";
 
 	//DNA adjWeights = adjacencyWeightsAlgorithm.population[tile].genes;
 	//int adjacencies = (nRooms * (nRooms - 1)) / 2;
-	//
+	
 	//for (int i = 0; i < nRooms; i++)
 	//{
 	//	float area = roundf(interiors[tile][i].getArea() * 10.0f) / 10.0f;
 	//	debugString += interiors[tile][i].pRoom->code + " \t t: " + ofToString(interiors[tile][i].pRoom->area) + " m2, \t a: " + ofToString(area) + " m2\n";
 	//}
 
-	//debugString += "\n";
+	for (int i = 0; i < nRooms; i++)
+	{
+		float area = roundf(floors[tile].areas[i] * 10.0f) / 10.0f;
+		debugString += pProgram->rooms[i].code + " \t t: " + ofToString(pProgram->rooms[i].area) + " m2, \t a: " + ofToString(area) + " m2\n";
+	}
+
+	//
+	//for (int i = 0; i < floors[tile].rows; i++)
+	//{
+	//	for (int j = 0; j < floors[tile].cols; j++)
+	//	{
+	//		debugString += ofToString(floors[tile].getCellAt(j, i).roomId);
+	//	}
+	//	debugString += "\n";
+	//}
+
+	debugString += "\n";
 
 	//for (int i = 0; i < nRooms - 1; i++)
 	//{
@@ -523,8 +565,8 @@ void InteriorEvolver::drawDebug(ofPoint p, int tile)
 	//	}
 	//}
 
-	//// draw adjacencies for current tile
-	//ofDrawBitmapStringHighlight(debugString, p);
+	// draw adjacencies for current tile
+	ofDrawBitmapStringHighlight(debugString, p);
 }
 
 //// Recursive algorithm to construct interior rooms

@@ -42,6 +42,8 @@ struct FloorGrid
 	int cols = 0;
 
 	vector<GridCell> cells;
+	vector<ofPoint> centers;
+	vector<float> areas;
 
 	FloorGrid()
 	{

@@ -7,6 +7,32 @@ static class MeshHelper
 {
 public:
 
+	static ofColor getColor(int colId)
+	{
+		ofColor col;
+
+		switch (colId)
+		{
+		case 0:
+			col = ofColor(240, 232, 205);
+			break;
+		case 1:
+			col = ofColor(255, 255, 176);
+			break;
+		case 2:
+			col = ofColor(111, 183, 214);
+			break;
+		case 3:
+			col = ofColor(249, 140, 182);
+			break;
+		case 4:
+			col = ofColor(133, 202, 93);
+			break;
+		}
+
+		return col;
+	}
+
 	//--------------------------------------------------------------
 	static void AddFace(ofMesh& mesh, ofVec3f a, ofVec3f b, ofVec3f c) 
 	{

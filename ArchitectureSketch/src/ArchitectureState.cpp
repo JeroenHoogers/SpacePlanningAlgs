@@ -219,7 +219,6 @@ void ArchitectureState::draw()
 	}
 	//drawGUI();
 
-
 	if (showDebug)
 	{	
 		// calculate index based on mouse position
@@ -397,20 +396,22 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 		ofSetColor(40);
 		ofSetLineWidth(1.5f);
 
-		if (pInterior != NULL)
-		{
-			for (int i = 0; i < pInterior->size(); i++)
-			{
-				ofFill();
-				
-				(*pInterior)[i].shape.draw();
-				
-				// draw room name and area
-				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
-				ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
-				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
-			}
-		}
+		//if (pInterior != NULL)
+		//{
+		//	for (int i = 0; i < pInterior->size(); i++)
+		//	{
+		//		ofFill();
+		//		
+		//		(*pInterior)[i].shape.draw();
+		//		
+
+
+		//		// draw room name and area
+		//		float area = roundf((*pInterior)[i].getArea() * 10) / 10;
+		//		ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
+		//		ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
+		//	}
+		//}
 
 		if (pFloor != NULL)
 		{
@@ -420,9 +421,38 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 				{
 					ofFill();
 
-					ofSetColor((pFloor->cells[i].roomId) * 50);
+					//ofSetColor(255, (pFloor->cells[i].roomId) * 50, (pFloor->cells[i].roomId) * 50);
+					
+					ofSetColor(MeshHelper::getColor(pFloor->cells[i].roomId));
 					ofRect(pFloor->cells[i].rect);
 				}
+
+				ofNoFill();
+				//ofSetColor(50,50,255);
+				//ofRect(pFloor->cells[i].rect);
+			}
+
+			for (int i = 0; i < pFloor->centers.size(); i++)
+			{
+				ofFill();
+				ofSetColor(50, 50, 255);
+				//ofRectangle roomCell = pFloor->getCellAt(pFloor->centers[i].x, pFloor->centers[i].y).rect;
+				ofDrawCircle(pFloor->centers[i], 0.2f);
+			
+				ofSetColor(0, 0, 0);
+
+				float area = pFloor->areas[i];
+
+				//// sum the area of all rectangles
+				//for (int j = 0; j < pFloor->cells.size(); j++)
+				//{
+				//	if (pFloor->cells[j].inside && pFloor->cells[j].roomId == i)
+				//		area += pFloor->cells[j].rect.getArea();
+				//}
+
+				area = roundf(area * 10) / 10;
+				ofPoint p = pFloor->centers[i] + ofPoint(5, 0) / ratio;
+				ofDrawBitmapString(pProgram->rooms[i].code + "\n" + ofToString(area) + " m2", p);
 			}
 		}
 
