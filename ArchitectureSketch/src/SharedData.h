@@ -6,4 +6,6 @@ class SharedData
 {
 public:
 	ArchitectureProgram program;
+
+	ofPolyline floorshape;
 };

@@ -434,10 +434,15 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 
 			for (int i = 0; i < pFloor->centers.size(); i++)
 			{
+				//ofSetColor(100, 100, 100);
+			//	ofDrawLine(pFloor->centers[i], pFloor->centroids[i]);
+
 				ofFill();
-				ofSetColor(50, 50, 255);
+				
 				//ofRectangle roomCell = pFloor->getCellAt(pFloor->centers[i].x, pFloor->centers[i].y).rect;
-				ofDrawCircle(pFloor->centers[i], 0.2f);
+				ofSetColor(50, 50, 255);
+				ofDrawCircle(pFloor->centers[i], 0.1f);
+				
 			
 				ofSetColor(0, 0, 0);
 
@@ -451,7 +456,7 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 				//}
 
 				area = roundf(area * 10) / 10;
-				ofPoint p = pFloor->centers[i] + ofPoint(5, 0) / ratio;
+				ofPoint p = pFloor->centers[i] + ofPoint(5, -5) / ratio;
 				ofDrawBitmapString(pProgram->rooms[i].code + "\n" + ofToString(area) + " m2", p);
 			}
 		}
@@ -659,12 +664,14 @@ void ArchitectureState::matingModeChanged(bool &val)
 //--------------------------------------------------------------
 void ArchitectureState::gotoNextStep()
 {
-	// TODO: check if one solution has been accepted
-	if (currentStep == EEvolutionStep::Exterior)
+	// check if one solution has been accepted
+	if (selectedIndices.size() == 1)
 	{
-		if (selectedIndices.size() == 1)
+		int tile = selectedIndices[0];
+
+		if (currentStep == EEvolutionStep::Exterior)
 		{
-			int tile = selectedIndices[0];
+			// TODO: handle multi-storey homes
 			ofPolyline floor = exteriorEvolver.getBuildingAt(tile)->floorShapes[0];
 
 			interiorEvolver.setFloorShape(floor);
@@ -674,5 +681,15 @@ void ArchitectureState::gotoNextStep()
 			selectedIndices.clear();
 			pCurrentEvolver->generate(selectedIndices);
 		}
+		else if (currentStep == EEvolutionStep::Interior)
+		{
+			// set floor shape
+			ofPolyline floor = interiorEvolver.floorshape;
+			getSharedData().floorshape = floor;
+
+			// DEBUG: state to adjust floorplan manually
+			changeState(EditState_StateName);
+		}
 	}
+
 }

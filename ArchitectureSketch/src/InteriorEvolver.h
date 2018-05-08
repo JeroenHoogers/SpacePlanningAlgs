@@ -43,6 +43,7 @@ struct FloorGrid
 
 	vector<GridCell> cells;
 	vector<ofPoint> centers;
+	vector<ofPoint> centroids;
 	vector<float> areas;
 
 	FloorGrid()

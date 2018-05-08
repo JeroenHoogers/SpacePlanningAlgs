@@ -13,6 +13,7 @@ void ofApp::setup()
 	mStateMachine->addState(new ProgramState());
 	mStateMachine->addState(new ArchitectureState());
 	mStateMachine->addState(new DebugState());
+	mStateMachine->addState(new EditState());
 
 	mStateMachine->changeState(ProgramState_StateName);
 }

@@ -169,6 +169,7 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		return;
 	
 	vector<ofPoint> roomCenters;
+	vector<int> roomCells;
 	floorgrid->areas.clear();
 	
 	for (int i = 0; i < genotype.size(); i+=2)
@@ -186,7 +187,9 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		ofPoint p = ofPoint(minx + genotype[i] * w, miny + genotype[i+1] * h);
 
 		floorgrid->areas.push_back(0);
+		floorgrid->centroids.push_back(ofPoint());
 
+		roomCells.push_back(0);
 		roomCenters.push_back(p);
 	}
 
@@ -208,6 +211,9 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		// iterate over room centerpoints to find the closest one
 		for (int k = 0; k < roomCenters.size(); k++)
 		{
+			// TODO: consider weights
+			//float w = 1.0f - roomCenters[k].
+
 			dist = roomCenters[k].distance(p);
 			if (dist < mindist)
 			{
@@ -216,13 +222,30 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 			}
 		}
 
-		if(floorgrid->cells[i].inside)
+		if (floorgrid->cells[i].inside)
+		{
 			floorgrid->areas[roomIndex] += floorgrid->cells[i].rect.getArea();
+			floorgrid->centroids[roomIndex] += floorgrid->cells[i].rect.getCenter();
+			roomCells[roomIndex]++;
+		}
+
 
 		floorgrid->cells[i].roomId = roomIndex;
 		// set room index based on closest centerpoint
 		//floorgrid->getCellAt(i, j).roomId = roomIndex;
 		//}
+	}
+
+
+	for (int i = 0; i < roomCells.size(); i++)
+	{
+		// room has no cells
+		if (roomCells[i] <= 0)
+			floorgrid->centroids[i] = roomCenters[i];
+		else
+		{
+			floorgrid->centroids[i] /= (float)roomCells[i];
+		}
 	}
 
 	floorgrid->centers = roomCenters;

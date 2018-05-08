@@ -181,6 +181,7 @@ src;
   <ItemGroup>
     <ClCompile Include="src\Building.cpp" />
     <ClCompile Include="src\DebugState.cpp" />
+    <ClCompile Include="src\EditState.cpp" />
     <ClCompile Include="src\Evolver.cpp" />
     <ClCompile Include="src\ExteriorEvolver.cpp" />
     <ClCompile Include="src\InteriorEvolver.cpp" />
@@ -206,6 +207,7 @@ src;
   <ItemGroup>
     <ClInclude Include="src\ArchitectureProgram.h" />
     <ClInclude Include="src\DebugState.h" />
+    <ClInclude Include="src\EditState.h" />
     <ClInclude Include="src\Evolver.h" />
     <ClInclude Include="src\ExteriorEvolver.h" />
     <ClInclude Include="src\GeneticVariable.h" />

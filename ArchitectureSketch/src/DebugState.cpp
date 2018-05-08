@@ -71,7 +71,6 @@ void DebugState::setup()
 	constructGrid();
 }
 
-
 void DebugState::constructGrid()
 {
 	ofRectangle bb = polygon.getBoundingBox();

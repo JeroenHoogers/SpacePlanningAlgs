@@ -10,6 +10,7 @@
 #include "ArchitectureProgram.h"
 #include "ExteriorEvolver.h"
 #include "InteriorEvolver.h"
+#include "EditState.h"
 
 #define ArchitectureState_StateName "ArchitectureState"
 

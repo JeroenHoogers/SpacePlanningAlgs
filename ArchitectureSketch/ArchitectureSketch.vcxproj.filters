@@ -76,6 +76,9 @@
     <ClCompile Include="src\GeneticTreeAlgorithm.cpp">
       <Filter>src\GeneticAlgorithm</Filter>
     </ClCompile>
+    <ClCompile Include="src\EditState.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -223,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="src\GeneticTreeAlgorithm.h">
       <Filter>src\GeneticAlgorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EditState.h">
+      <Filter>src\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

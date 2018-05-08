@@ -8,6 +8,7 @@
 #include "ArchitectureState.h"
 #include "ProgramState.h"
 #include "DebugState.h"
+#include "EditState.h"
 
 class ofApp : public ofBaseApp
 {
