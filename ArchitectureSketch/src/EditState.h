@@ -16,6 +16,8 @@ private:
 	vector<ofPoint> centers;
 	ofPolyline polygon;
 
+	FloorGrid* pFloor;
+
 	int steps = 0;
 
 public:
@@ -32,6 +34,9 @@ public:
 	void setup();
 	void update();
 	void draw();
+
+	ofPoint screenToFloor(ofPoint screenPos);
+	ofPoint floortoSceen(ofPoint screenPos);
 
 	string getName();
 	void keyPressed(int key);

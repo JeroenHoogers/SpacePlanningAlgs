@@ -193,8 +193,6 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		roomCenters.push_back(p);
 	}
 
-	
-
 	float dist = 0;
 
 	// loop each cell

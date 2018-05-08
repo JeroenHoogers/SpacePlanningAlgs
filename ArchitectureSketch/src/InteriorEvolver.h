@@ -110,7 +110,7 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 60;
+	int optimizationGenerations = 100;
 	//int gen = 0;
 
 	// total number of splits including 
@@ -118,7 +118,7 @@ private:
 	int totalSplits = 8;
 
 	GeneticAlgorithm roomOptimizationAlgorithm;
-	GeneticAlgorithm selectionAlgorithm;
+
 	//GeneticTreeAlgorithm geneticTreeAlgorithm;
 	//GeneticAlgorithm adjacencyWeightsAlgorithm;
 
@@ -129,9 +129,12 @@ private:
 
 	vector<vector<InteriorRoom>> interiors;
 
-
-
 public:
+
+
+	// TODO: move back to private
+	GeneticAlgorithm selectionAlgorithm;
+
 	// TODO: allow multiple floors
 	ofPolyline floorshape;
 
