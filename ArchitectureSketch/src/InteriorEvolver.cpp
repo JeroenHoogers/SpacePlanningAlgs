@@ -210,7 +210,7 @@ void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
 		for (int k = 0; k < roomCenters.size(); k++)
 		{
 			// TODO: consider weights
-			//float w = 1.0f - roomCenters[k].
+			//float w = 1.0f - pProgram->getRoomAreaRatio(k);
 
 			dist = roomCenters[k].distance(p);
 			if (dist < mindist)
