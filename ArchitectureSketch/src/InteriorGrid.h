@@ -29,23 +29,11 @@ struct GridGraph
 	};
 };
 
-struct GridCell
-{
-	int x, y;
-
-	GridCell()
-	{
-
-	}
-};
-
 class InteriorGrid
 {
 private:
 	int hCuts, vCuts;
 	int totalCells;
-
-	vector<GridCell> cells;
 
 public:
 
@@ -73,29 +61,17 @@ public:
 	{
 		GridGraph graph;
 
-		vector<GridVertex> verts;
-
-		// construct vertices
+		// construct graph
 		for (int i = 0; i <= hCuts; i++)
 		{
 			for (int j = 0; j <= vCuts; j++)
 			{
-				int index = getCellIndex(j, i);
-				verts.push_back(GridVertex(index, j, i));
-			}
-		}
-
-		graph.vertices = verts;
-
-		// add edges
-		for (int i = 0; i <= hCuts; i++)
-		{
-			for (int j = 0; j <= vCuts; j++)
-			{
-				// if no wall exists, add an edge
 				int u = getCellIndex(j, i);
 
-				// cell right
+				// add vertex
+				graph.vertices.push_back(GridVertex(u, j, i));
+
+				// create edge right
 				if(j < vCuts && !walls[u])
 				{
 					int v = getCellIndex(j + 1, i);
@@ -103,17 +79,17 @@ public:
 						graph.addEdge(u, v);
 				}
 
-				// cell down
+				// create edge down
 				if (i < hCuts && !walls[u + totalCells])
 				{
-					int v = getCellIndex(j, i+1);
+					int v = getCellIndex(j, i + 1);
 					if(v > 0)
 						graph.addEdge(u, v);
 				}
-
-				//verts[index]
 			}
 		}
+
+		return graph;
 	};
 
 	//--------------------------------------------------------------

@@ -2,6 +2,7 @@
 #include "GeneticAlgorithm.h"
 #include "Evolver.h"
 #include "IntersectionHelper.h"
+#include "InteriorGrid.h"
 
 struct Split
 {
@@ -105,8 +106,8 @@ private:
 	// amount of splits in the binary tree
 	int splits;
 
-	int xSplits = 5;
-	int ySplits = 5;
+	int hSplits = 6;
+	int vSplits = 6;
 
 	// amount of rooms (leaves in the binary tree)
 	int nRooms;
@@ -133,7 +134,6 @@ private:
 	vector<vector<InteriorRoom>> interiors;
 
 public:
-
 
 	// TODO: move back to private
 	GeneticAlgorithm<float> selectionAlgorithm;

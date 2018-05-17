@@ -21,8 +21,6 @@ enum class EMatingStrategy {
 };
 
 // TODO: implement as abstract template class instead to allow multiple implementations
-
-
 template <typename T> // class type  
 class GeneticAlgorithm
 {
