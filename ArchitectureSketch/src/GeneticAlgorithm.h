@@ -27,7 +27,6 @@ template <typename T> // class type
 class GeneticAlgorithm
 {
 private:
-								// TODO: could use gaussian distribution for mutation to decrease the likelyness of radical changes
 	bool elitism = true;		// Let the best few of a population survive without mutation
 	float elitismRate = 0.05f;
 
@@ -51,14 +50,14 @@ public:
 
 	int currentGeneration = 0;
 	
-	// TODO: always add the selection of the previous population to the new offspring otherwise, the solution might never converge
+
 	GeneticAlgorithm();
 	~GeneticAlgorithm();
 
 	void setup(int popSize, int n);
 	void setup(int popSize, int n, float mutRate, float mutAmount);
 
-	//float absDifference(int index, DNA target);
+	//float absDifference(int index, vector<T> target);
 	void generateRandomPopulation();
 	vector<T> generateRandomDna();
 
