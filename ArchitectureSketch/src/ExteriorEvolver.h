@@ -5,7 +5,7 @@
 class ExteriorEvolver : public Evolver
 {
 private:
-	GeneticAlgorithm geneticAlgorithm;
+	GeneticAlgorithm<float> geneticAlgorithm;
 	vector<Building> buildings;
 
 public:

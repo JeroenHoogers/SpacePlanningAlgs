@@ -113,7 +113,7 @@ public:
 		return ofRectangle();
 	}
 
-	void LoadFromGenotype(DNA gt, ArchitectureProgram program = ArchitectureProgram());
+	void LoadFromGenotype(vector<float> gt, ArchitectureProgram program = ArchitectureProgram());
 	
 	void GenerateBuilding();
 

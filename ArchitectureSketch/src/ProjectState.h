@@ -18,7 +18,7 @@ private:
 
 	Building building;
 
-	GeneticAlgorithm geneticAlgorithm;
+	GeneticAlgorithm<float> geneticAlgorithm;
 
 public:
 	ProjectState();

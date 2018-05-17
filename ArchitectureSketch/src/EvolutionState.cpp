@@ -146,8 +146,8 @@ void EvolutionState::draw()
 			ofSetColor(50, 160, 50);
 
 
-		float diff = geneticAlg.absDifference(sr.index, mTargets);
-		diff = roundf(diff * 100) / 100;
+	//	float diff = geneticAlg.absDifference(sr.index, mTargets);
+		//diff = roundf(diff * 100) / 100;
 
 		ofFill();
 		ofDrawRectangle(sr.rect);
@@ -166,14 +166,13 @@ void EvolutionState::draw()
 			ofSetColor(255);
 			ofTranslate(sr.rect.x + 5, sr.rect.y + 5);
 
-			ofSetColor(255);
-			ofDrawBitmapStringHighlight(ofToString(i) + " | " + ofToString(diff), 0, -10);
+			//ofSetColor(255);
+			//ofDrawBitmapStringHighlight(ofToString(i) + " | " + ofToString(diff), 0, -10);
 
 			drawGenotype(geneticAlg.population[mSelectionRectangles[i].index].genes);
 		}
 		ofPopMatrix();
-	}
-
+	} 
 
 	//ofTranslate(10, 150);
 	//for (int i = 0; i < geneticAlg.population.size(); i++)

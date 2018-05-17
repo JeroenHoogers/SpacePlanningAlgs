@@ -73,9 +73,6 @@
     <ClCompile Include="src\GeneticAlgorithm.cpp">
       <Filter>src\GeneticAlgorithm</Filter>
     </ClCompile>
-    <ClCompile Include="src\GeneticTreeAlgorithm.cpp">
-      <Filter>src\GeneticAlgorithm</Filter>
-    </ClCompile>
     <ClCompile Include="src\EditState.cpp">
       <Filter>src\States</Filter>
     </ClCompile>
@@ -222,9 +219,6 @@
       <Filter>src\Evolution</Filter>
     </ClInclude>
     <ClInclude Include="src\GeneticAlgorithm.h">
-      <Filter>src\GeneticAlgorithm</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GeneticTreeAlgorithm.h">
       <Filter>src\GeneticAlgorithm</Filter>
     </ClInclude>
     <ClInclude Include="src\EditState.h">

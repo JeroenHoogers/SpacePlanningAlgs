@@ -151,7 +151,7 @@ FloorGrid InteriorEvolver::constructGrid(const vector<Split>& splits)
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::generateGridTopology(DNA genotype, FloorGrid* floorgrid)
+void InteriorEvolver::generateGridTopology(vector<float> genotype, FloorGrid* floorgrid)
 {
 	ofRectangle bb = floorshape.getBoundingBox();
 
@@ -301,7 +301,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 		float maxfitness = -1.0f;
 		int optimalIndex = -1;
 
-		Genotype* pGenotype;
+		Genotype<float>* pGenotype;
 		for (int i = 0; i < roomOptimizationAlgorithm.population.size(); i++)
 		{	
 			pGenotype = &roomOptimizationAlgorithm.population[i];

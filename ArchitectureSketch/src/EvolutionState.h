@@ -23,7 +23,7 @@ private:
 	vector<float> mTargets;	
 	ofxPanel gui;
 
-	GeneticAlgorithm geneticAlg;
+	GeneticAlgorithm<float> geneticAlg;
 
 	ofParameter<int> mDimensions = ofParameter<int>("Nr of params", 5, 1, 20);
 	ofParameter<int> mPopulationSize = ofParameter<int>("Population size", 20, 10, 40);

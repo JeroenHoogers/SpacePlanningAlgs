@@ -1,6 +1,5 @@
 #pragma once
 #include "GeneticAlgorithm.h"
-#include "GeneticTreeAlgorithm.h"
 #include "Evolver.h"
 #include "IntersectionHelper.h"
 
@@ -117,7 +116,7 @@ private:
 	// TODO: change this to additional splits?
 	int totalSplits = 8;
 
-	GeneticAlgorithm roomOptimizationAlgorithm;
+	GeneticAlgorithm<float> roomOptimizationAlgorithm;
 
 	//GeneticTreeAlgorithm geneticTreeAlgorithm;
 	//GeneticAlgorithm adjacencyWeightsAlgorithm;
@@ -133,7 +132,7 @@ public:
 
 
 	// TODO: move back to private
-	GeneticAlgorithm selectionAlgorithm;
+	GeneticAlgorithm<float> selectionAlgorithm;
 
 	// TODO: allow multiple floors
 	ofPolyline floorshape;
@@ -151,7 +150,7 @@ public:
 
 	FloorGrid constructGrid(const vector<Split>& splits);
 
-	void generateGridTopology(DNA genotype, FloorGrid* floorgrid);
+	void generateGridTopology(vector<float> genotype, FloorGrid* floorgrid);
 
 	vector<InteriorRoom>* getInteriorAt(int tile);
 

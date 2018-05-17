@@ -19,7 +19,7 @@ void EditState::stateEnter()
 	interiorEvolver.setFloorShape(floorshape);
 	interiorEvolver.generate(vector<int>());
 
-	Genotype g = interiorEvolver.selectionAlgorithm.population[0];
+	Genotype<float> g = interiorEvolver.selectionAlgorithm.population[0];
 
 	// manually edit gene based on dragged centers
 	centers.clear();
@@ -303,7 +303,7 @@ void EditState::mouseDragged(int x, int y, int button)
 //--------------------------------------------------------------
 void EditState::mouseReleased(int x, int y, int button)
 {
-	Genotype g = interiorEvolver.selectionAlgorithm.population[0];
+	Genotype<float> g = interiorEvolver.selectionAlgorithm.population[0];
 
 	// manually edit gene based on dragged centers
 	for (int i = 0; i < centers.size(); i++)
