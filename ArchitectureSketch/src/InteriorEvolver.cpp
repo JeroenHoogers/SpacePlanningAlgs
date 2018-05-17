@@ -26,6 +26,9 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	
 	// initialize selection algorithm (stores room positions)
 	selectionAlgorithm.setup(tiles, nRooms * 2);
+	
+	// initialize wall placement algorithm
+	wallPlacementAlgorithm.setup(tiles, xSplits * ySplits * 2);
 
 	// distinct adjacency combinations (n-1) choose 2
 	//int adjacencies = (nRooms * (nRooms - 1)) / 2;

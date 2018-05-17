@@ -105,11 +105,14 @@ private:
 	// amount of splits in the binary tree
 	int splits;
 
+	int xSplits = 5;
+	int ySplits = 5;
+
 	// amount of rooms (leaves in the binary tree)
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 100;
+	int optimizationGenerations = 60;
 	//int gen = 0;
 
 	// total number of splits including 
@@ -117,6 +120,7 @@ private:
 	int totalSplits = 8;
 
 	GeneticAlgorithm<float> roomOptimizationAlgorithm;
+	GeneticAlgorithm<bool> wallPlacementAlgorithm;
 
 	//GeneticTreeAlgorithm geneticTreeAlgorithm;
 	//GeneticAlgorithm adjacencyWeightsAlgorithm;

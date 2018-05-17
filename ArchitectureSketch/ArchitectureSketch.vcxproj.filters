@@ -224,6 +224,9 @@
     <ClInclude Include="src\EditState.h">
       <Filter>src\States</Filter>
     </ClInclude>
+    <ClInclude Include="src\InteriorGrid.h">
+      <Filter>src\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

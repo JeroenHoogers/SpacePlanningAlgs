@@ -211,6 +211,7 @@ src;
     <ClInclude Include="src\ExteriorEvolver.h" />
     <ClInclude Include="src\GeneticVariable.h" />
     <ClInclude Include="src\InteriorEvolver.h" />
+    <ClInclude Include="src\InteriorGrid.h" />
     <ClInclude Include="src\IntersectionHelper.h" />
     <ClInclude Include="src\MassConverter.h" />
     <ClInclude Include="src\Measurements.h" />
