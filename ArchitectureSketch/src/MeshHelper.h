@@ -13,6 +13,9 @@ public:
 
 		switch (colId)
 		{
+		case -1:
+			col = ofColor(200, 200, 200);
+			break;
 		case 0:
 			col = ofColor(240, 232, 205);
 			break;

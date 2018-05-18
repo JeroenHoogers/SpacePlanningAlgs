@@ -19,10 +19,10 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 
 	// calculate the number of rooms and splits
 	nRooms = pProgram->rooms.size();
-	splits = nRooms - 1;
+	optSplits = 3;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(100, splits + 2, 0.2f, 0.3f);
+	roomOptimizationAlgorithm.setup(100, optSplits * 2, 0.2f, 0.3f);
 	
 	// initialize selection algorithm (stores room positions)
 	selectionAlgorithm.setup(tiles, nRooms * 2);
@@ -41,6 +41,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 		interiors.push_back(interior);
 
 		floors.push_back(FloorGrid());
+		gridTopologies.push_back(InteriorGrid(hSplits, vSplits));
 		//trees.push_back(constructTestTree());
 	}
 
@@ -155,7 +156,7 @@ FloorGrid InteriorEvolver::constructGrid(const vector<Split>& splits)
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::generateGridTopology(vector<float> genotype, FloorGrid* floorgrid)
+void InteriorEvolver::generateGridTopology(const vector<float>& positions, const vector<bool>& walls, FloorGrid* floorgrid)
 {
 	ofRectangle bb = floorshape.getBoundingBox();
 
@@ -165,19 +166,25 @@ void InteriorEvolver::generateGridTopology(vector<float> genotype, FloorGrid* fl
 	float w = bb.getWidth();
 	float h = bb.getHeight();
 
-
 	int cols = floorgrid->cols;
 	int rows = floorgrid->rows;
 
-	if (genotype.size() != nRooms * 2)
+	if (positions.size() != nRooms * 2)
 		return;
-	
+
+	InteriorGrid topologyGrid = InteriorGrid(hSplits, vSplits);
+
+	// generate graph with edges based on walls
+	GridGraph graph = topologyGrid.GenerateGraph(walls);
+
 	vector<ofPoint> roomCenters;
 	vector<int> roomCells;
 	floorgrid->areas.clear();
-	
-	for (int i = 0; i < genotype.size(); i+=2)
+
+	for (int i = 0; i < positions.size(); i+=2)
 	{
+		ofPoint p = ofPoint(positions[i], positions[i + 1]);
+		
 		//ofPoint p = ofPoint(
 		//	fminf(floorf(genotype[i] * cols), cols - 1),
 		//	fminf(floorf(genotype[i+1] * rows), rows - 1)
@@ -188,7 +195,7 @@ void InteriorEvolver::generateGridTopology(vector<float> genotype, FloorGrid* fl
 		//	genotype[i + 1] * rows
 		//);
 
-		ofPoint p = ofPoint(minx + genotype[i] * w, miny + genotype[i+1] * h);
+		//ofPoint p = ofPoint(minx + genotype[i] * w, miny + genotype[i+1] * h);
 
 		floorgrid->areas.push_back(0);
 		floorgrid->centroids.push_back(ofPoint());
@@ -197,40 +204,47 @@ void InteriorEvolver::generateGridTopology(vector<float> genotype, FloorGrid* fl
 		roomCenters.push_back(p);
 	}
 
-	float dist = 0;
+	// generate rooms based using centroids and BFS
+	vector<map<int,int>> roomDistances = topologyGrid.GenerateRooms(graph, pProgram->rooms, roomCenters);
+
+	int level = 0;
 
 	// loop each cell
 	for (int i = 0; i < floorgrid->cells.size(); i++)
 	{
 		//for (int j = 0; j < rows; j++)
 		//{
-		ofPoint p = floorgrid->cells[i].rect.getCenter();
+		//ofPoint p = floorgrid->cells[i].rect.getCenter();
 		//p = ofPoint(i % rows, floorf((float)i / (float)rows));
 
-		float mindist = INFINITY;
-		int roomIndex = 0;
+		int minlevel = 999999;
+		int roomIndex = -1;
 
 		// iterate over room centerpoints to find the closest one
-		for (int k = 0; k < roomCenters.size(); k++)
+		for (int k = 0; k < roomDistances.size(); k++)
 		{
 			// TODO: consider weights
 			//float w = 1.0f - pProgram->getRoomAreaRatio(k);
-
-			dist = roomCenters[k].distance(p);
-			if (dist < mindist)
+			map<int, int>::iterator it = roomDistances[k].find(i);
+			if (it != roomDistances[k].end())
 			{
-				mindist = dist;
-				roomIndex = k;
+				level = roomDistances[k][i];
+				if (level < minlevel)
+				{
+					minlevel = level;
+					roomIndex = k;
+				}
 			}
 		}
 
-		if (floorgrid->cells[i].inside)
+		// TODO: inside check is not always accurate
+		//floorgrid->cells[i].inside
+		if (floorgrid->cells[i].inside && roomIndex >= 0)
 		{
 			floorgrid->areas[roomIndex] += floorgrid->cells[i].rect.getArea();
 			floorgrid->centroids[roomIndex] += floorgrid->cells[i].rect.getCenter();
 			roomCells[roomIndex]++;
 		}
-
 
 		floorgrid->cells[i].roomId = roomIndex;
 		// set room index based on closest centerpoint
@@ -250,6 +264,13 @@ void InteriorEvolver::generateGridTopology(vector<float> genotype, FloorGrid* fl
 		}
 	}
 
+	//vector<ofPoint> roomCentroids;
+	//for (int i = 0; i < roomCenters.size(); i++)
+	//{
+	//	ofPoint pos = roomCenters[i];
+	//	roomCentroids.push_back(floorgrid->getCellAt((int)pos.x, (int)pos.y).rect.getCenter());
+	//}
+
 	floorgrid->centers = roomCenters;
 }
 
@@ -260,6 +281,24 @@ void InteriorEvolver::setFloorShape(ofPolyline _floorshape)
 
 	// compute default splits
 	computeDefaultSplits();
+
+	vSplits = 0;
+	hSplits = 0;
+
+	for (auto& split : defaultSplits)
+	{
+		if (split.axis == 0)
+			vSplits++;
+		else
+			hSplits++;
+	}
+	
+	vSplits += optSplits;
+	hSplits += optSplits;
+
+	// re-initialize wall algorithm with cells * 2 variables
+	int cells = (hSplits + 1) * (vSplits + 1);
+	wallPlacementAlgorithm.setup(tiles, cells * 2);
 }
 
 //--------------------------------------------------------------
@@ -285,7 +324,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 	//if (gen == 0)
 	//{
 		// generate the first population
-		roomOptimizationAlgorithm.generateRandomPopulation();
+	roomOptimizationAlgorithm.generateRandomPopulation();
 	//}
 	//vector<float> fitnesses;
 	vector<Split> splits;
@@ -313,12 +352,13 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 			splits.clear();
 
 			// create splits
-			for (int j = 0; j < pGenotype->genes.size(); j += 2)
+			for (int j = 0; j < pGenotype->genes.size(); j++)
 			{
 				splits.push_back(
 					Split(
-						pGenotype->genes[j],								// position
-						fminf(floorf(pGenotype->genes[j+1] * 2.0), 1.0)		// axis
+						(j < optSplits) ? 0 : 1,
+						//pGenotype->genes[j],								// position
+						fminf(floorf(pGenotype->genes[j] * 2.0), 1.0)		// axis
 					)
 				);	
 			}
@@ -328,7 +368,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 			FloorGrid floorGrid = constructGrid(splits);
 
 			// TODO: can be heavily optimized since it only needs to be performed once
-			generateGridTopology(selectionAlgorithm.population[index].genes, &floorGrid);
+			generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floorGrid);
 
 			// compute fitness
 			float fitness = computeInteriorFitness(floorGrid);
@@ -368,13 +408,12 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 	// create grid layout, by appending default splits to the dynamic splits
 	optimalSplits.insert(optimalSplits.end(), defaultSplits.begin(), defaultSplits.end());
 	floors[index] = constructGrid(optimalSplits);
-	generateGridTopology(selectionAlgorithm.population[index].genes, &floors[index]);
+	generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floors[index]);
 
 //	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
 	return interior;
 }
-
 
 //--------------------------------------------------------------
 float InteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
@@ -505,11 +544,13 @@ void InteriorEvolver::generate(vector<int> selection)
 	{
 		// let the genetic algorithm generate offspring based on the selection
 		selectionAlgorithm.generateOffspring();
+		wallPlacementAlgorithm.generateOffspring();
 		//adjacencyWeightsAlgorithm.generateOffspring();
 	}
 	else
 	{
 		selectionAlgorithm.generateRandomPopulation();
+		wallPlacementAlgorithm.generateRandomPopulation();
 		//adjacencyWeightsAlgorithm.generateRandomPopulation();
 
 		generation = 0;

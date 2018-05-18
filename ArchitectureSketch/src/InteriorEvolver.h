@@ -104,16 +104,16 @@ class InteriorEvolver : public Evolver
 private:
 
 	// amount of splits in the binary tree
-	int splits;
+	int optSplits = 0;
 
-	int hSplits = 6;
-	int vSplits = 6;
+	int hSplits = 3;
+	int vSplits = 3;
 
 	// amount of rooms (leaves in the binary tree)
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 60;
+	int optimizationGenerations = 1;
 	//int gen = 0;
 
 	// total number of splits including 
@@ -121,7 +121,6 @@ private:
 	int totalSplits = 8;
 
 	GeneticAlgorithm<float> roomOptimizationAlgorithm;
-	GeneticAlgorithm<bool> wallPlacementAlgorithm;
 
 	//GeneticTreeAlgorithm geneticTreeAlgorithm;
 	//GeneticAlgorithm adjacencyWeightsAlgorithm;
@@ -133,10 +132,14 @@ private:
 
 	vector<vector<InteriorRoom>> interiors;
 
+
 public:
+
+	vector<InteriorGrid> gridTopologies;
 
 	// TODO: move back to private
 	GeneticAlgorithm<float> selectionAlgorithm;
+	GeneticAlgorithm<bool> wallPlacementAlgorithm;
 
 	// TODO: allow multiple floors
 	ofPolyline floorshape;
@@ -154,7 +157,7 @@ public:
 
 	FloorGrid constructGrid(const vector<Split>& splits);
 
-	void generateGridTopology(vector<float> genotype, FloorGrid* floorgrid);
+	void generateGridTopology(const vector<float>& positions, const vector<bool>& walls, FloorGrid* floorgrid);
 
 	vector<InteriorRoom>* getInteriorAt(int tile);
 

@@ -72,7 +72,7 @@ public:
 				graph.vertices.push_back(GridVertex(u, j, i));
 
 				// create edge right
-				if(j < vCuts && !walls[u])
+				if(j < vCuts )//&& !walls[u])
 				{
 					int v = getCellIndex(j + 1, i);
 					if (v > 0)
@@ -80,7 +80,7 @@ public:
 				}
 
 				// create edge down
-				if (i < hCuts && !walls[u + totalCells])
+				if (i < hCuts )// && !walls[u + totalCells])
 				{
 					int v = getCellIndex(j, i + 1);
 					if(v > 0)
@@ -92,24 +92,36 @@ public:
 		return graph;
 	};
 
-	//--------------------------------------------------------------
-	void GenerateRooms(GridGraph& graph, vector<Room> rooms, vector<ofPoint> centers)
+	ofPoint getCellInterpolated(ofPoint center)
 	{
-		if(rooms.size() != centers.size())
-			return;
+		// compute cell corresponding to the centerpoint
+		int x = fminf(floorf(center.x * (vCuts + 1)), vCuts);
+		int y = fminf(floorf(center.y * (hCuts + 1)), hCuts);
 
+		return ofPoint(x, y);
+	}
+
+	//--------------------------------------------------------------
+	vector<map<int, int>> GenerateRooms(GridGraph& graph, const vector<Room>& rooms, const vector<ofPoint>& centers)
+	{
 		vector<map<int, int>> roomLevels;
+
+		// sanity check
+		if(rooms.size() != centers.size())
+			return roomLevels;
 
 		for (int i = 0; i < rooms.size(); i++)
 		{
 			// compute cell corresponding to the centerpoint
-			int x = fminf(floorf(centers[i].x * (vCuts + 1)), vCuts);
-			int y = fminf(floorf(centers[i].y * (hCuts + 1)), hCuts);
-
-			int center = getCellIndex(x, y);
+			//int x = fminf(floorf(centers[i].x * (vCuts + 1)), vCuts);
+			//int y = fminf(floorf(centers[i].y * (hCuts + 1)), hCuts);
+			ofPoint cell = getCellInterpolated(centers[i]);
+			int center = getCellIndex((int)cell.x, (int)cell.y);
 
 			roomLevels.push_back(BreathFirstSearch(graph, center));
 		}
+
+		return roomLevels;
 	}
 
 	//--------------------------------------------------------------
@@ -131,7 +143,7 @@ public:
 				{
 					// check whether this vertex is already in our level set, if not add it
 					map<int, int>::iterator it = level.find(v);
-					if (it != level.end())
+					if (it == level.end())
 					{
 						level[v] = i;
 						next.push_back(v);
