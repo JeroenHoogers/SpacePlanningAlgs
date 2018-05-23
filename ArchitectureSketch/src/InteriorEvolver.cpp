@@ -63,8 +63,8 @@ void InteriorEvolver::computeDefaultSplits()
 		int prev = floorshape.getWrappedIndex(i - 1);
 		int next = floorshape.getWrappedIndex(i + 1);
 
-		ofVec2f v1 = floorshape[i] - floorshape[prev];
-		ofVec2f v2 = floorshape[next] - floorshape[i];
+		ofVec2f v2 = floorshape[i] - floorshape[prev];
+		ofVec2f v1 = floorshape[next] - floorshape[i];
 
 		// reflex angle
 		float angle = v1.angle(v2);
@@ -264,14 +264,14 @@ void InteriorEvolver::generateGridTopology(const vector<float>& positions, const
 		}
 	}
 
-	//vector<ofPoint> roomCentroids;
-	//for (int i = 0; i < roomCenters.size(); i++)
-	//{
-	//	ofPoint pos = roomCenters[i];
-	//	roomCentroids.push_back(floorgrid->getCellAt((int)pos.x, (int)pos.y).rect.getCenter());
-	//}
+	vector<ofPoint> roomCentroids;
+	for (int i = 0; i < roomCenters.size(); i++)
+	{
+		ofPoint pos = roomCenters[i];
+		roomCentroids.push_back(floorgrid->getCellAt((int)pos.x, (int)pos.y).rect.getCenter());
+	}
 
-	floorgrid->centers = roomCenters;
+	floorgrid->centers = roomCentroids;
 }
 
 //--------------------------------------------------------------
@@ -356,9 +356,9 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 			{
 				splits.push_back(
 					Split(
-						(j < optSplits) ? 0 : 1,
-						//pGenotype->genes[j],								// position
-						fminf(floorf(pGenotype->genes[j] * 2.0), 1.0)		// axis
+						pGenotype->genes[j],		// position
+						(j < optSplits) ? 0 : 1		// axis
+					//	fminf(floorf(pGenotype->genes[j] * 2.0), 1.0)		
 					)
 				);	
 			}
@@ -406,7 +406,6 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 	// TODO: generate rooms
 
 	// create grid layout, by appending default splits to the dynamic splits
-	optimalSplits.insert(optimalSplits.end(), defaultSplits.begin(), defaultSplits.end());
 	floors[index] = constructGrid(optimalSplits);
 	generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floors[index]);
 

@@ -72,7 +72,7 @@ public:
 				graph.vertices.push_back(GridVertex(u, j, i));
 
 				// create edge right
-				if(j < vCuts )//&& !walls[u])
+				if(j < vCuts && !walls[u])
 				{
 					int v = getCellIndex(j + 1, i);
 					if (v > 0)
@@ -80,7 +80,7 @@ public:
 				}
 
 				// create edge down
-				if (i < hCuts )// && !walls[u + totalCells])
+				if (i < hCuts && !walls[u + totalCells])
 				{
 					int v = getCellIndex(j, i + 1);
 					if(v > 0)

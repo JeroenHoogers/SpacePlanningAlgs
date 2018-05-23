@@ -113,7 +113,7 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 1;
+	int optimizationGenerations = 50;
 	//int gen = 0;
 
 	// total number of splits including 
