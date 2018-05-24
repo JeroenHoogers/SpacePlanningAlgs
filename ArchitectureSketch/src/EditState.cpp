@@ -20,6 +20,7 @@ void EditState::stateEnter()
 	interiorEvolver.generate(vector<int>());
 
 	Genotype<float> g = interiorEvolver.selectionAlgorithm.population[0];
+	walls = interiorEvolver.wallPlacementAlgorithm.population[0].genes;
 
 	// manually edit gene based on dragged centers
 	centers.clear();
@@ -60,7 +61,6 @@ void EditState::setup()
 	centers.push_back(ofPoint(850, 200));
 	centers.push_back(ofPoint(200, 500));
 
-
 	//polygon = ofPolyline();
 	//polygon.addVertex(ofPoint(20, 20));
 	//polygon.addVertex(ofPoint(350, 20));
@@ -71,7 +71,6 @@ void EditState::setup()
 	//polygon.addVertex(ofPoint(200, 500));
 	//polygon.addVertex(ofPoint(20, 500));
 	//polygon.close();
-
 }
 
 //--------------------------------------------------------------
@@ -176,6 +175,36 @@ void EditState::draw()
 				if (cell.inside)
 				{
 					ofRect(cell.rect);
+				}
+			}
+
+			// draw walls
+			ofSetLineWidth(1.5f);
+			ofSetColor(0);
+
+			int cells = pFloor->cells.size();
+			for (int i = 0; i < walls.size(); i++)
+			{
+				int j = i % cells;
+
+				if (!walls[i] || !pFloor->cells[j].inside)
+					continue;
+
+				ofRectangle& rect = pFloor->cells[j].rect;
+
+				if (i < cells)
+				{
+					// right wall
+					ofDrawLine(
+						rect.getMaxX(), rect.getMinY(), 
+						rect.getMaxX(), rect.getMaxY());
+				}
+				else
+				{
+					// bottom wall
+					ofDrawLine(
+						rect.getMinX(), rect.getMaxY(),
+						rect.getMaxX(), rect.getMaxY());
 				}
 			}
 		}

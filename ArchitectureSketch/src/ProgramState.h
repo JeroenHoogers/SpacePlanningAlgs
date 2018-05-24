@@ -36,8 +36,8 @@ private:
 	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 15, 5, 25);
 	ofParameter<int> mDepth = ofParameter<int>("Lot depth (m)", 15, 5, 25);
 
-	ofParameter<bool> mTerracedLeft = ofParameter<bool>("Terraced Left", false);
-	ofParameter<bool> mTerracedRight = ofParameter<bool>("Terraced Right", false);
+	//ofParameter<bool> mTerracedLeft = ofParameter<bool>("Terraced Left", false);
+	//ofParameter<bool> mTerracedRight = ofParameter<bool>("Terraced Right", false);
 
 	ofxSlider<int> mInhabitantsSlider = ofxSlider<int>(mInhabitants, 300, 20);
 	ofxSlider<int> mStoriesSlider = ofxSlider<int>(mStories, 300, 20);
@@ -45,8 +45,8 @@ private:
 	ofxSlider<int> mWidthSlider = ofxSlider<int>(mWidth, 300, 20);
 	ofxSlider<int> mDepthSlider = ofxSlider<int>(mDepth, 300, 20);
 
-	ofxToggle mTerracedLeftToggle = ofxToggle(mTerracedLeft, 300, 20);
-	ofxToggle mTerracedRightToggle = ofxToggle(mTerracedRight, 300, 20);
+	//ofxToggle mTerracedLeftToggle = ofxToggle(mTerracedLeft, 300, 20);
+	//ofxToggle mTerracedRightToggle = ofxToggle(mTerracedRight, 300, 20);
 
 
 	ofxButton mAcceptButton = ofxButton();

@@ -44,8 +44,8 @@ void ProgramState::setup()
 	mWidthSlider.setPosition(ofPoint(20, 200));
 	mDepthSlider.setPosition(ofPoint(20, 230));
 
-	mTerracedLeftToggle.setPosition(ofPoint(20, 260));
-	mTerracedRightToggle.setPosition(ofPoint(20, 290));
+	//mTerracedLeftToggle.setPosition(ofPoint(20, 260));
+	//mTerracedRightToggle.setPosition(ofPoint(20, 290));
 
 	// accept button
 	mAcceptButton.setup("Accept", 300, 20);
@@ -87,8 +87,8 @@ void ProgramState::draw()
 	mWidthSlider.draw();
 	mDepthSlider.draw();
 
-	mTerracedLeftToggle.draw();
-	mTerracedRightToggle.draw();
+	//mTerracedLeftToggle.draw();
+	//mTerracedRightToggle.draw();
 	
 	mAcceptButton.draw();
 	
@@ -148,12 +148,12 @@ void ProgramState::drawSiteLayout()
 		ofSetColor(40);
 		ofDrawBitmapString(ofToString(mWidth.get() * mDepth.get()) + " m2", ofPoint(180, 200));
 
-		ofSetColor(190);
-		if(mTerracedLeft.get())
-			ofRect(ofPoint(0, y), x, h);
+		//ofSetColor(190);
+		//if(mTerracedLeft.get())
+		//	ofRect(ofPoint(0, y), x, h);
 
-		if (mTerracedRight.get())
-			ofRect(ofPoint(x+w, y), x, h);
+		//if (mTerracedRight.get())
+		//	ofRect(ofPoint(x+w, y), x, h);
 	}
 	ofPopMatrix();
 
@@ -193,9 +193,9 @@ void ProgramState::updateProgram()
 	pProgram->lotDepth = mDepth.get();
 	pProgram->stories = mStories.get();
 
-	// terraced 
-	pProgram->terracedLeft = mTerracedLeft.get();
-	pProgram->terracedRight = mTerracedRight.get();
+	//// terraced 
+	//pProgram->terracedLeft = mTerracedLeft.get();
+	//pProgram->terracedRight = mTerracedRight.get();
 }
 
 //--------------------------------------------------------------
