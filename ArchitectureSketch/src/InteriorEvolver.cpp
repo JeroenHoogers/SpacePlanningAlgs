@@ -237,7 +237,7 @@ void InteriorEvolver::generateGridTopology(const vector<float>& positions, const
 			}
 		}
 
-		// TODO: inside check is not always accurate
+		// TODO: inside check is not always accurate in case of non-monotone polygons
 		//floorgrid->cells[i].inside
 		if (floorgrid->cells[i].inside && roomIndex >= 0)
 		{
@@ -253,21 +253,21 @@ void InteriorEvolver::generateGridTopology(const vector<float>& positions, const
 	}
 
 
-	for (int i = 0; i < roomCells.size(); i++)
-	{
-		// room has no cells
-		if (roomCells[i] <= 0)
-			floorgrid->centroids[i] = roomCenters[i];
-		else
-		{
-			floorgrid->centroids[i] /= (float)roomCells[i];
-		}
-	}
+	//for (int i = 0; i < roomCells.size(); i++)
+	//{
+	//	// room has no cells
+	//	if (roomCells[i] <= 0)
+	//		floorgrid->centroids[i] = roomCenters[i];
+	//	else
+	//	{
+	//		floorgrid->centroids[i] /= (float)roomCells[i];
+	//	}
+	//}
 
 	vector<ofPoint> roomCentroids;
 	for (int i = 0; i < roomCenters.size(); i++)
 	{
-		ofPoint pos = roomCenters[i];
+		ofPoint pos = topologyGrid.getCellInterpolated(roomCenters[i]);
 		roomCentroids.push_back(floorgrid->getCellAt((int)pos.x, (int)pos.y).rect.getCenter());
 	}
 

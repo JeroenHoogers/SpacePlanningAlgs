@@ -369,6 +369,7 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 {
 	vector<InteriorRoom>* pInterior = interiorEvolver.getInteriorAt(index);
 	FloorGrid* pFloor = &interiorEvolver.floors[index];
+	vector<bool>* pWalls = &interiorEvolver.wallPlacementAlgorithm.population[index].genes;
 
 	// get lot rectangle
 	ofRectangle lot = pProgram->getLotRectangle();
@@ -458,6 +459,41 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 				area = roundf(area * 10) / 10;
 				ofPoint p = pFloor->centers[i] + ofPoint(5, -5) / ratio;
 				ofDrawBitmapString(pProgram->rooms[i].code + "\n" + ofToString(area) + " m2", p);
+			}
+		}
+
+		// draw walls
+		if (showDebug)
+		{
+			ofSetLineWidth(1.0f);
+			ofSetColor(50);
+
+			int cells = pFloor->cells.size();
+
+
+			for (int i = 0; i < pWalls->size(); i++)
+			{
+				int j = i % cells;
+
+				if (!(*pWalls)[i] || !pFloor->cells[j].inside)
+					continue;
+
+				ofRectangle& rect = pFloor->cells[j].rect;
+
+				if (i < cells)
+				{
+					// right wall
+					ofDrawLine(
+						rect.getMaxX(), rect.getMinY(),
+						rect.getMaxX(), rect.getMaxY());
+				}
+				else
+				{
+					// bottom wall
+					ofDrawLine(
+						rect.getMinX(), rect.getMaxY(),
+						rect.getMaxX(), rect.getMaxY());
+				}
 			}
 		}
 
