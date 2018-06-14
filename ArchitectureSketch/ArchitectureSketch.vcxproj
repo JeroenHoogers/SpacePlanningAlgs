@@ -184,7 +184,7 @@ src;
     <ClCompile Include="src\EditState.cpp" />
     <ClCompile Include="src\Evolver.cpp" />
     <ClCompile Include="src\ExteriorEvolver.cpp" />
-    <ClCompile Include="src\InteriorEvolver.cpp" />
+    <ClCompile Include="src\BFSInteriorEvolver.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="src\ArchitectureState.cpp" />
@@ -201,6 +201,7 @@ src;
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxSlider.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxSliderGroup.cpp" />
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
+    <ClCompile Include="src\SplitInteriorEvolver.cpp" />
     <ClCompile Include="src\StraightSkeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -210,7 +211,7 @@ src;
     <ClInclude Include="src\Evolver.h" />
     <ClInclude Include="src\ExteriorEvolver.h" />
     <ClInclude Include="src\GeneticVariable.h" />
-    <ClInclude Include="src\InteriorEvolver.h" />
+    <ClInclude Include="src\BFSInteriorEvolver.h" />
     <ClInclude Include="src\InteriorGrid.h" />
     <ClInclude Include="src\IntersectionHelper.h" />
     <ClInclude Include="src\MassConverter.h" />
@@ -236,6 +237,7 @@ src;
     <ClInclude Include="..\..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxState.h" />
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxStateMachine.h" />
+    <ClInclude Include="src\SplitInteriorEvolver.h" />
     <ClInclude Include="src\StraightSkeleton.h" />
   </ItemGroup>
   <ItemGroup>

@@ -35,6 +35,9 @@ void ArchitectureState::stateEnter()
 	lotPolygon.close();
 
 	pCurrentEvolver->generate(selectedIndices);
+
+	// TODO: check which evolver should be loaded
+
 	//evaluateCandidates();
 }
 
@@ -135,7 +138,7 @@ void ArchitectureState::setup()
 	// create evolvers
 	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
 	exteriorEvolver.setup(tiles, pProgram);
-	interiorEvolver.setup(tiles, pProgram);
+	bfsInteriorEvolver.setup(tiles, pProgram);
 
 	currentStep = EEvolutionStep::Exterior;
 	pCurrentEvolver = &exteriorEvolver;
@@ -235,8 +238,8 @@ void ArchitectureState::draw()
 	// show generation
 	ofSetColor(10);
 	ofDrawBitmapStringHighlight("Generation: " + ofToString(pCurrentEvolver->generation), 10, 20);
-	ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 200, 20);
-	ofDrawBitmapStringHighlight("R: Generate next gen,  A: Accept design", ofPoint(ofGetWidth() * 0.5f - 150, 20));
+	//ofDrawBitmapStringHighlight("Minimum area: " + ofToString(targetArea) + " m2", ofGetWidth() - 200, 20);
+	ofDrawBitmapStringHighlight("R: Generate new designs,  A: Accept design", ofPoint(ofGetWidth() * 0.5f - 150, 20));
 
 	//ofDrawBitmapStringHighlight("Inhabs: " + ofToString(pProgram->inhabitants), ofGetWidth() - 200, 20);
 	if (mShowGui)
@@ -265,10 +268,11 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	case EEvolutionStep::Exterior:
 		drawExteriorTile(viewport, tileIndex);
 		break;
-	case EEvolutionStep::Interior:
-		drawInteriorTile(viewport, tileIndex);
+	case EEvolutionStep::BFSInterior:
+		drawBFSInteriorTile(viewport, tileIndex);
 		break;
-	case EEvolutionStep::Elements:
+	case EEvolutionStep::SplitInterior:
+		drawSplitInteriorTile(viewport, tileIndex);
 		break;
 	default:
 		break;
@@ -301,7 +305,7 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 
 	pBuilding->draw(visibleFloor);
 
-	// draw scale model
+	// draw scale models
 	ofSetColor(30);
 	ofRectangle boundingRect = pBuilding->GetFloorBoundingBox(0);
 
@@ -342,9 +346,9 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 
 	glDepthRange(0.0, 1.0);
 
-	ofFill();
-	ofSetColor(20);
-	ofDrawArrow(ofVec3f(0, 1, -18), ofVec3f(0, 1, -15), 0.3f);
+	//ofFill();
+	//ofSetColor(20);
+	//ofDrawArrow(ofVec3f(0, 1, -18), ofVec3f(0, 1, -15), 0.3f);
 
 	// disable depth testing
 	ofDisableDepthTest();
@@ -365,11 +369,11 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 }
 
 //--------------------------------------------------------------
-void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
+void ArchitectureState::drawBFSInteriorTile(ofRectangle viewport, int index)
 {
-	vector<InteriorRoom>* pInterior = interiorEvolver.getInteriorAt(index);
-	FloorGrid* pFloor = &interiorEvolver.floors[index];
-	vector<bool>* pWalls = &interiorEvolver.wallPlacementAlgorithm.population[index].genes;
+	vector<InteriorRoom>* pInterior = bfsInteriorEvolver.getInteriorAt(index);
+	FloorGrid* pFloor = &bfsInteriorEvolver.floors[index];
+	vector<bool>* pWalls = &bfsInteriorEvolver.wallPlacementAlgorithm.population[index].genes;
 
 	// get lot rectangle
 	ofRectangle lot = pProgram->getLotRectangle();
@@ -391,7 +395,7 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 		// draw floor outline
 		ofSetLineWidth(3.0f);
 
-		interiorEvolver.floorshape.draw();
+		bfsInteriorEvolver.floorshape.draw();
 
 		// draw rooms
 		ofSetColor(40);
@@ -494,6 +498,57 @@ void ArchitectureState::drawInteriorTile(ofRectangle viewport, int index)
 						rect.getMinX(), rect.getMaxY(),
 						rect.getMaxX(), rect.getMaxY());
 				}
+			}
+		}
+
+		// TODO: draw rooms
+	}
+	ofPopMatrix();
+}
+
+//--------------------------------------------------------------
+void ArchitectureState::drawSplitInteriorTile(ofRectangle viewport, int index)
+{
+	vector<InteriorRoom>* pInterior = splitInteriorEvolver.getInteriorAt(index);
+
+	// get lot rectangle
+	ofRectangle lot = pProgram->getLotRectangle();
+
+	// calculate ratio
+	float ratioW = viewport.width / lot.width;
+	float ratioH = viewport.height / lot.height;
+
+	float ratio = fminf(ratioW, ratioH);
+	//ratio *= camera.getDistance();
+
+	ofPushMatrix();
+	{
+		ofNoFill();
+		ofSetColor(0);
+
+		ofTranslate(viewport.x + viewport.width * 0.5f, viewport.y + viewport.height * 0.5f);
+		ofScale(ratio, ratio);
+		// draw floor outline
+		ofSetLineWidth(3.0f);
+
+		splitInteriorEvolver.floorshape.draw();
+
+		// draw rooms
+		ofSetColor(40);
+		ofSetLineWidth(1.5f);
+
+		if (pInterior != NULL)
+		{
+			for (int i = 0; i < pInterior->size(); i++)
+			{
+				ofFill();
+
+				(*pInterior)[i].shape.draw();
+
+				// draw room name and area
+				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
+				ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
+				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
 			}
 		}
 
@@ -710,21 +765,30 @@ void ArchitectureState::gotoNextStep()
 			// TODO: handle multi-storey homes
 			ofPolyline floor = exteriorEvolver.getBuildingAt(tile)->floorShapes[0];
 
-			interiorEvolver.setFloorShape(floor);
-			pCurrentEvolver = &interiorEvolver;
-			currentStep = EEvolutionStep::Interior;
+			getSharedData().building = *exteriorEvolver.getBuildingAt(tile);
 
-			selectedIndices.clear();
-			pCurrentEvolver->generate(selectedIndices);
+			bfsInteriorEvolver.setFloorShape(floor);
+			splitInteriorEvolver.setFloorShape(floor);
+			//pCurrentEvolver = &bfsInteriorEvolver;
+
+			// TODO: Let user decide
+			//currentStep = EEvolutionStep::BFSInterior;
+
+			//selectedIndices.clear();
+			//pCurrentEvolver->generate(selectedIndices);
+
+			changeState(ProjectState_StateName);
 		}
-		else if (currentStep == EEvolutionStep::Interior)
+		else if (currentStep == EEvolutionStep::BFSInterior || currentStep == EEvolutionStep::BFSInterior)
 		{
 			// set floor shape
-			ofPolyline floor = interiorEvolver.floorshape;
+			ofPolyline floor = bfsInteriorEvolver.floorshape;
 			getSharedData().floorshape = floor;
 
 			// DEBUG: state to adjust floorplan manually
-			changeState(EditState_StateName);
+			//changeState(EditState_StateName);
+
+			changeState(ProjectState_StateName);
 		}
 	}
 

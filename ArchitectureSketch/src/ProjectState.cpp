@@ -13,6 +13,25 @@ ProjectState::~ProjectState()
 //--------------------------------------------------------------
 void ProjectState::stateEnter()
 {
+	// TODO: remove
+	building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
+	building.GenerateBuilding();
+
+	building = getSharedData().building;
+
+	//// Update lot polygon
+	//lotPolygon.clear();
+
+	//lotPolygon.addVertex(
+	//	ofPoint(-pProgram->lotWidth * 0.5f, 0, -pProgram->lotDepth * 0.5f));
+	//lotPolygon.addVertex(
+	//	ofPoint(-pProgram->lotWidth * 0.5f, 0, pProgram->lotDepth * 0.5f));
+	//lotPolygon.addVertex(
+	//	ofPoint(pProgram->lotWidth * 0.5f, 0, pProgram->lotDepth * 0.5f));
+	//lotPolygon.addVertex(
+	//	ofPoint(pProgram->lotWidth * 0.5f, 0, -pProgram->lotDepth * 0.5f));
+	//lotPolygon.close();
+
 	light.enable();
 }
 
@@ -28,9 +47,6 @@ void ProjectState::setup()
 	// use AA
 	ofEnableAntiAliasing();
 
-	// use depth information for occlusion
-	ofEnableDepthTest();
-
 	// use normalized tex coords
 	ofEnableNormalizedTexCoords();
 
@@ -42,7 +58,7 @@ void ProjectState::setup()
 
 	// setup light
 	light.setDirectional();
-	light.setAmbientColor(ofColor(25, 25, 40));
+	light.setAmbientColor(ofColor(60, 60, 80));
 	light.setDiffuseColor(ofColor(210, 200, 180));
 
 	light.setPosition(-150, -200, -400);
@@ -51,18 +67,29 @@ void ProjectState::setup()
 
 	ofSetLineWidth(1.5);
 
-	camera.setDistance(30);
+	camera.setDistance(40);
 	camera.disableRoll();
-
-	//post.init(ofGetWidth(), ofGetHeight());
-	//post.createPass<FxaaPass>();
-	////post.createPass<BloomPass>();
-	//post.createPass<SSAOPass>();
 
 	geneticAlgorithm.setup(1, 12);
 
-	building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
-	building.GenerateBuilding();
+	// back button
+	mBackButton.setup("Back", 20, 20);
+	mBackButton.setPosition(ofPoint(20, 350));
+	mBackButton.addListener(this, &ProjectState::backButtonPressed);
+
+	// indoor 1 button
+	mInterior1Button.setup("Create Interior (Split)", 300, 20);
+	mInterior1Button.setPosition(ofPoint(20, 450));
+	mBackButton.addListener(this, &ProjectState::interior1ButtonPressed);
+
+	// indoor 2 button
+	mInterior2Button.setup("Create Interior (BFS)", 300, 20);
+	mInterior2Button.setPosition(ofPoint(40, 450));
+	mBackButton.addListener(this, &ProjectState::interior2ButtonPressed);
+
+	// TODO: replace with shared data
+	//building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
+	//building.GenerateBuilding();
 }
 
 //--------------------------------------------------------------
@@ -72,19 +99,59 @@ void ProjectState::update()
 }
 
 //--------------------------------------------------------------
+void ProjectState::backButtonPressed()
+{
+	// go back to architecture state
+	changeState(ArchitectureState_StateName);
+}
+
+//--------------------------------------------------------------
+void ProjectState::interior1ButtonPressed()
+{
+	// go to architecture state
+	changeState(ArchitectureState_StateName);
+}
+
+//--------------------------------------------------------------
+void ProjectState::interior2ButtonPressed()
+{
+	// go to architecture state
+	changeState(ArchitectureState_StateName);
+}
+
+//--------------------------------------------------------------
+void ProjectState::gotoNextStep()
+{
+	//// set variables
+	//changeState(ArchitectureState_StateName);
+
+	//// restart
+	//changeState(ProgramState_StateName);
+}
+
+//--------------------------------------------------------------
 void ProjectState::draw()
 {
-	ofSetLineWidth(1.5);
-	ofBackgroundGradient(ofColor(200, 200, 200), ofColor(125, 125, 125));
+	// use depth information for occlusion
+	ofEnableDepthTest();
 
+	light.setPosition(-camera.getGlobalPosition() + ofVec3f(0, 2, 0));
+	light.lookAt(ofVec3f(0, 0, 0));
+
+	ofBackground(ofColor(200));
+
+	ofSetLineWidth(1.5);
 	ofEnableDepthTest();
 
 	//post.begin(camera);
 
-	light.setPosition(-camera.getGlobalPosition());
-	light.lookAt(ofVec3f(0, 0, 0));
-
 	camera.begin();
+
+	// draw outlines
+	ofNoFill();
+	//ofSetColor(140);
+
+	ofEnableLighting();
 
 	// draw outlines
 	if (drawOutlines)
@@ -115,33 +182,45 @@ void ProjectState::draw()
 
 	building.draw();
 
-	//ofPushMatrix();
-	//{
-	//	ofTranslate(0, 6);
-	//	ofDrawBox(16, 12, 16);
-	//}
-	//ofPopMatrix();
+	// draw scale models
+	ofSetColor(30);
+	ofRectangle boundingRect = building.GetFloorBoundingBox(0);
 
-	//ofPushMatrix();
-	//{
-	//	ofTranslate(12, 3);
-	//	ofDrawBox(8, 6, 12);
-	//}
-	//ofPopMatrix();
+	ofDrawCylinder(boundingRect.getMinX() - 1.0f, 0.9f, 0, 0.2f, 1.8f);
+	ofDrawCylinder(boundingRect.getMaxX() + 1.0f, 0.9f, 0, 0.2f, 1.8f);
+	ofDrawCylinder(0, 0.9f, boundingRect.getMinY() - 1.0f, 0.2f, 1.8f);
+	ofDrawCylinder(0, 0.9f, boundingRect.getMaxY() + 1.0f, 0.2f, 1.8f);
 
 	ofDisableLighting();
 
+	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
+	glDepthRange(0.0, 0.9995);
+
+	//// draw lot
+	//ofSetColor(80);
+	//ofSetLineWidth(2.0f);
+	//ofNoFill();
+	//lotPolygon.draw();
+
+	//// HACK: hack depth buffer range to make sure the lines render on top of the geometry
+	//glDepthRange(0.0005, 1.0);
+
 	//phong.end();
+
+	glDepthRange(0.0005, 1.0);
 
 	ofPushMatrix();
 	{
+		//ofRotateX(-90);
 		ofRotateZ(90);
-
-		ofSetColor(120);
-		ofDrawGridPlane(2, 16);
+		ofSetLineWidth(0.8f);
+		ofSetColor(170);
+		//ofDrawPlane(0, 0, 100, 100);
+		ofDrawGridPlane(0.5f, 30);
 	}
 	ofPopMatrix();
 
+	glDepthRange(0.0, 1.0);
 
 	ofDisableDepthTest();
 
@@ -160,8 +239,12 @@ void ProjectState::drawGUI()
 {
 	ofSetColor(255);
 
-	string controls = "Controls: \n(o): toggle orthographic\n(t): top view \n(f): front view \n(s): side view";
-	ofDrawBitmapStringHighlight(controls, ofPoint(10, 20));
+	mBackButton.draw();
+	mInterior1Button.draw();
+	mInterior2Button.draw();
+
+	//string controls = "Controls: \n(o): toggle orthographic\n(t): top view \n(f): front view \n(s): side view";
+	//ofDrawBitmapStringHighlight(controls, ofPoint(10, 20));
 
 	//ofTranslate(10, ofGetWidth() - 140);
 
@@ -218,8 +301,8 @@ void ProjectState::keyPressed(int key)
 	if (key == 'r')
 	{
 		// refresh building
-		building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
-		building.GenerateBuilding();
+		//building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
+		//building.GenerateBuilding();
 	}
 }
 

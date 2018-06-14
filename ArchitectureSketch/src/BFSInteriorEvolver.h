@@ -3,20 +3,21 @@
 #include "Evolver.h"
 #include "IntersectionHelper.h"
 #include "InteriorGrid.h"
+#include "SplitInteriorEvolver.h"
 
-struct Split
-{
-	float position;
-
-	// 0: x-axis, 1: y-axis
-	int axis;
-
-	Split(float _position, int _axis)
-	{
-		position = _position;
-		axis = _axis;
-	}
-};
+//struct Split
+//{
+//	float position;
+//
+//	// 0: x-axis, 1: y-axis
+//	int axis;
+//
+//	Split(float _position, int _axis)
+//	{
+//		position = _position;
+//		axis = _axis;
+//	}
+//};
 
 struct GridCell
 {
@@ -67,39 +68,39 @@ struct FloorGrid
 	}
 };
 
-// Room data structure
-struct InteriorRoom
-{
-	Room* pRoom;
-	ofPolyline shape;
-	ofRectangle bb;
-
-	InteriorRoom(Room* _pRoom, ofPolyline _shape)
-	{
-		pRoom = _pRoom;
-		shape = _shape;
-		bb = shape.getBoundingBox();
-	}
-
-	float getArea() const
-	{
-		return abs(shape.getArea());
-	}
-
-	float getMinDim() const
-	{
-		return fminf(bb.getWidth(), bb.getHeight());
-	}
-
-	float getMaxDim() const
-	{
-		return fmaxf(bb.getWidth(), bb.getHeight());
-	}
-};
+//// Room data structure
+//struct InteriorRoom
+//{
+//	Room* pRoom;
+//	ofPolyline shape;
+//	ofRectangle bb;
+//
+//	InteriorRoom(Room* _pRoom, ofPolyline _shape)
+//	{
+//		pRoom = _pRoom;
+//		shape = _shape;
+//		bb = shape.getBoundingBox();
+//	}
+//
+//	float getArea() const
+//	{
+//		return abs(shape.getArea());
+//	}
+//
+//	float getMinDim() const
+//	{
+//		return fminf(bb.getWidth(), bb.getHeight());
+//	}
+//
+//	float getMaxDim() const
+//	{
+//		return fmaxf(bb.getWidth(), bb.getHeight());
+//	}
+//};
 
 
 // This is the layer between the genetic algorithm and the architecture state
-class InteriorEvolver : public Evolver
+class BFSInteriorEvolver : public Evolver
 {
 private:
 
@@ -147,8 +148,8 @@ public:
 	// TEMP
 	vector<FloorGrid> floors;
 
-	InteriorEvolver();
-	~InteriorEvolver();
+	BFSInteriorEvolver();
+	~BFSInteriorEvolver();
 
 	void setup(int _tiles, ArchitectureProgram* _pProgram);
 	void setFloorShape(ofPolyline _floorshape);

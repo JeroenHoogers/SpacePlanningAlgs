@@ -1,17 +1,17 @@
-#include "InteriorEvolver.h"
+#include "BFSInteriorEvolver.h"
 
 //--------------------------------------------------------------
-InteriorEvolver::InteriorEvolver()
+BFSInteriorEvolver::BFSInteriorEvolver()
 {
 }
 
 //--------------------------------------------------------------
-InteriorEvolver::~InteriorEvolver()
+BFSInteriorEvolver::~BFSInteriorEvolver()
 {
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
+void BFSInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 {
 	// TODO: Allow multiple floor shapes
 	// base setup
@@ -22,7 +22,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	optSplits = 3;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(100, optSplits * 2, 0.2f, 0.3f);
+	roomOptimizationAlgorithm.setup(100, optSplits * 2, 0.1f, 0.2f);
 	
 	// initialize selection algorithm (stores room positions)
 	selectionAlgorithm.setup(tiles, nRooms * 2);
@@ -52,7 +52,7 @@ void InteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::computeDefaultSplits()
+void BFSInteriorEvolver::computeDefaultSplits()
 {
 	defaultSplits.clear();
 
@@ -85,7 +85,7 @@ void InteriorEvolver::computeDefaultSplits()
 
 // Constructs a rectangular grid based on the current floorshape and split positions
 //--------------------------------------------------------------
-FloorGrid InteriorEvolver::constructGrid(const vector<Split>& splits)
+FloorGrid BFSInteriorEvolver::constructGrid(const vector<Split>& splits)
 {
 	ofRectangle bb = floorshape.getBoundingBox();
 
@@ -156,7 +156,7 @@ FloorGrid InteriorEvolver::constructGrid(const vector<Split>& splits)
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::generateGridTopology(const vector<float>& positions, const vector<bool>& walls, FloorGrid* floorgrid)
+void BFSInteriorEvolver::generateGridTopology(const vector<float>& positions, const vector<bool>& walls, FloorGrid* floorgrid)
 {
 	ofRectangle bb = floorshape.getBoundingBox();
 
@@ -275,7 +275,7 @@ void InteriorEvolver::generateGridTopology(const vector<float>& positions, const
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::setFloorShape(ofPolyline _floorshape)
+void BFSInteriorEvolver::setFloorShape(ofPolyline _floorshape)
 {
 	floorshape = _floorshape;
 
@@ -302,7 +302,7 @@ void InteriorEvolver::setFloorShape(ofPolyline _floorshape)
 }
 
 //--------------------------------------------------------------
-vector<InteriorRoom>* InteriorEvolver::getInteriorAt(int tile)
+vector<InteriorRoom>* BFSInteriorEvolver::getInteriorAt(int tile)
 {
 	if (tile < candidates.size())
 	{
@@ -316,7 +316,7 @@ vector<InteriorRoom>* InteriorEvolver::getInteriorAt(int tile)
 }
 
 //--------------------------------------------------------------
-vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
+vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 {
 	// TODO: get split tree using treeIndex
 	// for now just construct a balanced binary tree
@@ -415,7 +415,7 @@ vector<InteriorRoom> InteriorEvolver::optimizeInterior(int index)
 }
 
 //--------------------------------------------------------------
-float InteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
+float BFSInteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 {
 	float areaFitness = 0;
 	float ratioFitness = 0;
@@ -506,7 +506,7 @@ float InteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 
 
 //--------------------------------------------------------------
-bool InteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2)
+bool BFSInteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2)
 {
 	// TODO: should work for all shapes
 	ofRectangle bb1 = r1.shape.getBoundingBox();
@@ -519,7 +519,7 @@ bool InteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRoom&
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::generate(vector<int> selection)
+void BFSInteriorEvolver::generate(vector<int> selection)
 {
 	// find selected indices
 	for (int i = 0; i < selection.size(); i++)
@@ -574,7 +574,7 @@ void InteriorEvolver::generate(vector<int> selection)
 }
 
 //--------------------------------------------------------------
-void InteriorEvolver::drawDebug(ofPoint p, int tile)
+void BFSInteriorEvolver::drawDebug(ofPoint p, int tile)
 {
 	if (tile >= selectionAlgorithm.population.size())
 		return;

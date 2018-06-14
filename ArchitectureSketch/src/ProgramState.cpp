@@ -65,6 +65,7 @@ void ProgramState::update()
 //--------------------------------------------------------------
 void ProgramState::draw()
 {
+
 	//ofClear()
 	ofSetLineWidth(1);
 	ofBackground(200);
@@ -74,7 +75,9 @@ void ProgramState::draw()
 	ofDrawBitmapString("Architectural Program", ofPoint(20, 20));
 
 	//guiPanel.draw();
-	
+
+	ofSetColor(255);
+
 	mInhabitantsSlider.draw();
 	mStoriesSlider.draw();
 

@@ -48,7 +48,7 @@ void EditState::setup()
 	pProgram = &getSharedData().program;
 
 	// create interior evolver
-	interiorEvolver = InteriorEvolver();
+	interiorEvolver = BFSInteriorEvolver();
 	interiorEvolver.setup(1, pProgram);
 
 	interiorEvolver.generate(vector<int>());

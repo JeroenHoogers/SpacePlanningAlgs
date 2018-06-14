@@ -4,7 +4,7 @@
 #include "ofxState.h"
 #include "ofxGui.h"
 #include "StraightSkeleton.h"
-#include "InteriorEvolver.h"
+#include "BFSInteriorEvolver.h"
 
 #define DebugState_StateName "DebugState"
 

@@ -9,7 +9,9 @@
 #include "Measurements.h"
 #include "ArchitectureProgram.h"
 #include "ExteriorEvolver.h"
-#include "InteriorEvolver.h"
+#include "SplitInteriorEvolver.h"
+#include "BFSInteriorEvolver.h"
+#include "ProjectState.h"
 #include "EditState.h"
 
 #define ArchitectureState_StateName "ArchitectureState"
@@ -62,7 +64,8 @@
 enum struct EEvolutionStep
 {
 	Exterior,
-	Interior,
+	BFSInterior,
+	SplitInterior,
 	Elements
 };
 
@@ -123,7 +126,8 @@ private:
 	vector<int> selectedIndices;
 
 	ExteriorEvolver exteriorEvolver;
-	InteriorEvolver interiorEvolver;
+	SplitInteriorEvolver splitInteriorEvolver;
+	BFSInteriorEvolver bfsInteriorEvolver;
 	Evolver* pCurrentEvolver;
 
 	bool initialized = false;
@@ -146,7 +150,8 @@ public:
 	void drawGUI();
 	void drawTile(ofRectangle viewport, int index);
 	void drawExteriorTile(ofRectangle viewport, int index);
-	void drawInteriorTile(ofRectangle viewport, int index);
+	void drawBFSInteriorTile(ofRectangle viewport, int index);
+	void drawSplitInteriorTile(ofRectangle viewport, int index);
 
 	void gotoNextStep();
 

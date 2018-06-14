@@ -3,7 +3,7 @@
 #include "SharedData.h"
 #include "ofxState.h"
 #include "ofxGui.h"
-#include "InteriorEvolver.h"
+#include "BFSInteriorEvolver.h"
 #include "MeshHelper.h"
 
 #define EditState_StateName "EditState"
@@ -12,7 +12,7 @@ class EditState : public itg::ofxState<SharedData>
 {
 private:
 	ArchitectureProgram * pProgram;
-	InteriorEvolver interiorEvolver;
+	BFSInteriorEvolver interiorEvolver;
 	vector<ofPoint> centers;
 	ofPolyline polygon;
 

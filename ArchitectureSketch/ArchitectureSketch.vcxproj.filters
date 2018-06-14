@@ -61,9 +61,6 @@
     <ClCompile Include="src\DebugState.cpp">
       <Filter>src\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\InteriorEvolver.cpp">
-      <Filter>src\Evolution</Filter>
-    </ClCompile>
     <ClCompile Include="src\ExteriorEvolver.cpp">
       <Filter>src\Evolution</Filter>
     </ClCompile>
@@ -75,6 +72,12 @@
     </ClCompile>
     <ClCompile Include="src\EditState.cpp">
       <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BFSInteriorEvolver.cpp">
+      <Filter>src\Evolution</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SplitInteriorEvolver.cpp">
+      <Filter>src\Evolution</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,9 +212,6 @@
     <ClInclude Include="src\GeneticVariable.h">
       <Filter>src\Evolution</Filter>
     </ClInclude>
-    <ClInclude Include="src\InteriorEvolver.h">
-      <Filter>src\Evolution</Filter>
-    </ClInclude>
     <ClInclude Include="src\ExteriorEvolver.h">
       <Filter>src\Evolution</Filter>
     </ClInclude>
@@ -226,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="src\InteriorGrid.h">
       <Filter>src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BFSInteriorEvolver.h">
+      <Filter>src\Evolution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SplitInteriorEvolver.h">
+      <Filter>src\Evolution</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
