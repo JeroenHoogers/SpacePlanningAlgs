@@ -185,11 +185,13 @@ float SplitInteriorEvolver::computeInteriorFitness(const vector<Split>& splits, 
 	vector<InteriorRoom> rooms;
 	generateRooms(splits, root, floorshape, rooms);
 
+	float areaRatio = abs(floorshape.getArea()) / pProgram->getTotalRoomArea();
+
 	// check room sizes
 	for (int i = 0; i < rooms.size(); i++)
 	{
 		// TODO: should be proportional
-		float areaDiff = abs(rooms[i].getArea() - rooms[i].pRoom->area);
+		float areaDiff = abs(rooms[i].getArea() - rooms[i].pRoom->area * areaRatio);
 		areaFitness += ofClamp(10.0f - (areaDiff / rooms[i].pRoom->area) * 10.0f, 0, 10);
 	}
 

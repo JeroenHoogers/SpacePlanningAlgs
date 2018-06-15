@@ -193,6 +193,64 @@ void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 	generateFloorShapes();
 }
 
+
+//--------------------------------------------------------------
+void Building::extrudeShape(ofMesh& mesh, ofPolyline shape, ofVec3f bottomOffset, ofVec3f topOffset, bool ccw)
+{
+	// TODO: fix winding
+
+	// 2d to 3d matrix
+	ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+
+	for (size_t j = 0; j < shape.size(); j++)
+	{
+		int j2 = shape.getWrappedIndex(j + 1);
+		//int j2 = (j + 1) % shape.size();
+
+		// add wall face
+		if (ccw)
+		{
+			MeshHelper::AddFace(mesh,
+				mat * shape[j] + bottomOffset,
+				mat * shape[j2] + bottomOffset,
+				mat * shape[j2] + topOffset,
+				mat * shape[j] + topOffset);
+		}
+		else
+		{
+			MeshHelper::AddFace(mesh,
+				mat * shape[j2] + bottomOffset,
+				mat * shape[j] + bottomOffset,
+				mat * shape[j] + topOffset,
+				mat * shape[j2] + topOffset);
+		}
+
+		ofPolyline wallEdge1;
+		wallEdge1.addVertex(mat * shape[j] + bottomOffset);
+		wallEdge1.addVertex(mat * shape[j2] + bottomOffset);
+
+		lines.push_back(wallEdge1);
+
+		ofPolyline wallEdge2;
+		wallEdge2.addVertex(mat * shape[j] + topOffset);
+		wallEdge2.addVertex(mat * shape[j2] + topOffset);
+
+		lines.push_back(wallEdge2);
+
+
+		// add vertex to floor outline
+		//floorOutline.addVertex(mat * shape[j] + bottomOffset);
+		//ceilingOutline.addVertex(mat * shape[j] + topOffset);
+
+		// create vertical edges
+		ofPolyline wallEdge;
+		wallEdge.addVertex(mat * shape[j] + bottomOffset);
+		wallEdge.addVertex(mat * shape[j] + topOffset);
+
+		lines.push_back(wallEdge);
+	}
+}
+
 //--------------------------------------------------------------
 void Building::generateMesh()
 {
@@ -279,6 +337,24 @@ void Building::generateMesh()
 
 	// create faces automatically
 	buildingMesh.setupIndicesAuto();
+}
+
+//--------------------------------------------------------------
+void Building::generateInteriorMesh(vector<InteriorRoom> rooms)
+{
+//	ofMesh interiorMesh;
+
+	interiorMesh.clear();
+	// do only first floor
+	ofVec3f bottomHeightOffset = ofVec3f(0, 0);
+	ofVec3f topHeightOffset = ofVec3f(0, floorHeight);
+
+	for (int i = 0; i < rooms.size(); i++)
+	{
+		extrudeShape(interiorMesh, rooms[i].shape, bottomHeightOffset, topHeightOffset, false);
+	}
+
+	interiorMesh.setupIndicesAuto();
 }
 
 //--------------------------------------------------------------
@@ -372,6 +448,13 @@ float Building::GetTotalArea()
 };
 
 //--------------------------------------------------------------
+void Building::SetInterior(vector<InteriorRoom> interior)
+{
+	generateInteriorMesh(interior);
+}
+
+
+//--------------------------------------------------------------
 void Building::draw(int floor)
 {
 	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
@@ -382,6 +465,7 @@ void Building::draw(int floor)
 	if (floor == -1)
 	{
 		ofSetColor(255);
+
 		buildingMesh.drawFaces();
 		
 		if (roofType == ERoofType::Hip)
@@ -389,8 +473,30 @@ void Building::draw(int floor)
 	}
 	else
 	{
+		if (interiorMesh.hasVertices())
+		{
+			glEnable(GL_CULL_FACE);
+			glFrontFace(GL_CCW);
+			ofSetColor(255);
+			floorMeshes[floor].drawFaces();
+			glFrontFace(GL_CW);
+			glDisable(GL_CULL_FACE);
+		}
+		else
+		{
+			ofSetColor(255);
+			floorMeshes[floor].drawFaces();
+		}
+	}
+
+	if (floor == 0)
+	{
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CCW);
 		ofSetColor(255);
-		floorMeshes[floor].drawFaces();
+		interiorMesh.drawFaces();
+		glFrontFace(GL_CW);
+		glDisable(GL_CULL_FACE);
 	}
 
 	// HACK: hack depth buffer range to make sure the lines render on top of the geometry
@@ -411,6 +517,8 @@ void Building::draw(int floor)
 
 	// restore depth buffer
 	glDepthRange(0.0, 1.0);
+
+
 
 	// draw wireframe
 	//buildingMesh.drawWireframe();

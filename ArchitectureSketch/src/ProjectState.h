@@ -26,6 +26,8 @@ private:
 
 	Building building;
 
+	int visibleFloor = -1;
+
 	GeneticAlgorithm<float> geneticAlgorithm;
 
 	ArchitectureProgram* pProgram;

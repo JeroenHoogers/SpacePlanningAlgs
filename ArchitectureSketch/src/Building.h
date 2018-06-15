@@ -6,6 +6,7 @@
 #include "ArchitectureProgram.h"
 #include "Measurements.h"
 #include "StraightSkeleton.h"
+#include "SplitInteriorEvolver.h"
 
 
 enum struct ERoofType
@@ -69,6 +70,8 @@ private:
 	ofMesh buildingMesh;
 	ofMesh roofMesh;
 
+	ofMesh interiorMesh;
+
 	vector<ofMesh> floorMeshes;
 
 	vector<ofPolyline> lines;
@@ -77,9 +80,13 @@ private:
 
 	void generateFloorShapes();
 
+	void extrudeShape(ofMesh& mesh, ofPolyline shape, ofVec3f bottomOffset, ofVec3f topOffset, bool ccw = true);
+
 	void applyExtrusions(ofPolyline &floorshape, int floor);
 
 	void generateMesh();
+
+	void generateInteriorMesh(vector<InteriorRoom> rooms);
 
 	void generateRoof();
 
@@ -114,6 +121,8 @@ public:
 	}
 
 	void LoadFromGenotype(vector<float> gt, ArchitectureProgram program = ArchitectureProgram());
+
+	void SetInterior(vector<InteriorRoom> interior);
 	
 	void GenerateBuilding();
 

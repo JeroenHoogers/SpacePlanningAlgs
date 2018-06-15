@@ -70,6 +70,8 @@ void ProjectState::setup()
 	camera.setDistance(40);
 	camera.disableRoll();
 
+	pProgram = &getSharedData().program;
+
 	geneticAlgorithm.setup(1, 12);
 
 	// back button
@@ -184,7 +186,7 @@ void ProjectState::draw()
 	ofSetColor(255);
 	ofFill();
 
-	building.draw();
+	building.draw(visibleFloor);
 
 	// draw scale models
 	ofSetColor(30);
@@ -310,6 +312,20 @@ void ProjectState::keyPressed(int key)
 		// refresh building
 		//building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
 		//building.GenerateBuilding();
+	}
+
+	// visible floor down
+	if (key == '[')
+	{
+		if (visibleFloor > -1)
+			visibleFloor--;
+	}
+
+	// visible floor up
+	if (key == ']')
+	{
+		if (visibleFloor < pProgram->stories - 1)
+			visibleFloor++;
 	}
 }
 

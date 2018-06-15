@@ -60,17 +60,24 @@ public:
 		rooms.push_back(Room("Bedroom", "Be", 13.0f));
 	}
 
-	float getRoomAreaRatio(int room)
+	float getTotalRoomArea()
 	{
-		if (rooms.size() >= room || room < 0)
-			return 0;
-
 		// calculate total area
 		float total = 0;
 		for (int i = 0; i < rooms.size(); i++)
 		{
 			total += rooms[i].area;
 		}
+
+		return total;
+	}
+
+	float getRoomAreaRatio(int room)
+	{
+		if (rooms.size() >= room || room < 0)
+			return 0;
+
+		float total = getTotalRoomArea();
 
 		// calculate fraction
 		return total / rooms[room].area;

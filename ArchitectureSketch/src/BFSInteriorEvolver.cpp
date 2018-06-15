@@ -363,11 +363,13 @@ vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 				);	
 			}
 
+
+			// TODO: can be heavily optimized since it only needs to be performed once
+
 			// create grid layout, by appending default splits to the dynamic splits
 			splits.insert(splits.end(), defaultSplits.begin(), defaultSplits.end());
 			FloorGrid floorGrid = constructGrid(splits);
 
-			// TODO: can be heavily optimized since it only needs to be performed once
 			generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floorGrid);
 
 			// compute fitness
@@ -430,6 +432,10 @@ float BFSInteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 
 	//vector<InteriorRoom> rooms;
 	//generateRooms(splits, root, floorshape, rooms);
+	
+
+	float areaRatio = abs(floorshape.getArea()) / pProgram->getTotalRoomArea();
+
 
 	// compute room area fitness
 	for (int i = 0; i < nRooms; i++)
@@ -443,7 +449,8 @@ float BFSInteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 		//		area += floorgrid.cells[j].rect.getArea();
 		//}
 
-		float areaDiff = abs(area - pProgram->rooms[i].area);
+
+		float areaDiff = abs(area - pProgram->rooms[i].area * areaRatio);
 		areaFitness += ofClamp(10.0f - (areaDiff / pProgram->rooms[i].area) * 10.0f, 0, 10);
 
 		//// TODO: should be proportional

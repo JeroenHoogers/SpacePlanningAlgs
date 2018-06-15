@@ -835,12 +835,19 @@ void ArchitectureState::gotoNextStep()
 
 			changeState(ProjectState_StateName);
 		}
-		else if (currentStep == EEvolutionStep::BFSInterior || currentStep == EEvolutionStep::BFSInterior)
+		else if (currentStep == EEvolutionStep::SplitInterior || currentStep == EEvolutionStep::BFSInterior)
 		{
-			// set floor shape
-			ofPolyline floor = bfsInteriorEvolver.floorshape;
-			getSharedData().floorshape = floor;
+			if (currentStep == EEvolutionStep::SplitInterior)
+			{
+				vector<InteriorRoom> interior = *splitInteriorEvolver.getInteriorAt(tile);
+				getSharedData().building.SetInterior(interior);
+			}
+			// TODO: save floor
 
+			// set floor shape
+			//ofPolyline floor = bfsInteriorEvolver.floorshape;
+			//getSharedData().floorshape = floor;
+			
 			// DEBUG: state to adjust floorplan manually
 			//changeState(EditState_StateName);
 

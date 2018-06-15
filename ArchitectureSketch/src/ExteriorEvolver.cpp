@@ -18,7 +18,7 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	Evolver::setup(_tiles, _pProgram);
 
 	// TODO: make mutation rate and amount variable
-	geneticAlgorithm.setup(1000, 15, 0.2f, 0.4f);
+	geneticAlgorithm.setup(1000, 15, 0.25f, 0.4f);
 
 	buildings.clear();
 
