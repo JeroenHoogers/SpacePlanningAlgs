@@ -73,19 +73,19 @@ void ProjectState::setup()
 	geneticAlgorithm.setup(1, 12);
 
 	// back button
-	mBackButton.setup("Back", 20, 20);
-	mBackButton.setPosition(ofPoint(20, 350));
+	mBackButton.setup("Back");
+	mBackButton.setPosition(ofPoint(20, 75));
 	mBackButton.addListener(this, &ProjectState::backButtonPressed);
 
 	// indoor 1 button
-	mInterior1Button.setup("Create Interior (Split)", 300, 20);
-	mInterior1Button.setPosition(ofPoint(20, 450));
-	mBackButton.addListener(this, &ProjectState::interior1ButtonPressed);
+	mInterior1Button.setup("Create Interior 1 (Split Tree)", 290);
+	mInterior1Button.setPosition(ofPoint(20, 20));
+	mInterior1Button.addListener(this, &ProjectState::interior1ButtonPressed);
 
 	// indoor 2 button
-	mInterior2Button.setup("Create Interior (BFS)", 300, 20);
-	mInterior2Button.setPosition(ofPoint(40, 450));
-	mBackButton.addListener(this, &ProjectState::interior2ButtonPressed);
+	mInterior2Button.setup("Create Interior 2 (BFS)", 290);
+	mInterior2Button.setPosition(ofPoint(20, 45));
+	mInterior2Button.addListener(this, &ProjectState::interior2ButtonPressed);
 
 	// TODO: replace with shared data
 	//building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
@@ -108,6 +108,9 @@ void ProjectState::backButtonPressed()
 //--------------------------------------------------------------
 void ProjectState::interior1ButtonPressed()
 {
+	// signal for split tree approach
+	getSharedData().switchToSplitTree = true;
+
 	// go to architecture state
 	changeState(ArchitectureState_StateName);
 }
@@ -115,6 +118,9 @@ void ProjectState::interior1ButtonPressed()
 //--------------------------------------------------------------
 void ProjectState::interior2ButtonPressed()
 {
+	// signal for bfs based approach
+	getSharedData().switchToBFS = true;
+
 	// go to architecture state
 	changeState(ArchitectureState_StateName);
 }
@@ -150,8 +156,6 @@ void ProjectState::draw()
 	// draw outlines
 	ofNoFill();
 	//ofSetColor(140);
-
-	ofEnableLighting();
 
 	// draw outlines
 	if (drawOutlines)
@@ -225,11 +229,14 @@ void ProjectState::draw()
 	ofDisableDepthTest();
 
 
-	ofDrawAxis(5);
+	//ofDrawAxis(5);
 	//post.end();
 
 	//camera.begin();
+
+	ofDisableLighting();
 	camera.end();
+
 
 	drawGUI();
 }

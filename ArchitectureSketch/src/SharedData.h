@@ -17,4 +17,9 @@ public:
 	Building building;
 
 	ofPolyline floorshape;
+
+	// TODO: make this a proper enum
+	bool switchToExterior = false;
+	bool switchToSplitTree = false;
+	bool switchToBFS = false;
 };

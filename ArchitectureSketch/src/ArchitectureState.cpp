@@ -34,11 +34,51 @@ void ArchitectureState::stateEnter()
 		ofPoint(pProgram->lotWidth * 0.5f, 0, -pProgram->lotDepth * 0.5f));
 	lotPolygon.close();
 
-	pCurrentEvolver->generate(selectedIndices);
+
 
 	// TODO: check which evolver should be loaded
+	if (getSharedData().switchToSplitTree)
+	{
+		// load interior split tree evolver
+		pCurrentEvolver = &splitInteriorEvolver;
 
+		currentStep = EEvolutionStep::SplitInterior;
+
+		getSharedData().switchToSplitTree = false;
+		selectedIndices.clear();
+
+		pCurrentEvolver->generate(selectedIndices);
+	}
+	else if (getSharedData().switchToBFS)
+	{
+		light.disable();
+
+		// load interior bfs evolver
+		pCurrentEvolver = &bfsInteriorEvolver;
+
+		currentStep = EEvolutionStep::BFSInterior;
+
+		getSharedData().switchToBFS = false;
+		selectedIndices.clear();
+
+		pCurrentEvolver->generate(selectedIndices);
+	}
+	else if (getSharedData().switchToExterior)
+	{
+		light.disable();
+		// load exterior evolver
+		pCurrentEvolver = &exteriorEvolver;
+
+		currentStep = EEvolutionStep::Exterior;
+
+		getSharedData().switchToExterior = false;
+		selectedIndices.clear();
+
+		pCurrentEvolver->generate(selectedIndices);
+	}
 	//evaluateCandidates();
+
+
 }
 
 //--------------------------------------------------------------
@@ -139,6 +179,7 @@ void ArchitectureState::setup()
 	int tiles = mTilesHorizontal.get() * mTilesVertical.get();
 	exteriorEvolver.setup(tiles, pProgram);
 	bfsInteriorEvolver.setup(tiles, pProgram);
+	splitInteriorEvolver.setup(tiles, pProgram);
 
 	currentStep = EEvolutionStep::Exterior;
 	pCurrentEvolver = &exteriorEvolver;
@@ -186,6 +227,8 @@ void ArchitectureState::draw()
 
 	ofBackground(ofColor(200));
 
+	ofSetColor(255);
+
 	int tilew = (ofGetWidth() / mTilesHorizontal.get());
 	int tileh = (ofGetHeight() / mTilesVertical.get());
 
@@ -231,9 +274,12 @@ void ArchitectureState::draw()
 		pCurrentEvolver->drawDebug(mousePos, tileIndex);
 	}
 	
-	// Make sure the camera can be interacted with
-	camera.begin();
-	camera.end();
+	if (currentStep == EEvolutionStep::Exterior)
+	{
+		// Make sure the camera can be interacted with
+		camera.begin();
+		camera.end();
+	}
 
 	// show generation
 	ofSetColor(10);
@@ -262,7 +308,8 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 			break;
 		}
 	}
-
+	
+	// draw the tile that corresponds to the current step
 	switch (currentStep)
 	{
 	case EEvolutionStep::Exterior:
@@ -357,7 +404,10 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 	//ofDrawAxis(5);
 	//post.end();
 
+	ofDisableLighting();
+
 	camera.end();
+
 
 	ofPoint p = viewport.getBottomLeft() + ofVec2f(5, -5);
 
@@ -371,6 +421,9 @@ void ArchitectureState::drawExteriorTile(ofRectangle viewport, int index)
 //--------------------------------------------------------------
 void ArchitectureState::drawBFSInteriorTile(ofRectangle viewport, int index)
 {
+	ofDisableLighting();
+	ofDisableDepthTest();
+
 	vector<InteriorRoom>* pInterior = bfsInteriorEvolver.getInteriorAt(index);
 	FloorGrid* pFloor = &bfsInteriorEvolver.floors[index];
 	vector<bool>* pWalls = &bfsInteriorEvolver.wallPlacementAlgorithm.population[index].genes;
@@ -509,6 +562,9 @@ void ArchitectureState::drawBFSInteriorTile(ofRectangle viewport, int index)
 //--------------------------------------------------------------
 void ArchitectureState::drawSplitInteriorTile(ofRectangle viewport, int index)
 {
+	ofDisableLighting();
+	ofDisableDepthTest();
+
 	vector<InteriorRoom>* pInterior = splitInteriorEvolver.getInteriorAt(index);
 
 	// get lot rectangle
