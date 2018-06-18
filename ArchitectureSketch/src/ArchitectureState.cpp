@@ -39,6 +39,8 @@ void ArchitectureState::stateEnter()
 	// TODO: check which evolver should be loaded
 	if (getSharedData().switchToSplitTree)
 	{
+		light.disable();
+
 		// load interior split tree evolver
 		pCurrentEvolver = &splitInteriorEvolver;
 
@@ -65,7 +67,6 @@ void ArchitectureState::stateEnter()
 	}
 	else if (getSharedData().switchToExterior)
 	{
-		light.disable();
 		// load exterior evolver
 		pCurrentEvolver = &exteriorEvolver;
 

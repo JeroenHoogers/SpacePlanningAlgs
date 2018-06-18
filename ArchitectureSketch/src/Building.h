@@ -75,6 +75,7 @@ private:
 	vector<ofMesh> floorMeshes;
 
 	vector<ofPolyline> lines;
+	vector<ofPolyline> interiorLines;
 
 	ofPolyline parcel;
 

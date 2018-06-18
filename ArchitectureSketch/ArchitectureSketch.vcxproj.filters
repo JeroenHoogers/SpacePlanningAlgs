@@ -79,6 +79,9 @@
     <ClCompile Include="src\SplitInteriorEvolver.cpp">
       <Filter>src\Evolution</Filter>
     </ClCompile>
+    <ClCompile Include="src\VariableLenghtGA.cpp">
+      <Filter>src\GeneticAlgorithm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -232,6 +235,9 @@
     </ClInclude>
     <ClInclude Include="src\SplitInteriorEvolver.h">
       <Filter>src\Evolution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VariableLenghtGA.h">
+      <Filter>src\GeneticAlgorithm</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

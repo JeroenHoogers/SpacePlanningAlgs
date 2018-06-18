@@ -207,6 +207,8 @@ void ProgramState::acceptButtonPressed()
 	// TODO: store program settings
 	updateProgram();
 
+	getSharedData().switchToExterior = true;
+
 	// change state to architecture
 	changeState(ArchitectureState_StateName);
 

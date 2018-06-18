@@ -179,14 +179,10 @@ void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 	// create parcel
 	parcel.clear();
 
-	parcel.addVertex(
-		ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
-	parcel.addVertex(
-		ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
-	parcel.addVertex(
-		ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
-	parcel.addVertex(
-		ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
+	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
+	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
+	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
+	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
 	parcel.close();
 
 	// generate floor shapes
@@ -201,6 +197,10 @@ void Building::extrudeShape(ofMesh& mesh, ofPolyline shape, ofVec3f bottomOffset
 
 	// 2d to 3d matrix
 	ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
+
+	ofPolyline bottomOutline;
+	ofPolyline topOutline;
+
 
 	for (size_t j = 0; j < shape.size(); j++)
 	{
@@ -225,17 +225,20 @@ void Building::extrudeShape(ofMesh& mesh, ofPolyline shape, ofVec3f bottomOffset
 				mat * shape[j2] + topOffset);
 		}
 
-		ofPolyline wallEdge1;
-		wallEdge1.addVertex(mat * shape[j] + bottomOffset);
-		wallEdge1.addVertex(mat * shape[j2] + bottomOffset);
+		bottomOutline.addVertex(mat * shape[j] + bottomOffset);
+		topOutline.addVertex(mat * shape[j] + topOffset);
 
-		lines.push_back(wallEdge1);
+		//ofPolyline wallEdge1;
+		//wallEdge1.addVertex(mat * shape[j] + bottomOffset);
+		//wallEdge1.addVertex(mat * shape[j2] + bottomOffset);
 
-		ofPolyline wallEdge2;
-		wallEdge2.addVertex(mat * shape[j] + topOffset);
-		wallEdge2.addVertex(mat * shape[j2] + topOffset);
+		//interiorLines.push_back(wallEdge1);
 
-		lines.push_back(wallEdge2);
+		//ofPolyline wallEdge2;
+		//wallEdge2.addVertex(mat * shape[j] + topOffset);
+		//wallEdge2.addVertex(mat * shape[j2] + topOffset);
+
+		//interiorLines.push_back(wallEdge2);
 
 
 		// add vertex to floor outline
@@ -247,8 +250,11 @@ void Building::extrudeShape(ofMesh& mesh, ofPolyline shape, ofVec3f bottomOffset
 		wallEdge.addVertex(mat * shape[j] + bottomOffset);
 		wallEdge.addVertex(mat * shape[j] + topOffset);
 
-		lines.push_back(wallEdge);
+		interiorLines.push_back(wallEdge);
 	}
+
+	interiorLines.push_back(bottomOutline);
+	interiorLines.push_back(topOutline);
 }
 
 //--------------------------------------------------------------
@@ -343,8 +349,8 @@ void Building::generateMesh()
 void Building::generateInteriorMesh(vector<InteriorRoom> rooms)
 {
 //	ofMesh interiorMesh;
-
 	interiorMesh.clear();
+
 	// do only first floor
 	ofVec3f bottomHeightOffset = ofVec3f(0, 0);
 	ofVec3f topHeightOffset = ofVec3f(0, floorHeight);
@@ -450,9 +456,9 @@ float Building::GetTotalArea()
 //--------------------------------------------------------------
 void Building::SetInterior(vector<InteriorRoom> interior)
 {
+	interiorLines.clear();
 	generateInteriorMesh(interior);
 }
-
 
 //--------------------------------------------------------------
 void Building::draw(int floor)
@@ -508,16 +514,26 @@ void Building::draw(int floor)
 	for (size_t i = 0; i < lines.size(); i++)
 	{
 		// draw floor outlines slightly thicker then the vertical edges
+		ofSetLineWidth(0.7f);
 		if (lines[i].size() > 2)
 			ofSetLineWidth(1.0f);
-		else
-			ofSetLineWidth(0.7f);
+			
 		lines[i].draw();
+	}
+
+	// draw lines
+	for (size_t i = 0; i < interiorLines.size(); i++)
+	{
+		// draw floor outlines slightly thicker then the vertical edges
+		ofSetLineWidth(0.7f);
+		if (interiorLines[i].size() > 2)
+			ofSetLineWidth(1.0f);
+	
+		interiorLines[i].draw();
 	}
 
 	// restore depth buffer
 	glDepthRange(0.0, 1.0);
-
 
 
 	// draw wireframe

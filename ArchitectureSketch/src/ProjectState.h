@@ -26,7 +26,7 @@ private:
 
 	Building building;
 
-	int visibleFloor = -1;
+	ofParameter<int> mVisibleFloor = -1;
 
 	GeneticAlgorithm<float> geneticAlgorithm;
 
@@ -37,6 +37,9 @@ private:
 	ofxButton mInterior1Button;
 	ofxButton mInterior2Button;
 	ofxButton mBackButton;
+
+	ofxButton mFloorUpButton;
+	ofxButton mFloorDownButton;
 
 public:
 	ProjectState();
@@ -60,5 +63,8 @@ public:
 	void backButtonPressed();
 	void interior1ButtonPressed();
 	void interior2ButtonPressed();
+
+	void floorUpButtonPressed();
+	void floorDownButtonPressed();
 };
 

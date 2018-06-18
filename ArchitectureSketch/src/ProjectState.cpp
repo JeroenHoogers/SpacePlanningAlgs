@@ -33,6 +33,8 @@ void ProjectState::stateEnter()
 	//lotPolygon.close();
 
 	light.enable();
+
+	mVisibleFloor.setMax(pProgram->stories - 1);
 }
 
 //--------------------------------------------------------------
@@ -89,6 +91,16 @@ void ProjectState::setup()
 	mInterior2Button.setPosition(ofPoint(20, 45));
 	mInterior2Button.addListener(this, &ProjectState::interior2ButtonPressed);
 
+	mFloorDownButton.setup("<", 30);
+	mFloorDownButton.setPosition(ofPoint(80, 150));
+	mFloorDownButton.addListener(this, &ProjectState::floorDownButtonPressed);
+
+	mFloorUpButton.setup(">", 50);
+	mFloorUpButton.setPosition(ofPoint(110, 150));
+	mFloorUpButton.addListener(this, &ProjectState::floorUpButtonPressed);
+
+
+
 	// TODO: replace with shared data
 	//building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
 	//building.GenerateBuilding();
@@ -125,6 +137,21 @@ void ProjectState::interior2ButtonPressed()
 
 	// go to architecture state
 	changeState(ArchitectureState_StateName);
+}
+
+
+//--------------------------------------------------------------
+void ProjectState::floorUpButtonPressed()
+{
+	if (mVisibleFloor < pProgram->stories - 1)
+		mVisibleFloor++;
+}
+
+//--------------------------------------------------------------
+void ProjectState::floorDownButtonPressed()
+{
+	if (mVisibleFloor > -1)
+		mVisibleFloor--;
 }
 
 //--------------------------------------------------------------
@@ -186,7 +213,7 @@ void ProjectState::draw()
 	ofSetColor(255);
 	ofFill();
 
-	building.draw(visibleFloor);
+	building.draw(mVisibleFloor);
 
 	// draw scale models
 	ofSetColor(30);
@@ -252,6 +279,11 @@ void ProjectState::drawGUI()
 	mInterior1Button.draw();
 	mInterior2Button.draw();
 
+	ofDrawBitmapStringHighlight("Floor:", ofPoint(20, 162));
+	mFloorUpButton.draw();
+	mFloorDownButton.draw();
+
+
 	//string controls = "Controls: \n(o): toggle orthographic\n(t): top view \n(f): front view \n(s): side view";
 	//ofDrawBitmapStringHighlight(controls, ofPoint(10, 20));
 
@@ -259,6 +291,7 @@ void ProjectState::drawGUI()
 
 	ofDrawBitmapStringHighlight("fps: " + ofToString(ofGetFrameRate()), ofPoint(ofGetWidth() - 110, 20));
 }
+
 
 //--------------------------------------------------------------
 string ProjectState::getName()
@@ -317,15 +350,15 @@ void ProjectState::keyPressed(int key)
 	// visible floor down
 	if (key == '[')
 	{
-		if (visibleFloor > -1)
-			visibleFloor--;
+		if (mVisibleFloor > -1)
+			mVisibleFloor--;
 	}
 
 	// visible floor up
 	if (key == ']')
 	{
-		if (visibleFloor < pProgram->stories - 1)
-			visibleFloor++;
+		if (mVisibleFloor < pProgram->stories - 1)
+			mVisibleFloor++;
 	}
 }
 

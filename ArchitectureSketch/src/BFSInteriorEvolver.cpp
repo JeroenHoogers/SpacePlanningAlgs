@@ -399,9 +399,6 @@ vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 		//roomOptimizationAlgorithm.selectByFitness(fitnesses);
 	}
 
-	// done with evolution, pick the genome with the highest fitness as our optimal room division
-	//SplitTreeNode* root = constructTestTree();
-	
 	// create phenotype
 	vector<InteriorRoom> interior;
 

@@ -203,6 +203,7 @@ src;
     <ClCompile Include="..\..\..\..\addons\ofxGui\src\ofxToggle.cpp" />
     <ClCompile Include="src\SplitInteriorEvolver.cpp" />
     <ClCompile Include="src\StraightSkeleton.cpp" />
+    <ClCompile Include="src\VariableLenghtGA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ArchitectureProgram.h" />
@@ -239,6 +240,7 @@ src;
     <ClInclude Include="..\..\..\..\addons\ofxStateMachine\src\ofxStateMachine.h" />
     <ClInclude Include="src\SplitInteriorEvolver.h" />
     <ClInclude Include="src\StraightSkeleton.h" />
+    <ClInclude Include="src\VariableLenghtGA.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
