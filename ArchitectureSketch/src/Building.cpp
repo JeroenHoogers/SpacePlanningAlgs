@@ -104,6 +104,22 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 }
 
 //--------------------------------------------------------------
+void Building::Create(float width, float height, vector<Extrusion> extrusions, ERoofType roof, float roofPitch, ArchitectureProgram program)
+{
+	// Create building
+	floors = program.stories;
+
+	mRoofType = roof;
+	mRoofPitch = roofPitch;
+
+	boundingBox = ofRectangle(-width * 0.5f, -height * 0.5f, width, height);
+	extrusions = extrusions;
+
+	// generate building
+	GenerateBuilding();
+}
+
+//--------------------------------------------------------------
 void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 {
 	// TODO: loosly couple building and program
@@ -132,11 +148,11 @@ void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 	int roofSelector = floorf(gt[2] * 2.0f);
 
 	if (roofSelector == 0)
-		roofType = ERoofType::Flat;
+		mRoofType = ERoofType::Flat;
 	else
-		roofType = ERoofType::Hip;
+		mRoofType = ERoofType::Hip;
 
-	roof = gt[2] / 2.0f; // roof param
+	mRoofPitch = gt[2] / 2.0f; // roof param
 	
 	
 	floors = program.stories;
@@ -369,7 +385,7 @@ void Building::generateRoof()
 	roofMesh.clear();
 
 	// only create a mesh for sloped roofs
-	if (roofType != ERoofType::Hip)
+	if (mRoofType != ERoofType::Hip)
 		return;
 
 	int floors = floorShapes.size();
@@ -474,7 +490,7 @@ void Building::draw(int floor)
 
 		buildingMesh.drawFaces();
 		
-		if (roofType == ERoofType::Hip)
+		if (mRoofType == ERoofType::Hip)
 			roofMesh.drawFaces();
 	}
 	else

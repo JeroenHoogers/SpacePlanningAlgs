@@ -17,8 +17,10 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	// base setup
 	Evolver::setup(_tiles, _pProgram);
 
-	// TODO: make mutation rate and amount variable
+	int maxExtrusions = 6;
+
 	geneticAlgorithm.setup(1000, 15, 0.25f, 0.4f);
+	extrusionSelectionAlgorithm.setup(1000, maxExtrusions, 0.25f, 0.4f);
 
 	buildings.clear();
 
@@ -63,6 +65,7 @@ void ExteriorEvolver::generate(vector<int> selection)
 
 			// select the indices in the genetic algorithm
 			geneticAlgorithm.select(index);
+			extrusionSelectionAlgorithm.select(index);
 		}
 	}
 
@@ -72,12 +75,15 @@ void ExteriorEvolver::generate(vector<int> selection)
 	{
 		// let the genetic algorithm generate offspring based on the selection
 		geneticAlgorithm.generateOffspring();
+		extrusionSelectionAlgorithm.generateOffspring();
 
 		generation++;
 	}
 	else
 	{
 		geneticAlgorithm.generateRandomPopulation();
+		extrusionSelectionAlgorithm.generateRandomPopulation();
+
 		generation = 0;
 		//setupEvolution();
 	}
@@ -87,6 +93,12 @@ void ExteriorEvolver::generate(vector<int> selection)
 	{
 		//for (int j = 0; j < 100; j++)
 		//{
+
+
+		// TODO: move building phenotype conversion to here
+
+
+
 		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i].genes, *pProgram);
 
 		// filter candidates

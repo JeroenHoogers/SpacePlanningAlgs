@@ -64,8 +64,8 @@ private:
 	//float ceilingHeight = 0.3f; // 30 cm
 	//float wallWidth = 0.2f; // 20 cm
 
-	ERoofType roofType;
-	float roof; // 0 for flat, 1 for hip
+	ERoofType mRoofType;
+	float mRoofPitch; // 0 for flat, 1 for hip
 
 	ofMesh buildingMesh;
 	ofMesh roofMesh;
@@ -93,7 +93,7 @@ private:
 
 public:
 	ofRectangle boundingBox = ofRectangle(-10, -20, 20, 30);
-	vector<Subdivision> subdivs;
+	//vector<Subdivision> subdivs;
 	vector<Extrusion> extrusions;
 
 	vector<ofPolyline> floorShapes;
@@ -102,7 +102,7 @@ public:
 	Building()
 	{
 		buildingMesh = ofMesh();
-		subdivs = vector<Subdivision>();
+	//	subdivs = vector<Subdivision>();
 		extrusions = vector<Extrusion>();
 	}
 
@@ -122,6 +122,8 @@ public:
 	}
 
 	void LoadFromGenotype(vector<float> gt, ArchitectureProgram program = ArchitectureProgram());
+
+	void Create(float width, float height, vector<Extrusion> extrusions, ERoofType roof = ERoofType::Flat, float roofPitch = 0, ArchitectureProgram program = ArchitectureProgram());
 
 	void SetInterior(vector<InteriorRoom> interior);
 	
