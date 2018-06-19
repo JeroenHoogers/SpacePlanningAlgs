@@ -18,8 +18,9 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	Evolver::setup(_tiles, _pProgram);
 
 	int maxExtrusions = 6;
+	int baseVars = 3;
 
-	geneticAlgorithm.setup(1000, 15, 0.25f, 0.4f);
+	geneticAlgorithm.setup(1000, baseVars + maxExtrusions * 4, 0.25f, 0.4f);
 	extrusionSelectionAlgorithm.setup(1000, maxExtrusions, 0.25f, 0.4f);
 
 	buildings.clear();
@@ -91,15 +92,79 @@ void ExteriorEvolver::generate(vector<int> selection)
 	// generate phenotypes for the new population
 	for (int i = 0; i < geneticAlgorithm.population.size(); i++)
 	{
-		//for (int j = 0; j < 100; j++)
-		//{
+		const vector<float>& buildingGene = geneticAlgorithm.population[i].genes;
+		const vector<bool>& variableGene = extrusionSelectionAlgorithm.population[i].genes;
 
 
 		// TODO: move building phenotype conversion to here
+		float w = 5.0f + floorf(buildingGene[0] * (pProgram->lotWidth - 5.0f));
+		float h = 5.0f + floorf(buildingGene[1] * (pProgram->lotDepth - 5.0f));
+
+		//if (pProgram->terracedLeft && program.terracedRight)
+		//	w = program.lotWidth;
+
+		int maxFloors = 3;
+
+		ofRectangle boundingBox = ofRectangle(
+			-w * 0.5f, -h * 0.5f, w, h);
+
+		// TODO: derive nr of floors from area
+		//floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
+		int roofSelector = floorf(buildingGene[2] * 2.0f);
+		ERoofType roofType = ERoofType::Flat;
+
+		if (roofSelector != 0)
+			roofType = ERoofType::Hip;
+
+		float roofPitch = buildingGene[2] / 2.0f; // roof param
+
+		int floors = pProgram->stories;
+	
+		vector<Extrusion> extrusions;
+
+		float minExtrusion = 1.0f;
+		float maxExtrusion = 1.0f + 3.0f;
+
+		// create extrusions
+		
+		//for (size_t i = 3; i < gt.size() - 3; i += 4)
+		//{
+		int offset = 3;
+		for(int i = 0; i < variableGene.size(); i++)
+		{
+			// is this extrusion is enabled?
+			if (variableGene[i])
+			{
+				int j = offset + i * 4;
+				// TODO: tweak this ratio
+				// TODO: make sure this is not close to any walls, maybe align to a grid?
+				float position = buildingGene[j]; // interpolation along shape
+										// TODO: apply to multiple but not all floors?
+
+				// which floor does this extrusion apply to?
+				int floor = (buildingGene[j + 1] > 0.5f) ? fminf(floorf((buildingGene[j + 1] - 0.5f) * 2.0f * floors), floors - 1) : -1;
+
+				float amount = ofLerp(-maxExtrusion, maxExtrusion, buildingGene[j + 2]);
+				amount = (amount < 0) ? ofClamp(amount, -maxExtrusion, -minExtrusion) : ofClamp(amount, minExtrusion, maxExtrusion);
+
+				// calculate angle
+				float order = buildingGene[j + 3];
+				//if (gt[i + 3] < 0.1f)
+				//	angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
+				//if (gt[i + 3] > 0.9f)
+				//	angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
 
 
+				// create extrusion 
+				extrusions.push_back(
+					Extrusion(position, amount, floor, order));
+			}
+		}
 
-		buildings[i].LoadFromGenotype(geneticAlgorithm.population[i].genes, *pProgram);
+		buildings[i].Create(w, h, floors, extrusions, roofType, roofPitch);
+
+
+		//buildings[i].LoadFromGenotype(geneticAlgorithm.population[i].genes, *pProgram);
 
 		// filter candidates
 		if (isBuildingValid(buildings[i]))

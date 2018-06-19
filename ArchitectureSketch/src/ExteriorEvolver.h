@@ -8,6 +8,7 @@ private:
 	GeneticAlgorithm<float> geneticAlgorithm;
 	GeneticAlgorithm<bool> extrusionSelectionAlgorithm;
 	vector<Building> buildings;
+	int maxExtrusions;
 
 public:
 

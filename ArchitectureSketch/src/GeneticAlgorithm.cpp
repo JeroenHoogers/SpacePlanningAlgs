@@ -375,9 +375,7 @@ vector<bool> GeneticAlgorithm<bool>::generateRandomDna()
 	vector<bool> genes = vector<bool>();
 	for (size_t i = 0; i < numGenes; i++)
 	{
-		// TODO: not random
-		//genes.push_back(ofRandom(1) > 0.5f);
-		genes.push_back(0);
+		genes.push_back(ofRandom(1) > 0.5f);
 	}
 
 	return genes;

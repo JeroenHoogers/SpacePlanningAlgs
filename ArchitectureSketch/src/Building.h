@@ -29,19 +29,22 @@ struct Subdivision
 struct Extrusion
 {
 	// could be encoded in a single float where the interpolation variable t is derived from the local position on the line segment
-	Extrusion(float pos, float amount, int floor, float angle = 0)
+	Extrusion(float pos, float amount, int floor, float order = 0)
 	{
 		position = pos;
 		extrudeAmount = amount;
 		extrudeFloor = floor;
-		extrudeAngle = angle;
+		
+		ordering = order;
+		//extrudeAngle = angle;
 	}
 
 	float position;		// the face to extrude
 	float extrudeAmount;	// the extrusion amount
 	int extrudeFloor = -1;	// apply the extrusion to a specific floor (-1) applies it to all floors
 
-	float extrudeAngle;			// angle of extrusion (limited between -45 and + 45 degrees) 
+	float ordering;
+	//float extrudeAngle;			// angle of extrusion (limited between -45 and + 45 degrees) 
 };
 
 //struct Lin
@@ -59,7 +62,7 @@ struct Extrusion
 class Building
 {
 private:
-	int floors = 3;
+	int mFloors = 3;
 	float floorHeight = 3.0f; // 3 m
 	//float ceilingHeight = 0.3f; // 30 cm
 	//float wallWidth = 0.2f; // 20 cm
@@ -94,7 +97,7 @@ private:
 public:
 	ofRectangle boundingBox = ofRectangle(-10, -20, 20, 30);
 	//vector<Subdivision> subdivs;
-	vector<Extrusion> extrusions;
+	vector<Extrusion> mExtrusions;
 
 	vector<ofPolyline> floorShapes;
 
@@ -103,7 +106,7 @@ public:
 	{
 		buildingMesh = ofMesh();
 	//	subdivs = vector<Subdivision>();
-		extrusions = vector<Extrusion>();
+		mExtrusions = vector<Extrusion>();
 	}
 
 	//--------------------------------------------------------------
@@ -123,7 +126,7 @@ public:
 
 	void LoadFromGenotype(vector<float> gt, ArchitectureProgram program = ArchitectureProgram());
 
-	void Create(float width, float height, vector<Extrusion> extrusions, ERoofType roof = ERoofType::Flat, float roofPitch = 0, ArchitectureProgram program = ArchitectureProgram());
+	void Create(float width, float height, int floors, vector<Extrusion> extrusions, ERoofType roof = ERoofType::Flat, float roofPitch = 0);
 
 	void SetInterior(vector<InteriorRoom> interior);
 	

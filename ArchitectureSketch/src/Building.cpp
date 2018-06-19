@@ -21,7 +21,7 @@ void Building::generateFloorShapes()
 
 
 	// TODO: multi level extrusions?
-	for (size_t i = 0; i < floors; i++)
+	for (size_t i = 0; i < mFloors; i++)
 	{
 		ofPolyline pl = baseFloor;
 
@@ -38,12 +38,12 @@ void Building::generateFloorShapes()
 void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 {
 	// do extrusions
-	for (size_t i = 0; i < extrusions.size(); i++)
+	for (size_t i = 0; i < mExtrusions.size(); i++)
 	{
-		if (extrusions[i].extrudeFloor != floor)
+		if (mExtrusions[i].extrudeFloor != floor)
 			continue;
 
-		float t = extrusions[i].position;
+		float t = mExtrusions[i].position;
 
 		ofPoint p = floorshape.getPointAtPercent(t);
 		int index = ceilf(floorshape.getIndexAtPercent(t));
@@ -66,33 +66,35 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		ofVec3f n = ofVec2f(-diff.y, diff.x);
 
 		// calculate rotated normal
-		float angle = extrusions[i].extrudeAngle;
+		//float angle = extrusions[i].extrudeAngle;
+
+		float order = mExtrusions[i].ordering;
 
 		n.normalize();
 
 		// calculate new points
-		ofVec3f u = n * extrusions[i].extrudeAmount;
+		ofVec3f u = n * mExtrusions[i].extrudeAmount;
 
 		ofPoint p1 = floorshape[index] + u;
 		ofPoint p2 = floorshape[index - 1] + u;
 
-		if (angle != 0)
-		{
-			//// center coordinate system along the extusion edge
-			//ofMatrix4x4 translation = ofMatrix4x4::newTranslationMatrix((floorshape[index] + floorshape[index - 1]) * 0.5f);
-			//ofMatrix4x4 rotation = ofMatrix4x4::newRotationMatrix(angle, ofVec3f(0, 0, 1));
+		//if (angle != 0)
+		//{
+		//	//// center coordinate system along the extusion edge
+		//	//ofMatrix4x4 translation = ofMatrix4x4::newTranslationMatrix((floorshape[index] + floorshape[index - 1]) * 0.5f);
+		//	//ofMatrix4x4 rotation = ofMatrix4x4::newRotationMatrix(angle, ofVec3f(0, 0, 1));
 
-			//// do rotation
-			//p1 = //translation.getInverse() * rotation * translation * p1;
-			//p2 = translation.getInverse() * rotation * translation * p2;
+		//	//// do rotation
+		//	//p1 = //translation.getInverse() * rotation * translation * p1;
+		//	//p2 = translation.getInverse() * rotation * translation * p2;
 
 
-			// project p onto u
-			if (angle > 0)
-				p1 = floorshape[index];
-			else
-				p2 = floorshape[index - 1];
-		}
+		//	// project p onto u
+		//	if (angle > 0)
+		//		p1 = floorshape[index];
+		//	else
+		//		p2 = floorshape[index - 1];
+		//}
 
 		// do extrusion
 		floorshape[index] = p1;
@@ -104,19 +106,26 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 }
 
 //--------------------------------------------------------------
-void Building::Create(float width, float height, vector<Extrusion> extrusions, ERoofType roof, float roofPitch, ArchitectureProgram program)
+void Building::Create(float width, float height, int floors, vector<Extrusion> extrusions, ERoofType roof, float roofPitch)
 {
 	// Create building
-	floors = program.stories;
+	mFloors = floors;
 
 	mRoofType = roof;
 	mRoofPitch = roofPitch;
 
 	boundingBox = ofRectangle(-width * 0.5f, -height * 0.5f, width, height);
-	extrusions = extrusions;
+	mExtrusions = extrusions;
 
-	// generate building
-	GenerateBuilding();
+	parcel.clear();
+	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
+	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
+	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
+	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
+	parcel.close();
+
+	// generate floor shapes
+	generateFloorShapes();
 }
 
 //--------------------------------------------------------------
@@ -155,11 +164,11 @@ void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 	mRoofPitch = gt[2] / 2.0f; // roof param
 	
 	
-	floors = program.stories;
+	mFloors = program.stories;
 	// TODO: separate subdivs and extrusions
 
 	//subdivs.clear();
-	extrusions.clear();
+	mExtrusions.clear();
 
 	float minExtrusion = 1.0f;
 	float maxExtrusion = 1.0f + 2.5f;
@@ -172,7 +181,7 @@ void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 		// TODO: make sure this is not close to any walls, maybe align to a grid?
 		float position = gt[i]; // interpolation along shape
 								// TODO: apply to multiple but not all floors?
-		int floor = (gt[i + 1] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * floors), floors - 1) : -1;
+		int floor = (gt[i + 1] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * mFloors), mFloors - 1) : -1;
 
 		float amount = ofLerp(-maxExtrusion, maxExtrusion, gt[i + 2]);
 		amount = (amount < 0) ? ofClamp(amount, -maxExtrusion, -minExtrusion) : ofClamp(amount, minExtrusion, maxExtrusion);
@@ -188,7 +197,7 @@ void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
 		//subdivs.push_back(Subdivision(gt[i]));
 
 		// add extrusion
-		extrusions.push_back(
+		mExtrusions.push_back(
 			Extrusion(position, amount, floor, angle));
 	}
 
@@ -388,7 +397,7 @@ void Building::generateRoof()
 	if (mRoofType != ERoofType::Hip)
 		return;
 
-	int floors = floorShapes.size();
+	//int floors = floorShapes.size();
 
 	if (floorShapes.size() <= 0)
 		return;
@@ -408,13 +417,13 @@ void Building::generateRoof()
 	vector<LineSegment> arcs;
 	vector<ofPolyline> faces;
 
-	SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(floorShapes[floors - 1], 200);
+	SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(floorShapes[mFloors - 1], 200);
 
 	// unpack tuple
 	std::tie(arcs, faces) = straightSkeleton;
 	
 
-	float height = floorHeight * floors;
+	float height = floorHeight * mFloors;
 	
 	for (size_t i = 0; i < arcs.size(); i++)
 	{
