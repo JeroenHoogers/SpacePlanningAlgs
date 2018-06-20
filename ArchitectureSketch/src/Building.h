@@ -29,16 +29,18 @@ struct Subdivision
 struct Extrusion
 {
 	// could be encoded in a single float where the interpolation variable t is derived from the local position on the line segment
-	Extrusion(float pos, float amount, int floor, float order = 0)
+	Extrusion(float pos, float amount, int floor, bool side, float order = 0)
 	{
 		position = pos;
 		extrudeAmount = amount;
 		extrudeFloor = floor;
+		extrudeSide = side;
 		
 		ordering = order;
 		//extrudeAngle = angle;
 	}
 
+	bool extrudeSide;
 	float position;		// the face to extrude
 	float extrudeAmount;	// the extrusion amount
 	int extrudeFloor = -1;	// apply the extrusion to a specific floor (-1) applies it to all floors
@@ -124,7 +126,7 @@ public:
 		return ofRectangle();
 	}
 
-	void LoadFromGenotype(vector<float> gt, ArchitectureProgram program = ArchitectureProgram());
+	//void LoadFromGenotype(vector<float> gt, ArchitectureProgram program = ArchitectureProgram());
 
 	void Create(float width, float height, int floors, vector<Extrusion> extrusions, ERoofType roof = ERoofType::Flat, float roofPitch = 0);
 

@@ -95,7 +95,7 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 60;
+	int optimizationGenerations = 70;
 	//int gen = 0;
 
 	GeneticAlgorithm<float> roomOptimizationAlgorithm;

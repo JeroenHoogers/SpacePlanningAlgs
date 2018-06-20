@@ -46,7 +46,10 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		float t = mExtrusions[i].position;
 
 		ofPoint p = floorshape.getPointAtPercent(t);
+
 		int index = ceilf(floorshape.getIndexAtPercent(t));
+	/*	if (mExtrusions[i].extrudeSide)
+			index = floorf(floorshape.getIndexAtPercent(t));*/
 
 		// due to mutation clamping this could become zero which is invalid
 		// TODO: wrap to last vertex?
@@ -127,92 +130,92 @@ void Building::Create(float width, float height, int floors, vector<Extrusion> e
 	// generate floor shapes
 	generateFloorShapes();
 }
-
-//--------------------------------------------------------------
-void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
-{
-	// TODO: loosly couple building and program
-	// TODO: move this to exterior evolver
-
-	//GeneticAlgorithm ga = GeneticAlgorithm();
-	//ga.setup(1, 12);
-
-	//Genotype gt = ga.generateRandomDna();
-
-	// first 2 define params define bounding volume
-	// TODO: Fix scaling
-	float w = 5.0f + floorf(gt[0] * (program.lotWidth - 5.0f));
-	float h = 5.0f + floorf(gt[1] * (program.lotDepth - 5.0f));
-
-	if (program.terracedLeft && program.terracedRight)
-		w = program.lotWidth;
-
-	int maxFloors = 3;
-
-	boundingBox = ofRectangle(
-		-w * 0.5f, -h * 0.5f, w, h);
-
-	// TODO: derive nr of floors from area
-	//floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
-	int roofSelector = floorf(gt[2] * 2.0f);
-
-	if (roofSelector == 0)
-		mRoofType = ERoofType::Flat;
-	else
-		mRoofType = ERoofType::Hip;
-
-	mRoofPitch = gt[2] / 2.0f; // roof param
-	
-	
-	mFloors = program.stories;
-	// TODO: separate subdivs and extrusions
-
-	//subdivs.clear();
-	mExtrusions.clear();
-
-	float minExtrusion = 1.0f;
-	float maxExtrusion = 1.0f + 2.5f;
-
-	for (size_t i = 3; i < gt.size() - 3; i += 4)
-	{
-		// which floor does this extrusion apply to?
-		// TODO: tweak this ratio
-
-		// TODO: make sure this is not close to any walls, maybe align to a grid?
-		float position = gt[i]; // interpolation along shape
-								// TODO: apply to multiple but not all floors?
-		int floor = (gt[i + 1] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * mFloors), mFloors - 1) : -1;
-
-		float amount = ofLerp(-maxExtrusion, maxExtrusion, gt[i + 2]);
-		amount = (amount < 0) ? ofClamp(amount, -maxExtrusion, -minExtrusion) : ofClamp(amount, minExtrusion, maxExtrusion);
-
-		// calculate angle
-		float angle = 0;
-		//if (gt[i + 3] < 0.1f)
-		//	angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
-		//if (gt[i + 3] > 0.9f)
-		//	angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
-
-		// create subdivs
-		//subdivs.push_back(Subdivision(gt[i]));
-
-		// add extrusion
-		mExtrusions.push_back(
-			Extrusion(position, amount, floor, angle));
-	}
-
-	// create parcel
-	parcel.clear();
-
-	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
-	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
-	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
-	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
-	parcel.close();
-
-	// generate floor shapes
-	generateFloorShapes();
-}
+//
+////--------------------------------------------------------------
+//void Building::LoadFromGenotype(vector<float> gt, ArchitectureProgram program)
+//{
+//	// TODO: loosly couple building and program
+//	// TODO: move this to exterior evolver
+//
+//	//GeneticAlgorithm ga = GeneticAlgorithm();
+//	//ga.setup(1, 12);
+//
+//	//Genotype gt = ga.generateRandomDna();
+//
+//	// first 2 define params define bounding volume
+//	// TODO: Fix scaling
+//	float w = 5.0f + floorf(gt[0] * (program.lotWidth - 5.0f));
+//	float h = 5.0f + floorf(gt[1] * (program.lotDepth - 5.0f));
+//
+//	if (program.terracedLeft && program.terracedRight)
+//		w = program.lotWidth;
+//
+//	int maxFloors = 3;
+//
+//	boundingBox = ofRectangle(
+//		-w * 0.5f, -h * 0.5f, w, h);
+//
+//	// TODO: derive nr of floors from area
+//	//floors = fminf(floorf(gt[2] * maxFloors + 1.0f), maxFloors);
+//	int roofSelector = floorf(gt[2] * 2.0f);
+//
+//	if (roofSelector == 0)
+//		mRoofType = ERoofType::Flat;
+//	else
+//		mRoofType = ERoofType::Hip;
+//
+//	mRoofPitch = gt[2] / 2.0f; // roof param
+//	
+//	
+//	mFloors = program.stories;
+//	// TODO: separate subdivs and extrusions
+//
+//	//subdivs.clear();
+//	mExtrusions.clear();
+//
+//	float minExtrusion = 1.0f;
+//	float maxExtrusion = 1.0f + 2.5f;
+//
+//	for (size_t i = 3; i < gt.size() - 3; i += 4)
+//	{
+//		// which floor does this extrusion apply to?
+//		// TODO: tweak this ratio
+//
+//		// TODO: make sure this is not close to any walls, maybe align to a grid?
+//		float position = gt[i]; // interpolation along shape
+//								// TODO: apply to multiple but not all floors?
+//		int floor = (gt[i + 1] > 0.5f) ? fminf(floorf((gt[i + 1] - 0.5f) * 2.0f * mFloors), mFloors - 1) : -1;
+//
+//		float amount = ofLerp(-maxExtrusion, maxExtrusion, gt[i + 2]);
+//		amount = (amount < 0) ? ofClamp(amount, -maxExtrusion, -minExtrusion) : ofClamp(amount, minExtrusion, maxExtrusion);
+//
+//		// calculate angle
+//		float angle = 0;
+//		//if (gt[i + 3] < 0.1f)
+//		//	angle = ofLerp(-45.0f, 0, gt[i + 3] * 4);
+//		//if (gt[i + 3] > 0.9f)
+//		//	angle = ofLerp(0, 45.0f, (gt[i + 3] - 0.75f) * 4);
+//
+//		// create subdivs
+//		//subdivs.push_back(Subdivision(gt[i]));
+//
+//		// add extrusion
+//		mExtrusions.push_back(
+//			Extrusion(position, amount, floor, angle));
+//	}
+//
+//	// create parcel
+//	parcel.clear();
+//
+//	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMinY()));
+//	parcel.addVertex(ofPoint(boundingBox.getMinX(), 0, boundingBox.getMaxY()));
+//	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMaxY()));
+//	parcel.addVertex(ofPoint(boundingBox.getMaxX(), 0, boundingBox.getMinY()));
+//	parcel.close();
+//
+//	// generate floor shapes
+//	generateFloorShapes();
+//}
 
 
 //--------------------------------------------------------------

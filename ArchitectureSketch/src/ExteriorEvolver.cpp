@@ -17,11 +17,11 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	// base setup
 	Evolver::setup(_tiles, _pProgram);
 
-	int maxExtrusions = 6;
+	maxExtrusions = 6;
 	int baseVars = 3;
 
 	geneticAlgorithm.setup(1000, baseVars + maxExtrusions * 4, 0.25f, 0.4f);
-	extrusionSelectionAlgorithm.setup(1000, maxExtrusions, 0.25f, 0.4f);
+	extrusionSelectionAlgorithm.setup(1000, maxExtrusions * 2, 0.15f, 0.4f);
 
 	buildings.clear();
 
@@ -122,19 +122,22 @@ void ExteriorEvolver::generate(vector<int> selection)
 	
 		vector<Extrusion> extrusions;
 
-		float minExtrusion = 1.0f;
-		float maxExtrusion = 1.0f + 3.0f;
+		float minExtrusion = 0.5f;
+		float maxExtrusion = 0.5f + 3.0f;
 
 		// create extrusions
 		
 		//for (size_t i = 3; i < gt.size() - 3; i += 4)
 		//{
 		int offset = 3;
-		for(int i = 0; i < variableGene.size(); i++)
+		for(int i = 0; i < maxExtrusions; i++)
 		{
 			// is this extrusion is enabled?
-			if (variableGene[i])
+			if (variableGene[i*2])
 			{
+				// which side to extrude
+				bool side = variableGene[i * 2 + 1];
+
 				int j = offset + i * 4;
 				// TODO: tweak this ratio
 				// TODO: make sure this is not close to any walls, maybe align to a grid?
@@ -157,7 +160,7 @@ void ExteriorEvolver::generate(vector<int> selection)
 
 				// create extrusion 
 				extrusions.push_back(
-					Extrusion(position, amount, floor, order));
+					Extrusion(position, amount, floor, side, order));
 			}
 		}
 

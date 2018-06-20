@@ -13,10 +13,6 @@ ProjectState::~ProjectState()
 //--------------------------------------------------------------
 void ProjectState::stateEnter()
 {
-	// TODO: remove
-	building.LoadFromGenotype(geneticAlgorithm.generateRandomDna());
-	building.GenerateBuilding();
-
 	building = getSharedData().building;
 
 	//// Update lot polygon

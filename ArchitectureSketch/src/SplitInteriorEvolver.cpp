@@ -22,7 +22,7 @@ void SplitInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = nRooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(100, splits * 2, 0.2f, 0.4f);
+	roomOptimizationAlgorithm.setup(100, splits * 2, 0.1f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + nRooms);
