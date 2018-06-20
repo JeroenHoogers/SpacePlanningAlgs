@@ -414,8 +414,6 @@ void Building::generateRoof()
 	//	0, 1, 0, 0,
 	//	0, 0, 0, 1);
 
-
-
 	// generate straight skeleton
 	vector<LineSegment> arcs;
 	vector<ofPolyline> faces;
@@ -550,14 +548,17 @@ void Building::draw(int floor)
 	}
 
 	// draw lines
-	for (size_t i = 0; i < interiorLines.size(); i++)
+	if (floor == 0)
 	{
-		// draw floor outlines slightly thicker then the vertical edges
-		ofSetLineWidth(0.7f);
-		if (interiorLines[i].size() > 2)
-			ofSetLineWidth(1.0f);
-	
-		interiorLines[i].draw();
+		for (size_t i = 0; i < interiorLines.size(); i++)
+		{
+			// draw floor outlines slightly thicker then the vertical edges
+			ofSetLineWidth(0.7f);
+			if (interiorLines[i].size() > 2)
+				ofSetLineWidth(1.0f);
+
+			interiorLines[i].draw();
+		}
 	}
 
 	// restore depth buffer

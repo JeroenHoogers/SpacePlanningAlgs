@@ -30,7 +30,7 @@ private:
 
 	// program parameters
 	ofParameter<int> mInhabitants = ofParameter<int>("Inhabitants", 4, 1, 7);
-	ofParameter<int> mStories = ofParameter<int>("Stories", 1, 1, 3);
+	ofParameter<int> mStories = ofParameter<int>("Stories", 2, 1, 3);
 
 	// site parameters
 	ofParameter<int> mWidth = ofParameter<int>("Lot width (m)", 15, 5, 25);

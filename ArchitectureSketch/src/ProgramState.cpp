@@ -95,19 +95,19 @@ void ProgramState::draw()
 	
 	mAcceptButton.draw();
 	
-	// draw list of rooms
-	string roomlist = "";
-	float total = 0;
-	for (int i = 0; i < pProgram->rooms.size(); i++)
-	{
-		total += pProgram->rooms[i].area;
-		roomlist += pProgram->rooms[i].name + ": \t" + ofToString(pProgram->rooms[i].area) + " m2";
-		roomlist += "\n";
-	}
-	roomlist += "\nTotal: \t\t" + ofToString(total) + " m2";
+	//// draw list of rooms
+	//string roomlist = "";
+	//float total = 0;
+	//for (int i = 0; i < pProgram->rooms.size(); i++)
+	//{
+	//	total += pProgram->rooms[i].area;
+	//	roomlist += pProgram->rooms[i].name + ": \t" + ofToString(pProgram->rooms[i].area) + " m2";
+	//	roomlist += "\n";
+	//}
+	//roomlist += "\nTotal: \t\t" + ofToString(total) + " m2";
 
 
-	ofDrawBitmapStringHighlight(roomlist, ofPoint(20, 420));
+	//ofDrawBitmapStringHighlight(roomlist, ofPoint(20, 420));
 
 	// draw the map
 	drawSiteLayout();

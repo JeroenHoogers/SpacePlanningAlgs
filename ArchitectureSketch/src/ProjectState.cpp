@@ -252,8 +252,6 @@ void ProjectState::draw()
 	glDepthRange(0.0, 1.0);
 
 	ofDisableDepthTest();
-
-
 	//ofDrawAxis(5);
 	//post.end();
 
@@ -261,7 +259,6 @@ void ProjectState::draw()
 
 	ofDisableLighting();
 	camera.end();
-
 
 	drawGUI();
 }
