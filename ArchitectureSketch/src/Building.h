@@ -69,8 +69,8 @@ private:
 	//float ceilingHeight = 0.3f; // 30 cm
 	//float wallWidth = 0.2f; // 20 cm
 
-	ERoofType mRoofType;
-	float mRoofPitch; // 0 for flat, 1 for hip
+	ERoofType mRoofType; // 0 for flat, 1 for hip
+	float mRoofPitch;
 
 	ofMesh buildingMesh;
 	ofMesh roofMesh;

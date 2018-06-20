@@ -30,6 +30,7 @@ void BFSInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	// initialize wall placement algorithm (depends on )
 	int cells = (hSplits + 1) * (vSplits + 1);
 	wallPlacementAlgorithm.setup(tiles, cells * 2);
+	wallPlacementAlgorithm.randomBias = 0.1f;
 
 	// distinct adjacency combinations (n-1) choose 2
 	//int adjacencies = (nRooms * (nRooms - 1)) / 2;

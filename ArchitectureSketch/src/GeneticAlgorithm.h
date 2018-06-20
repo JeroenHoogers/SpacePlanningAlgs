@@ -48,6 +48,8 @@ public:
 
 	int currentGeneration = 0;
 	
+	// HACK: way to tweak the probability of True occuring for a binary-representation
+	float randomBias = 0.5f;
 
 	GeneticAlgorithm();
 	~GeneticAlgorithm();

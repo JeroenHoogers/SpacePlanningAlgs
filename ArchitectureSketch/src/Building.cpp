@@ -20,7 +20,6 @@ void Building::generateFloorShapes()
 	applyExtrusions(baseFloor, -1);
 
 
-	// TODO: multi level extrusions?
 	for (size_t i = 0; i < mFloors; i++)
 	{
 		ofPolyline pl = baseFloor;
@@ -48,13 +47,16 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		ofPoint p = floorshape.getPointAtPercent(t);
 
 		int index = ceilf(floorshape.getIndexAtPercent(t));
-	/*	if (mExtrusions[i].extrudeSide)
-			index = floorf(floorshape.getIndexAtPercent(t));*/
-
-		// due to mutation clamping this could become zero which is invalid
-		// TODO: wrap to last vertex?
 		if (index == 0)
 			index = 1;
+		//if (mExtrusions[i].extrudeSide)
+		//	index = floorf(floorshape.getIndexAtPercent(t));
+
+		// fixes crash that occurs when the vertex is invalid
+		//index = floorshape.getWrappedIndex(index);
+		int im1 = floorshape.getWrappedIndex(index-1);
+
+		// due to mutation clamping this could become zero which is invalid
 
 		//ofVec3f n = floorshape.getNormalAtIndexInterpolated(t);
 
@@ -62,10 +64,17 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		floorshape.insertVertex(p, index);
 		floorshape.insertVertex(p, index);
 
-		//baseFloor.;
+		int i1 = floorshape.getWrappedIndex(index);
+		int i2 = floorshape.getWrappedIndex(index - 1);
+
+		if (mExtrusions[i].extrudeSide)
+		{
+			i1 = floorshape.getWrappedIndex(index + 1);
+			i2 = floorshape.getWrappedIndex(index + 2);
+		}
 
 		// calculate face normal
-		ofVec3f diff = floorshape[index - 1] - floorshape[index];
+		ofVec3f diff = floorshape[im1] - floorshape[index];
 		ofVec3f n = ofVec2f(-diff.y, diff.x);
 
 		// calculate rotated normal
@@ -78,8 +87,11 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		// calculate new points
 		ofVec3f u = n * mExtrusions[i].extrudeAmount;
 
-		ofPoint p1 = floorshape[index] + u;
-		ofPoint p2 = floorshape[index - 1] + u;
+		ofPoint p1 = floorshape[i1] + u;
+		ofPoint p2 = floorshape[i2] + u;
+
+		//if (mExtrusions[i].extrudeSide)
+		//	p2 = floorshape[index + 1] + u;
 
 		//if (angle != 0)
 		//{
@@ -100,8 +112,8 @@ void Building::applyExtrusions(ofPolyline &floorshape, int floor)
 		//}
 
 		// do extrusion
-		floorshape[index] = p1;
-		floorshape[index - 1] = p2;
+		floorshape[i1] = p1;
+		floorshape[i2] = p2;
 	}
 
 	// simplify shape
@@ -408,11 +420,11 @@ void Building::generateRoof()
 	// 2d to 3d matrix
 	ofMatrix4x4 mat = MeshHelper::Convert2DTo3D();
 
-	//ofMatrix4x4 mat = ofMatrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 0, 0.25f + roof, 0,
-	//	0, 1, 0, 0,
-	//	0, 0, 0, 1);
+	ofMatrix4x4 pitch = ofMatrix4x4(
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 0.25f + mRoofPitch, 0,
+		0, 0, 0, 1);
 
 	// generate straight skeleton
 	vector<LineSegment> arcs;
@@ -423,7 +435,6 @@ void Building::generateRoof()
 	// unpack tuple
 	std::tie(arcs, faces) = straightSkeleton;
 	
-
 	float height = floorHeight * mFloors;
 	
 	for (size_t i = 0; i < arcs.size(); i++)
@@ -431,10 +442,19 @@ void Building::generateRoof()
 		// TODO: give height
 		// TODO: generate planes
 		ofPolyline roofEdge;
-		roofEdge.addVertex(mat * arcs[i].v1 + ofPoint(0, height));
-		roofEdge.addVertex(mat * arcs[i].v2 + ofPoint(0, height));
+		roofEdge.addVertex(mat * pitch * arcs[i].v1 + ofPoint(0, height));
+		roofEdge.addVertex(mat * pitch * arcs[i].v2 + ofPoint(0, height));
 
 		lines.push_back(roofEdge);
+	}
+
+	// multiply roof faces with pitch matrix
+	for (size_t i = 0; i < faces.size(); i++)
+	{
+		for (size_t j = 0; j < faces[i].size(); j++)
+		{
+			faces[i][j] = pitch * faces[i][j];
+		}
 	}
 
 	// add cap
@@ -505,7 +525,7 @@ void Building::draw(int floor)
 	}
 	else
 	{
-		if (interiorMesh.hasVertices())
+		if (interiorMesh.hasVertices() && floor == 0)
 		{
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);

@@ -18,7 +18,7 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	Evolver::setup(_tiles, _pProgram);
 
 	maxExtrusions = 6;
-	int baseVars = 3;
+	int baseVars = 4;
 
 	geneticAlgorithm.setup(1000, baseVars + maxExtrusions * 4, 0.25f, 0.4f);
 	extrusionSelectionAlgorithm.setup(1000, maxExtrusions * 2, 0.15f, 0.4f);
@@ -95,7 +95,6 @@ void ExteriorEvolver::generate(vector<int> selection)
 		const vector<float>& buildingGene = geneticAlgorithm.population[i].genes;
 		const vector<bool>& variableGene = extrusionSelectionAlgorithm.population[i].genes;
 
-
 		// TODO: move building phenotype conversion to here
 		float w = 5.0f + floorf(buildingGene[0] * (pProgram->lotWidth - 5.0f));
 		float h = 5.0f + floorf(buildingGene[1] * (pProgram->lotDepth - 5.0f));
@@ -116,7 +115,7 @@ void ExteriorEvolver::generate(vector<int> selection)
 		if (roofSelector != 0)
 			roofType = ERoofType::Hip;
 
-		float roofPitch = buildingGene[2] / 2.0f; // roof param
+		float roofPitch = buildingGene[3] * 0.75f; // roof param
 
 		int floors = pProgram->stories;
 	
@@ -129,7 +128,7 @@ void ExteriorEvolver::generate(vector<int> selection)
 		
 		//for (size_t i = 3; i < gt.size() - 3; i += 4)
 		//{
-		int offset = 3;
+		int offset = 4;
 		for(int i = 0; i < maxExtrusions; i++)
 		{
 			// is this extrusion is enabled?

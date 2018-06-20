@@ -375,7 +375,7 @@ vector<bool> GeneticAlgorithm<bool>::generateRandomDna()
 	vector<bool> genes = vector<bool>();
 	for (size_t i = 0; i < numGenes; i++)
 	{
-		genes.push_back(ofRandom(1) > 0.5f);
+		genes.push_back(ofRandom(1) < randomBias);
 	}
 
 	return genes;
@@ -420,8 +420,16 @@ void GeneticAlgorithm<bool>::mutate(vector<bool>* genes)
 
 		if (mutateGene)
 		{
-			// negate gene 
-			(*genes)[i] = !(*genes)[i];
+			// if the bias is default, perform ordinary mutation
+			if (randomBias == 0.5f)
+			{
+				// negate gene 
+				(*genes)[i] = !(*genes)[i];
+			}
+			else
+			{
+				(*genes)[i] = ofRandom(1) < randomBias;
+			}
 		}
 	}
 }
