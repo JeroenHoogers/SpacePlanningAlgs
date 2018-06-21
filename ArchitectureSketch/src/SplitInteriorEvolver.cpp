@@ -26,10 +26,11 @@ void SplitInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + nRooms);
+	splitAxisAlgorithm.setup(tiles, splits);
 
-	// distinct adjacency combinations (n-1) choose 2
-	int adjacencies = (nRooms * (nRooms - 1)) / 2;
-	adjacencyWeightsAlgorithm.setup(tiles, adjacencies);
+	//// distinct adjacency combinations (n-1) choose 2
+	//int adjacencies = (nRooms * (nRooms - 1)) / 2;
+	//adjacencyWeightsAlgorithm.setup(tiles, adjacencies);
 
 	for (int i = 0; i < tiles; i++)
 	{
@@ -90,17 +91,17 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 
 	//if (gen == 0)
 	//{
-		// generate the first population
-		roomOptimizationAlgorithm.generateRandomPopulation();
+	// generate the first population
+	roomOptimizationAlgorithm.generateRandomPopulation();
 	//}
 	vector<float> fitnesses;
 	vector<Split> splits;
 	vector<Split> optimalSplits;
+	//optimizationGenerations = 1;
 
 	// TODO: store all fitness values together with the splits in order to perform a better selection
 	for (int gen = 0; gen <= optimizationGenerations; gen++)
 	{
-
 		// generate next generation
 		roomOptimizationAlgorithm.generateOffspring();
 
@@ -113,9 +114,17 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 		int optimalIndex = -1;
 
 		Genotype<float>* pGenotype;
+		const Genotype<bool>* pSplitAxisGT = &splitAxisAlgorithm.population[treeIndex];
+
 		for (int i = 0; i < roomOptimizationAlgorithm.population.size(); i++)
 		{	
 			pGenotype = &roomOptimizationAlgorithm.population[i];
+
+			//// DEBUG: REMOVE LATER
+			//for (int j = 0; j < pGenotype->genes.size(); j++)
+			//{
+			//	pGenotype->genes[j] = 0.5f;
+			//}
 
 			splits.clear();
 
@@ -125,7 +134,10 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 				splits.push_back(
 					Split(
 						pGenotype->genes[j],								// position
-						fminf(floorf(pGenotype->genes[j+1] * 2.0), 1.0)		// axis
+						// TODO: get axis from binary genome
+						pSplitAxisGT->genes[j] ? 0 : 1
+
+						//fminf(floorf(pGenotype->genes[j+1] * 2.0), 1.0)		// axis
 					)
 				);	
 			}
@@ -245,7 +257,6 @@ float SplitInteriorEvolver::computeInteriorFitness(const vector<Split>& splits, 
 	return fitness;
 }
 
-
 //--------------------------------------------------------------
 bool SplitInteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2)
 {
@@ -274,7 +285,8 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 
 			// select the indices in the genetic algorithm
 			geneticTreeAlgorithm.select(index);
-			adjacencyWeightsAlgorithm.select(index);
+			splitAxisAlgorithm.select(index);
+			//adjacencyWeightsAlgorithm.select(index);
 		}
 	}
 
@@ -284,12 +296,14 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 	{
 		// let the genetic algorithm generate offspring based on the selection
 		geneticTreeAlgorithm.generateOffspring();
-		adjacencyWeightsAlgorithm.generateOffspring();
+		splitAxisAlgorithm.generateOffspring();
+		//adjacencyWeightsAlgorithm.generateOffspring();
 	}
 	else
 	{
 		geneticTreeAlgorithm.generateRandomPopulation();
-		adjacencyWeightsAlgorithm.generateRandomPopulation();
+		splitAxisAlgorithm.generateRandomPopulation();
+		//adjacencyWeightsAlgorithm.generateRandomPopulation();
 
 		generation = 0;
 		//setupEvolution();
@@ -306,13 +320,13 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 			// construct tree using genome
 			trees[i] = constructTree(geneticTreeAlgorithm.population[i].genes, 0, splits);
 
-			if (i < 2)
+			if (i < 1)
 				trees[i]->print();
 			//trees[i] = constructTestTree();
 
 			orderLeaves(trees[i]);
 
-			if (i < 2)
+			if (i < 1)
 				trees[i]->print();
 			
 			// optimize interiors
@@ -333,13 +347,13 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 //--------------------------------------------------------------
 void SplitInteriorEvolver::drawDebug(ofPoint p, int tile)
 {
-	if (tile >= adjacencyWeightsAlgorithm.population.size())
-		return;
+	//if (tile >= adjacencyWeightsAlgorithm.population.size())
+	//	return;
 
 	string debugString = "";
 
-	vector<float> adjWeights = adjacencyWeightsAlgorithm.population[tile].genes;
-	int adjacencies = (nRooms * (nRooms - 1)) / 2;
+//	vector<float> adjWeights = adjacencyWeightsAlgorithm.population[tile].genes;
+//	int adjacencies = (nRooms * (nRooms - 1)) / 2;
 	
 	for (int i = 0; i < nRooms; i++)
 	{
@@ -349,27 +363,27 @@ void SplitInteriorEvolver::drawDebug(ofPoint p, int tile)
 
 	debugString += "\n";
 
-	for (int i = 0; i < nRooms - 1; i++)
-	{
-		for (int j = i + 1; j < nRooms; j++)
-		{
-			// i is the minimum index
-			int n = nRooms - i;
-			int offset = adjacencies - (n * (n - 1)) / 2;
-			int offset2 = j - i - 1;
+	//for (int i = 0; i < nRooms - 1; i++)
+	//{
+	//	for (int j = i + 1; j < nRooms; j++)
+	//	{
+	//		// i is the minimum index
+	//		int n = nRooms - i;
+	//		int offset = adjacencies - (n * (n - 1)) / 2;
+	//		int offset2 = j - i - 1;
 
-			float w = roundf(adjWeights[offset + offset2] * 1000.0f) / 1000.0f;
+	//		float w = roundf(adjWeights[offset + offset2] * 1000.0f) / 1000.0f;
 
-			bool adjacent = false;
-			if (interiors.size() > tile && interiors[tile].size() >= nRooms)
-			{
-				adjacent = checkAdjacency(interiors[tile][i], interiors[tile][j]);
+	//		bool adjacent = false;
+	//		if (interiors.size() > tile && interiors[tile].size() >= nRooms)
+	//		{
+	//			adjacent = checkAdjacency(interiors[tile][i], interiors[tile][j]);
 
-				debugString += " (" + interiors[tile][i].pRoom->code + "," + interiors[tile][j].pRoom->code + "): \t" + ofToString(w) + "\t" + ofToString(adjacent) + "\n";
-			}
-			//adjacent = checkAdjacency(rooms[i], rooms[j]);
-		}
-	}
+	//			debugString += " (" + interiors[tile][i].pRoom->code + "," + interiors[tile][j].pRoom->code + "): \t" + ofToString(w) + "\t" + ofToString(adjacent) + "\n";
+	//		}
+	//		//adjacent = checkAdjacency(rooms[i], rooms[j]);
+	//	}
+	//}
 
 	// draw adjacencies for current tile
 	ofDrawBitmapStringHighlight(debugString, p);
@@ -442,6 +456,9 @@ void SplitInteriorEvolver::generateRooms(const vector<Split>& splits, const Spli
 		//rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
 	}
 }
+
+// Construct a random binary tree
+// Algorith by: Devroye, 1996, The Botanical Beauty of Random Binary Trees 
 //--------------------------------------------------------------
 SplitTreeNode* SplitInteriorEvolver::constructTree(const vector<float>& treeGenome, int i, int n)
 {
@@ -458,8 +475,17 @@ SplitTreeNode* SplitInteriorEvolver::constructTree(const vector<float>& treeGeno
 	}
 	else // n >= 2
 	{
-		int nLeft = floorf(n * treeGenome[i]);		// nodes in left subtree
-		int nRight = n - 1 - nLeft;					// nodes in right subtree
+		float X = treeGenome[i];
+		
+		// X should be in the open interval (0,1)
+		if (X == 0)
+			X = 0.0001f;
+		
+		if (X == 1)
+			X = 0.9999f;
+
+		int nLeft = floorf(n * X);		// nodes in left subtree
+		int nRight = n - 1 - nLeft;		// nodes in right subtree
 
 		if(nLeft > 0)
 			leftLeaf = constructTree(treeGenome, i + 1, nLeft);

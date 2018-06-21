@@ -113,8 +113,14 @@ private:
 	//int gen = 0;
 
 	GeneticAlgorithm<float> roomOptimizationAlgorithm;
+
+	// contains split axis genomes
+	GeneticAlgorithm<bool> splitAxisAlgorithm;
+
 	// TODO: add tree generation
 	GeneticAlgorithm<float> geneticTreeAlgorithm;
+
+	// Remove?
 	GeneticAlgorithm<float> adjacencyWeightsAlgorithm;
 
 	// use this for tree structure evolution
