@@ -43,7 +43,6 @@ void BFSInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 
 		floors.push_back(FloorGrid());
 		gridTopologies.push_back(InteriorGrid(hSplits, vSplits));
-		//trees.push_back(constructTestTree());
 	}
 
 	candidates.clear();
@@ -319,9 +318,6 @@ vector<InteriorRoom>* BFSInteriorEvolver::getInteriorAt(int tile)
 //--------------------------------------------------------------
 vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 {
-	// TODO: get split tree using treeIndex
-	// for now just construct a balanced binary tree
-
 	//if (gen == 0)
 	//{
 		// generate the first population
@@ -409,9 +405,97 @@ vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 	floors[index] = constructGrid(optimalSplits);
 	generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floors[index]);
 
+	// Generate rooms
+	generateRooms(floors[index], interior);
+
 //	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
 	return interior;
+}
+
+//--------------------------------------------------------------
+void BFSInteriorEvolver::generateRooms(FloorGrid& floorgrid, vector<InteriorRoom>& rooms)
+{
+	// TODO: optimize using a map
+	//map<int, vector<RoomEdge>> roomEdges;
+	for (int k = 0; k < pProgram->rooms.size(); k++)
+	{
+		vector<RoomEdge> edges;
+		for (int x = 0; x < floorgrid.cols; x++)
+		{
+			for (int y = 0; x < floorgrid.rows; x++)
+			{
+				GridCell& cell = floorgrid.getCellAt(x, y);
+
+				// cell belongs to this room
+				if (cell.roomId == k)
+				{
+					// add rectangle edges
+					edges.push_back(RoomEdge(cell.rect.getTopLeft(), cell.rect.getTopRight()));
+					edges.push_back(RoomEdge(cell.rect.getTopRight(), cell.rect.getBottomRight()));
+					edges.push_back(RoomEdge(cell.rect.getBottomRight(), cell.rect.getBottomLeft()));
+					edges.push_back(RoomEdge(cell.rect.getBottomLeft(), cell.rect.getTopLeft()));
+				}
+			}
+		}
+
+		// sort edges
+		sort(edges.begin(), edges.end());
+
+		// remove duplicate edges
+		// TODO: FIX
+		for (int i = edges.size() - 2; i > 0; i--)
+		{
+			if (edges[i] == edges[i + 1])
+			{
+				cout << "removed duplicate" << endl;
+				edges.erase(edges.begin() + i, edges.begin() + i + 1);
+			}
+		}
+
+		// construct polygon from edges
+		ofPolyline shape;
+		bool done = false;
+
+		if (edges.size() > 0)
+		{
+			ofPoint start = edges[0].p1;
+			ofPoint v = start;
+			shape.addVertex(v);
+
+			while (!done)
+			{
+				bool removedEdge = false;
+				for (int i = edges.size() - 1; i > 0; i--)
+				{
+					if (edges[i].hasVertex(v))
+					{
+						v = edges[i].other(v);
+
+						if (start == v)
+						{
+							done = true;
+							shape.close();
+						}
+						else
+							shape.addVertex(v);
+
+						edges.erase(edges.begin() + i);
+						removedEdge = true;
+
+						break;
+					}
+				}
+
+				// infinite loop prevention
+				if (!removedEdge)
+					break;
+			}
+		}
+
+		InteriorRoom ir = InteriorRoom(&pProgram->rooms[k], shape);
+		rooms.push_back(ir);
+	}
 }
 
 //--------------------------------------------------------------
@@ -430,10 +514,8 @@ float BFSInteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 
 	//vector<InteriorRoom> rooms;
 	//generateRooms(splits, root, floorshape, rooms);
-	
 
 	float areaRatio = abs(floorshape.getArea()) / pProgram->getTotalRoomArea();
-
 
 	// compute room area fitness
 	for (int i = 0; i < nRooms; i++)
@@ -509,7 +591,6 @@ float BFSInteriorEvolver::computeInteriorFitness(const FloorGrid& floorgrid)
 	return fitness;
 }
 
-
 //--------------------------------------------------------------
 bool BFSInteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2)
 {
@@ -538,7 +619,6 @@ void BFSInteriorEvolver::generate(vector<int> selection)
 
 			// select the indices in the genetic algorithm
 			selectionAlgorithm.select(tile);
-			//adjacencyWeightsAlgorithm.select(index);
 		//}
 	}
 
@@ -549,13 +629,11 @@ void BFSInteriorEvolver::generate(vector<int> selection)
 		// let the genetic algorithm generate offspring based on the selection
 		selectionAlgorithm.generateOffspring();
 		wallPlacementAlgorithm.generateOffspring();
-		//adjacencyWeightsAlgorithm.generateOffspring();
 	}
 	else
 	{
 		selectionAlgorithm.generateRandomPopulation();
 		wallPlacementAlgorithm.generateRandomPopulation();
-		//adjacencyWeightsAlgorithm.generateRandomPopulation();
 
 		generation = 0;
 		//setupEvolution();

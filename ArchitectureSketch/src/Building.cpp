@@ -504,6 +504,8 @@ void Building::SetInterior(vector<InteriorRoom> interior)
 {
 	interiorLines.clear();
 	generateInteriorMesh(interior);
+
+	hasInterior = true;
 }
 
 //--------------------------------------------------------------

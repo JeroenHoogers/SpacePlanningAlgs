@@ -455,22 +455,7 @@ void ArchitectureState::drawBFSInteriorTile(ofRectangle viewport, int index)
 		ofSetColor(40);
 		ofSetLineWidth(1.5f);
 
-		//if (pInterior != NULL)
-		//{
-		//	for (int i = 0; i < pInterior->size(); i++)
-		//	{
-		//		ofFill();
-		//		
-		//		(*pInterior)[i].shape.draw();
-		//		
 
-
-		//		// draw room name and area
-		//		float area = roundf((*pInterior)[i].getArea() * 10) / 10;
-		//		ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
-		//		ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
-		//	}
-		//}
 
 		if (pFloor != NULL)
 		{
@@ -517,6 +502,21 @@ void ArchitectureState::drawBFSInteriorTile(ofRectangle viewport, int index)
 				area = roundf(area * 10) / 10;
 				ofPoint p = pFloor->centers[i] + ofPoint(5, -5) / ratio;
 				ofDrawBitmapString(pProgram->rooms[i].code + "\n" + ofToString(area) + " m2", p);
+			}
+		}
+
+		if (pInterior != NULL)
+		{
+			for (int i = 0; i < pInterior->size(); i++)
+			{
+				ofFill();
+
+				(*pInterior)[i].shape.draw();
+
+				// draw room name and area
+				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
+				ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
+				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
 			}
 		}
 

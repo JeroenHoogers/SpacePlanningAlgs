@@ -37,6 +37,53 @@ struct GridCell
 	}
 };
 
+struct RoomEdge
+{
+	ofPoint p1;
+	ofPoint p2;
+
+	RoomEdge()
+	{
+
+	}
+
+	RoomEdge(ofPoint _p1, ofPoint _p2)
+	{
+		p1 = _p1;
+		p2 = _p2;
+	}
+
+	bool hasVertex(const ofPoint& p) const
+	{
+		return (p1 == p || p2 == p);
+	}
+
+	ofPoint other(const ofPoint& p) const
+	{
+		if (p1 == p)
+			return p2;
+
+		if (p2 == p)
+			return p1;
+
+		return ofPoint();
+	}
+
+	bool operator==(const RoomEdge& val) const
+	{
+		return (p1 == val.p1 && p2 == val.p2) || (p1 == val.p2 && p2 == val.p1);
+	}
+
+	bool operator<(const RoomEdge& val) const
+	{
+		if ((*this) == val)
+			return false;
+
+		return false;
+		return p1.x < val.p1.x;
+	}
+};
+
 struct FloorGrid
 {
 	int rows = 0;
@@ -167,9 +214,12 @@ public:
 	vector<InteriorRoom> optimizeInterior(int index);
 
 	float computeInteriorFitness(const FloorGrid& floorgrid);
+
 	bool checkAdjacency(const InteriorRoom& r1, const InteriorRoom& r2);
 
 	//void generateRooms(const vector<Split>& splits, const SplitTreeNode* node, const ofPolyline& shape, vector<InteriorRoom>& rooms);
+
+	void generateRooms(FloorGrid& floorgrid, vector<InteriorRoom>& rooms);
 
 	void drawDebug(ofPoint p, int tile) override;
 };

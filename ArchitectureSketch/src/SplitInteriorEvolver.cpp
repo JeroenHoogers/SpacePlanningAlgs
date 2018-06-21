@@ -94,7 +94,7 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 	// generate the first population
 	roomOptimizationAlgorithm.generateRandomPopulation();
 	//}
-	vector<float> fitnesses;
+	//vector<float> fitnesses;
 	vector<Split> splits;
 	vector<Split> optimalSplits;
 	//optimizationGenerations = 1;
@@ -107,7 +107,7 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 
 		// convert
 		float totalFitness = 0;
-		fitnesses.clear();
+		//fitnesses.clear();
 		splits.clear();
 
 		float maxfitness = -1.0f;
@@ -180,7 +180,6 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 
 	return interior;
 }
-
 
 //--------------------------------------------------------------
 float SplitInteriorEvolver::computeInteriorFitness(const vector<Split>& splits, int treeIndex)

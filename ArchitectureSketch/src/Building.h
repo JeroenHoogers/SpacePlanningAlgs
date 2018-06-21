@@ -97,6 +97,8 @@ private:
 	void generateRoof();
 
 public:
+	bool hasInterior = false;
+
 	ofRectangle boundingBox = ofRectangle(-10, -20, 20, 30);
 	//vector<Subdivision> subdivs;
 	vector<Extrusion> mExtrusions;

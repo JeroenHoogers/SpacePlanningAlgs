@@ -15,6 +15,12 @@ void ProjectState::stateEnter()
 {
 	building = getSharedData().building;
 
+	// if the building has an interior, show it, otherwise show the entire building
+	if (building.hasInterior)
+		mVisibleFloor = 0;
+	else
+		mVisibleFloor = -1;
+
 	//// Update lot polygon
 	//lotPolygon.clear();
 
