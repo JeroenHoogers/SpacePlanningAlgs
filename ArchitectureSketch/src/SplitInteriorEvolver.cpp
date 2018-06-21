@@ -148,10 +148,10 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 			}
 		}
 
-		if (treeIndex == 0)
-		{
-			cout << "gen: " << gen << ", total fitness: " << totalFitness << ", highest fitness:" << maxfitness << endl;
-		}
+		//if (treeIndex == 0)
+		//{
+		//	cout << "gen: " << gen << ", total fitness: " << totalFitness << ", highest fitness:" << maxfitness << endl;
+		//}
 
 		// TODO: select fittest 2 individuals
 		//roomOptimizationAlgorithm.select(optimalIndex);
@@ -163,7 +163,6 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 	//SplitTreeNode* root = constructTestTree();
 	
 	// create phenotype
-	
 	vector<InteriorRoom> interior;
 	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
@@ -213,33 +212,33 @@ float SplitInteriorEvolver::computeInteriorFitness(const vector<Split>& splits, 
 		//fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
 
-	// obtain adjacency weights
-	vector<float> adjWeights = adjacencyWeightsAlgorithm.population[treeIndex].genes;
-	int adjacencies = (nRooms * (nRooms - 1)) / 2;
+	//// obtain adjacency weights
+	//vector<float> adjWeights = adjacencyWeightsAlgorithm.population[treeIndex].genes;
+	//int adjacencies = (nRooms * (nRooms - 1)) / 2;
 
-	// check all room combinations for adjacencies
-	for (int i = 0; i < rooms.size()-1; i++)
-	{
-		for (int j = i+1; j < rooms.size(); j++)
-		{
-			// check if the rooms are adjacent
-			if (checkAdjacency(rooms[i], rooms[j]))
-			{
-				// rooms are adjacent, add weight^2 * 10 to the fitness
+	//// check all room combinations for adjacencies
+	//for (int i = 0; i < rooms.size()-1; i++)
+	//{
+	//	for (int j = i+1; j < rooms.size(); j++)
+	//	{
+	//		// check if the rooms are adjacent
+	//		if (checkAdjacency(rooms[i], rooms[j]))
+	//		{
+	//			// rooms are adjacent, add weight^2 * 10 to the fitness
 
-				// i is the minimum index
-				int n = nRooms - i;
-				int offset = adjacencies - (n * (n - 1)) / 2;
-				int offset2 = j - i - 1;
+	//			// i is the minimum index
+	//			int n = nRooms - i;
+	//			int offset = adjacencies - (n * (n - 1)) / 2;
+	//			int offset2 = j - i - 1;
 
-				float w = adjWeights[offset + offset2];
+	//			float w = adjWeights[offset + offset2];
 
-				// TODO: add adjacency weight to fitness function
-				// square / cube weight to get proper influence 
-				adjFitness += 10 * w * w;
-			}
-		}
-	}
+	//			// TODO: add adjacency weight to fitness function
+	//			// square / cube weight to get proper influence 
+	//			adjFitness += 10 * w * w;
+	//		}
+	//	}
+	//}
 
 	float fitness = areaFitness * 1 + ratioFitness * 1 + adjFitness * 1;
 
@@ -320,11 +319,11 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 			interiors[i] = optimizeInterior(i);
 		}
 
-		cout << "------------------------" << endl;
-		SplitTreeNode* tree = constructTestTree();
-		tree->print();
-		orderLeaves(tree);
-		tree->print();
+		//cout << "------------------------" << endl;
+		//SplitTreeNode* tree = constructTestTree();
+		//tree->print();
+		//orderLeaves(tree);
+		//tree->print();
 
 		//interiors[0] = optimizeInterior(0);
 	}
@@ -387,8 +386,12 @@ void SplitInteriorEvolver::generateRooms(const vector<Split>& splits, const Spli
 	if(node->isLeaf())
 	{
 		// this is a leaf, add it to the list of rooms
-		InteriorRoom ir = InteriorRoom(&pProgram->rooms[node->index], shape);
-		rooms.push_back(ir);
+		// ERROR: Crash here
+		if (node->index >= 0 && node->index < pProgram->rooms.size())
+		{
+			InteriorRoom ir = InteriorRoom(&pProgram->rooms[node->index], shape);
+			rooms.push_back(ir);
+		}
 	}
 	else
 	{
@@ -450,8 +453,8 @@ SplitTreeNode* SplitInteriorEvolver::constructTree(const vector<float>& treeGeno
 	// base case, construct node with 2 leaves
 	if (n == 1)
 	{
-		leftLeaf = new SplitTreeNode(-1); // room node
-		rightLeaf = new SplitTreeNode(-1); // room node
+		leftLeaf = new SplitTreeNode(0); // room node
+		rightLeaf = new SplitTreeNode(0); // room node
 	}
 	else // n >= 2
 	{
@@ -461,12 +464,12 @@ SplitTreeNode* SplitInteriorEvolver::constructTree(const vector<float>& treeGeno
 		if(nLeft > 0)
 			leftLeaf = constructTree(treeGenome, i + 1, nLeft);
 		else 
-			leftLeaf = new SplitTreeNode(-1); // room node
+			leftLeaf = new SplitTreeNode(0); // room node
 
 		if (nRight > 0)
 			rightLeaf = constructTree(treeGenome, i + 1 + nLeft, nRight);
 		else
-			rightLeaf = new SplitTreeNode(-1); // room node
+			rightLeaf = new SplitTreeNode(0); // room node
 	}
 
 	// append childs to root
@@ -533,19 +536,19 @@ SplitTreeNode* SplitInteriorEvolver::constructTestTree()
 	root->rightChild = rc;
 
 	SplitTreeNode* lclc = new SplitTreeNode(3);
-	SplitTreeNode* lcrc = new SplitTreeNode(-1); // room 0
+	SplitTreeNode* lcrc = new SplitTreeNode(0); // room 0
 
 	lc->leftChild = lclc;
 	lc->rightChild = lcrc;
 
-	SplitTreeNode* rclc = new SplitTreeNode(-1); // room 1
-	SplitTreeNode* rcrc = new SplitTreeNode(-1); // room 2
+	SplitTreeNode* rclc = new SplitTreeNode(0); // room 1
+	SplitTreeNode* rcrc = new SplitTreeNode(0); // room 2
 
 	rc->leftChild = rclc;
 	rc->rightChild = rcrc;
 
-	SplitTreeNode* lclclc = new SplitTreeNode(-1); // room 3
-	SplitTreeNode* lcrcrc = new SplitTreeNode(-1); // room 4
+	SplitTreeNode* lclclc = new SplitTreeNode(0); // room 3
+	SplitTreeNode* lcrcrc = new SplitTreeNode(0); // room 4
 
 	lclc->leftChild = lclclc;
 	lclc->rightChild = lcrcrc;
