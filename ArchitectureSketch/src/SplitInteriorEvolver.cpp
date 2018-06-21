@@ -213,7 +213,6 @@ float SplitInteriorEvolver::computeInteriorFitness(const vector<Split>& splits, 
 		//fitness += ofClamp(10 - areaDiff, 0, 10);
 	}
 
-
 	// obtain adjacency weights
 	vector<float> adjWeights = adjacencyWeightsAlgorithm.population[treeIndex].genes;
 	int adjacencies = (nRooms * (nRooms - 1)) / 2;
@@ -297,6 +296,7 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 		//setupEvolution();
 	}
 
+	// check if the floorshape is valid
 	if (floorshape.size() > 2)
 	{
 		// compute optimal interior division for these tree structures
@@ -304,10 +304,27 @@ void SplitInteriorEvolver::generate(vector<int> selection)
 		{
 			candidates.push_back(i);
 
-			// optimize interiors
+			// construct tree using genome
+			trees[i] = constructTree(geneticTreeAlgorithm.population[i].genes, 0, splits);
+
+			if (i < 2)
+				trees[i]->print();
 			//trees[i] = constructTestTree();
+
+			orderLeaves(trees[i]);
+
+			if (i < 2)
+				trees[i]->print();
+			
+			// optimize interiors
 			interiors[i] = optimizeInterior(i);
 		}
+
+		cout << "------------------------" << endl;
+		SplitTreeNode* tree = constructTestTree();
+		tree->print();
+		orderLeaves(tree);
+		tree->print();
 
 		//interiors[0] = optimizeInterior(0);
 	}
@@ -422,6 +439,87 @@ void SplitInteriorEvolver::generateRooms(const vector<Split>& splits, const Spli
 		//rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
 	}
 }
+//--------------------------------------------------------------
+SplitTreeNode* SplitInteriorEvolver::constructTree(const vector<float>& treeGenome, int i, int n)
+{
+	SplitTreeNode* root = new SplitTreeNode(i);
+
+	SplitTreeNode* leftLeaf;
+	SplitTreeNode* rightLeaf;
+
+	// base case, construct node with 2 leaves
+	if (n == 1)
+	{
+		leftLeaf = new SplitTreeNode(-1); // room node
+		rightLeaf = new SplitTreeNode(-1); // room node
+	}
+	else // n >= 2
+	{
+		int nLeft = floorf(n * treeGenome[i]);		// nodes in left subtree
+		int nRight = n - 1 - nLeft;					// nodes in right subtree
+
+		if(nLeft > 0)
+			leftLeaf = constructTree(treeGenome, i + 1, nLeft);
+		else 
+			leftLeaf = new SplitTreeNode(-1); // room node
+
+		if (nRight > 0)
+			rightLeaf = constructTree(treeGenome, i + 1 + nLeft, nRight);
+		else
+			rightLeaf = new SplitTreeNode(-1); // room node
+	}
+
+	// append childs to root
+	root->leftChild = leftLeaf;
+	root->rightChild = rightLeaf;
+
+	return root;
+}
+
+//--------------------------------------------------------------
+void SplitInteriorEvolver::orderLeaves(SplitTreeNode* root)
+{
+	int count = 0;
+	stack<SplitTreeNode*> s;
+	SplitTreeNode* current = root;
+	
+	bool done = false;
+
+	// Do traversal
+	while (!done)
+	{
+		if (current != NULL)
+		{
+			s.push(current);
+			current = current->leftChild;
+		}
+		else
+		{
+			if (!s.empty())
+			{
+				current = s.top();
+
+				// set index if the current node is a leaf
+				if (current->isLeaf())
+				{
+					current->index = count;
+					count++;
+				}
+
+				s.pop();
+
+				// the left subtree has been completely visited, switch to the right subtree
+				current = current->rightChild;
+			}
+			else
+			{
+				done = true;
+			}
+		}
+	}
+
+	//cout << count << endl;
+}
 
 //--------------------------------------------------------------
 SplitTreeNode* SplitInteriorEvolver::constructTestTree()
@@ -435,19 +533,19 @@ SplitTreeNode* SplitInteriorEvolver::constructTestTree()
 	root->rightChild = rc;
 
 	SplitTreeNode* lclc = new SplitTreeNode(3);
-	SplitTreeNode* lcrc = new SplitTreeNode(0); // room 0
+	SplitTreeNode* lcrc = new SplitTreeNode(-1); // room 0
 
 	lc->leftChild = lclc;
 	lc->rightChild = lcrc;
 
-	SplitTreeNode* rclc = new SplitTreeNode(1); // room 1
-	SplitTreeNode* rcrc = new SplitTreeNode(2); // room 2
+	SplitTreeNode* rclc = new SplitTreeNode(-1); // room 1
+	SplitTreeNode* rcrc = new SplitTreeNode(-1); // room 2
 
 	rc->leftChild = rclc;
 	rc->rightChild = rcrc;
 
-	SplitTreeNode* lclclc = new SplitTreeNode(3); // room 3
-	SplitTreeNode* lcrcrc = new SplitTreeNode(4); // room 4
+	SplitTreeNode* lclclc = new SplitTreeNode(-1); // room 3
+	SplitTreeNode* lcrcrc = new SplitTreeNode(-1); // room 4
 
 	lclc->leftChild = lclclc;
 	lclc->rightChild = lcrcrc;

@@ -36,6 +36,20 @@ struct SplitTreeNode
 		return (leftChild == NULL || rightChild == NULL);
 	}
 
+	void print() 
+	{
+		print("", this, false);
+	}
+
+	void print(string prefix, SplitTreeNode* node, bool isLeft) 
+	{
+		if (node != NULL) {
+			cout << prefix << (isLeft ? "|-- " : "\\-- ") << node->index << endl;
+			print(prefix + (isLeft ? "|   " : "    "), node->leftChild, true);
+			print(prefix + (isLeft ? "|   " : "    "), node->rightChild, false);
+		}
+	}
+
 };
 
 struct Split
@@ -133,6 +147,10 @@ public:
 
 	SplitTreeNode* constructTestTree();
 	SplitTreeNode* constructTestTree2();
+
+	SplitTreeNode* constructTree(const vector<float>& treeGenome, int i, int n);
+
+	void orderLeaves(SplitTreeNode* root);
 
 	void drawDebug(ofPoint p, int tile) override;
 };
