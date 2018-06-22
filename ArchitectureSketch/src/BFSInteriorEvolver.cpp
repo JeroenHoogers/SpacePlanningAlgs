@@ -22,7 +22,7 @@ void BFSInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	optSplits = 3;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(100, optSplits * 2, 0.1f, 0.2f);
+	roomOptimizationAlgorithm.setup(60, optSplits * 2, 0.1f, 0.2f);
 	
 	// initialize selection algorithm (stores room positions)
 	selectionAlgorithm.setup(tiles, nRooms * 2);
@@ -406,7 +406,7 @@ vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 	generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floors[index]);
 
 	// Generate rooms
-	generateRooms(floors[index], interior);
+	//generateRooms(floors[index], interior);
 
 //	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
@@ -423,18 +423,19 @@ void BFSInteriorEvolver::generateRooms(FloorGrid& floorgrid, vector<InteriorRoom
 		vector<RoomEdge> edges;
 		for (int x = 0; x < floorgrid.cols; x++)
 		{
-			for (int y = 0; x < floorgrid.rows; x++)
+			for (int y = 0; y < floorgrid.rows; y++)
 			{
 				GridCell& cell = floorgrid.getCellAt(x, y);
 
 				// cell belongs to this room
-				if (cell.roomId == k)
+				if (cell.inside && cell.roomId == k)
 				{
 					// add rectangle edges
 					edges.push_back(RoomEdge(cell.rect.getTopLeft(), cell.rect.getTopRight()));
 					edges.push_back(RoomEdge(cell.rect.getTopRight(), cell.rect.getBottomRight()));
-					edges.push_back(RoomEdge(cell.rect.getBottomRight(), cell.rect.getBottomLeft()));
-					edges.push_back(RoomEdge(cell.rect.getBottomLeft(), cell.rect.getTopLeft()));
+
+					edges.push_back(RoomEdge(cell.rect.getBottomLeft(), cell.rect.getBottomRight()));
+					edges.push_back(RoomEdge(cell.rect.getTopLeft(), cell.rect.getBottomLeft()));
 				}
 			}
 		}
@@ -443,13 +444,19 @@ void BFSInteriorEvolver::generateRooms(FloorGrid& floorgrid, vector<InteriorRoom
 		sort(edges.begin(), edges.end());
 
 		// remove duplicate edges
-		// TODO: FIX
 		for (int i = edges.size() - 2; i > 0; i--)
 		{
-			if (edges[i] == edges[i + 1])
+			if (i + 1 < edges.size())
 			{
-				cout << "removed duplicate" << endl;
-				edges.erase(edges.begin() + i, edges.begin() + i + 1);
+				if (edges[i] == edges[i + 1])
+				{
+					cout << "removed duplicates" << endl;
+					//edges.erase(edges.begin() + i + 1);
+					edges.erase(edges.begin() + i);
+					edges.erase(edges.begin() + i);
+					//edges.erase(edges.begin() + i, edges.begin() + i + 1);
+				//	edges.erase(edges.begin() + i);
+				}
 			}
 		}
 
@@ -489,7 +496,10 @@ void BFSInteriorEvolver::generateRooms(FloorGrid& floorgrid, vector<InteriorRoom
 
 				// infinite loop prevention
 				if (!removedEdge)
+				{
+					cout << "inf loop" << endl;
 					break;
+				}
 			}
 		}
 

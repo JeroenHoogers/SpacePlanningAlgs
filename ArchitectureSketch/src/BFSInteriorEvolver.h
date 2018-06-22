@@ -55,15 +55,31 @@ struct RoomEdge
 
 	bool hasVertex(const ofPoint& p) const
 	{
-		return (p1 == p || p2 == p);
+		float tau = 0.0000001f;
+
+		float d1 = p.distance(this->p1);
+		float d2 = p.distance(this->p2);
+
+		//float d1 =  (p, p1);
+		//float d2 = Vector2.Distance(p, p2);
+
+		return (d1 < tau || d2 < tau);
+
+		//return (p1 == p || p2 == p);
 	}
 
 	ofPoint other(const ofPoint& p) const
 	{
-		if (p1 == p)
+		float tau = 0.0000001f;
+
+		float d1 = p.distance(this->p1);
+		float d2 = p.distance(this->p2);
+
+
+		if (d1 < tau)
 			return p2;
 
-		if (p2 == p)
+		if (d2 < tau)
 			return p1;
 
 		return ofPoint();
@@ -71,16 +87,88 @@ struct RoomEdge
 
 	bool operator==(const RoomEdge& val) const
 	{
-		return (p1 == val.p1 && p2 == val.p2) || (p1 == val.p2 && p2 == val.p1);
+		return (this->p1 == val.p1 && this->p2 == val.p2) || (this->p1 == val.p2 && this->p2 == val.p1);
 	}
 
 	bool operator<(const RoomEdge& val) const
 	{
-		if ((*this) == val)
-			return false;
+		if (this->p1.x != val.p1.x)
+			return this->p1.x < val.p1.x;
 
+		if (this->p1.y != val.p1.y)
+			return this->p1.y < val.p1.y;
+
+		if (this->p2.x != val.p2.x)
+			return this->p2.x < val.p2.x;
+
+		if (this->p2.y != val.p2.y)
+			return this->p2.y < val.p2.y;
+
+
+		/*ofPoint minP1 = this->p1;
+		ofPoint maxP1 = this->p2;
+		ofPoint minP2 = val.p1;
+		ofPoint maxP2 = val.p2;
+
+		if (this->p1.x > this->p2.x)
+		{
+			minP1 = this->p2;
+			maxP1 = this->p1;
+		}
+
+		if (val.p1.x > val.p2.x)
+		{
+			minP2 = val.p2;
+			maxP2 = val.p1;
+		}
+
+		if (minP1 != minP2)
+		{
+			if (minP1.x != minP2.x)
+				return minP1.x < minP2.x;
+
+			return minP1.y < minP2.y;
+		}
+
+		if (maxP1 != maxP2)
+		{
+			if (maxP1.x != maxP2.x)
+				return maxP1.x < maxP2.x;
+
+			return maxP1.y < maxP2.y;
+		}*/
+
+		//ofPoint& minP1 = (this->p1.x <= this->p2.x) ? this->p1 : this->p2;
+		//ofPoint& minP2 = (val.p1.x <= val.p2.x) ? val.p1 : val.p2;
+
+
+		//float c1 = fminf(this->p1.x, this->p2.x);
+		//float c2 = fminf(val.p1.x, val.p2.x);
+
+		//if (c1 != c2)
+		//	return c1 < c2;
+
+		//c1 = fminf(this->p1.y, this->p2.y);
+		//c2 = fminf(val.p1.y, val.p2.y);
+
+		//if (c1 != c2)
+		//	return c1 < c2;
+
+
+		//c1 = fmaxf(this->p1.x, this->p2.x);
+		//c2 = fmaxf(val.p1.x, val.p2.x);
+
+		//if (c1 != c2)
+		//	return c1 < c2;
+
+		//c1 = fmaxf(this->p1.y, this->p2.y);
+		//c2 = fmaxf(val.p1.y, val.p2.y);
+
+		//if (c1 != c2)
+		//	return c1 < c2;
+
+		// must be equal
 		return false;
-		return p1.x < val.p1.x;
 	}
 };
 
@@ -161,7 +249,7 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 50;
+	int optimizationGenerations = 35;
 	//int gen = 0;
 
 	// total number of splits including 
