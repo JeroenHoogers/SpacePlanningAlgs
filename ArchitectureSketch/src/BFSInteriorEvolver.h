@@ -55,7 +55,7 @@ struct RoomEdge
 
 	bool hasVertex(const ofPoint& p) const
 	{
-		float tau = 0.0000001f;
+		float tau = 0.000001f;
 
 		float d1 = p.distance(this->p1);
 		float d2 = p.distance(this->p2);
@@ -70,7 +70,7 @@ struct RoomEdge
 
 	ofPoint other(const ofPoint& p) const
 	{
-		float tau = 0.0000001f;
+		float tau = 0.000001f;
 
 		float d1 = p.distance(this->p1);
 		float d2 = p.distance(this->p2);
@@ -87,7 +87,16 @@ struct RoomEdge
 
 	bool operator==(const RoomEdge& val) const
 	{
-		return (this->p1 == val.p1 && this->p2 == val.p2) || (this->p1 == val.p2 && this->p2 == val.p1);
+		float tau = 0.000001f;
+
+		float d1 = val.p1.distance(this->p1);
+		float d2 = val.p2.distance(this->p2);
+
+		float d3 = val.p2.distance(this->p1);
+		float d4 = val.p1.distance(this->p2);
+
+		return (d1 < tau && d2 < tau) || (d3 < tau && d4 < tau);
+		//return (this->p1 == val.p1 && this->p2 == val.p2) || (this->p1 == val.p2 && this->p2 == val.p1);
 	}
 
 	bool operator<(const RoomEdge& val) const
@@ -249,7 +258,7 @@ private:
 	int nRooms;
 
 	// number of generations used by the room sizing algorithm
-	int optimizationGenerations = 35;
+	int optimizationGenerations = 25;
 	//int gen = 0;
 
 	// total number of splits including 

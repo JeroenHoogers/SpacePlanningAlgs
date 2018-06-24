@@ -19,10 +19,10 @@ void BFSInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 
 	// calculate the number of rooms and splits
 	nRooms = pProgram->rooms.size();
-	optSplits = 3;
+	optSplits = 2;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(60, optSplits * 2, 0.1f, 0.2f);
+	roomOptimizationAlgorithm.setup(75, optSplits * 2, 0.1f, 0.15f);
 	
 	// initialize selection algorithm (stores room positions)
 	selectionAlgorithm.setup(tiles, nRooms * 2);
@@ -58,6 +58,7 @@ void BFSInteriorEvolver::computeDefaultSplits()
 
 	ofRectangle bb = floorshape.getBoundingBox();
 
+	// create 2 default splits for each reflex angle of the exterior
 	for (int i = 0; i < floorshape.size(); i++)
 	{
 		int prev = floorshape.getWrappedIndex(i - 1);
@@ -264,14 +265,14 @@ void BFSInteriorEvolver::generateGridTopology(const vector<float>& positions, co
 	//	}
 	//}
 
-	vector<ofPoint> roomCentroids;
-	for (int i = 0; i < roomCenters.size(); i++)
-	{
-		ofPoint pos = topologyGrid.getCellInterpolated(roomCenters[i]);
-		roomCentroids.push_back(floorgrid->getCellAt((int)pos.x, (int)pos.y).rect.getCenter());
-	}
+	//vector<ofPoint> roomCentroids;
+	//for (int i = 0; i < roomCenters.size(); i++)
+	//{
+	//	ofPoint pos = topologyGrid.getCellInterpolated(roomCenters[i]);
+	//	roomCentroids.push_back(floorgrid->getCellAt((int)pos.x, (int)pos.y).rect.getCenter());
+	//}
 
-	floorgrid->centers = roomCentroids;
+	floorgrid->centers = roomCenters;
 }
 
 //--------------------------------------------------------------
@@ -406,7 +407,7 @@ vector<InteriorRoom> BFSInteriorEvolver::optimizeInterior(int index)
 	generateGridTopology(selectionAlgorithm.population[index].genes, wallPlacementAlgorithm.population[index].genes, &floors[index]);
 
 	// Generate rooms
-	//generateRooms(floors[index], interior);
+	generateRooms(floors[index], interior);
 
 //	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
 
@@ -440,71 +441,102 @@ void BFSInteriorEvolver::generateRooms(FloorGrid& floorgrid, vector<InteriorRoom
 			}
 		}
 
-		// sort edges
-		sort(edges.begin(), edges.end());
-
-		// remove duplicate edges
-		for (int i = edges.size() - 2; i > 0; i--)
-		{
-			if (i + 1 < edges.size())
-			{
-				if (edges[i] == edges[i + 1])
-				{
-					cout << "removed duplicates" << endl;
-					//edges.erase(edges.begin() + i + 1);
-					edges.erase(edges.begin() + i);
-					edges.erase(edges.begin() + i);
-					//edges.erase(edges.begin() + i, edges.begin() + i + 1);
-				//	edges.erase(edges.begin() + i);
-				}
-			}
-		}
-
-		// construct polygon from edges
-		ofPolyline shape;
-		bool done = false;
-
 		if (edges.size() > 0)
 		{
-			ofPoint start = edges[0].p1;
-			ofPoint v = start;
-			shape.addVertex(v);
+			// sort edges
+			//sort(edges.begin(), edges.end());
 
-			while (!done)
+			vector<int> duplicateIndices;
+
+			for (int i = 0; i < edges.size() - 1; i++)
 			{
-				bool removedEdge = false;
-				for (int i = edges.size() - 1; i > 0; i--)
+				for (int j = i + 1; j < edges.size(); j++)
 				{
-					if (edges[i].hasVertex(v))
+					if (edges[i] == edges[j])
 					{
-						v = edges[i].other(v);
+						duplicateIndices.push_back(i);
+						duplicateIndices.push_back(j);
+					}
+				}
+			}
 
-						if (start == v)
+			sort(duplicateIndices.begin(), duplicateIndices.end());
+			duplicateIndices.erase(unique(duplicateIndices.begin(), duplicateIndices.end()), duplicateIndices.end());
+
+			for (int i = duplicateIndices.size() - 1; i >= 0; i--)
+			{
+				edges.erase(edges.begin() + duplicateIndices[i]);
+			}
+
+			//	if (!removedEdge)
+			//		finished = true;
+			//}
+
+			//// remove duplicate edges
+			//for (int i = edges.size() - 2; i > 0; i--)
+			//{
+			//	if (i + 1 < edges.size())
+			//	{
+			//		if (edges[i] == edges[i + 1])
+			//		{
+			//			cout << "removed duplicates" << endl;
+			//			//edges.erase(edges.begin() + i + 1);
+			//			edges.erase(edges.begin() + i);
+			//			edges.erase(edges.begin() + i);
+			//			//edges.erase(edges.begin() + i, edges.begin() + i + 1);
+			//		//	edges.erase(edges.begin() + i);
+			//		}
+			//	}
+			//}
+
+			// construct polygon from edges
+			ofPolyline shape;
+			bool done = false;
+
+			if (edges.size() > 0)
+			{
+				ofPoint start = edges[0].p1;
+				ofPoint v = start;
+				shape.addVertex(v);
+
+				while (!done)
+				{
+					bool removedEdge = false;
+					for (int i = edges.size() - 1; i > 0; i--)
+					{
+						if (edges[i].hasVertex(v))
 						{
-							done = true;
-							shape.close();
+							v = edges[i].other(v);
+
+							if (start.distance(v) < 0.000001f)
+								done = true;
+							else
+								shape.addVertex(v);
+
+							edges.erase(edges.begin() + i);
+							removedEdge = true;
+
+							break;
 						}
-						else
-							shape.addVertex(v);
+					}
 
-						edges.erase(edges.begin() + i);
-						removedEdge = true;
-
+					// infinite loop prevention
+					if (!removedEdge)
+					{
+						cout << "inf loop" << endl;
+						
 						break;
 					}
 				}
-
-				// infinite loop prevention
-				if (!removedEdge)
-				{
-					cout << "inf loop" << endl;
-					break;
-				}
 			}
-		}
 
-		InteriorRoom ir = InteriorRoom(&pProgram->rooms[k], shape);
-		rooms.push_back(ir);
+			shape.close();
+			shape.simplify(0.001f);
+
+			// add room
+			InteriorRoom ir = InteriorRoom(&pProgram->rooms[k], shape);
+			rooms.push_back(ir);
+		}
 	}
 }
 
