@@ -601,17 +601,23 @@ void ArchitectureState::drawSplitInteriorTile(ofRectangle viewport, int index)
 			{
 				ofFill();
 				ofSetColor(MeshHelper::getColor(i));
-				(*pInterior)[i].shape.draw();
+
+				ofPolyline& shape = (*pInterior)[i].shape;
+				ofBeginShape();
+				for (int i = 0; i < shape.getVertices().size(); i++) {
+					ofVertex(shape.getVertices().at(i).x, shape.getVertices().at(i).y);
+				}
+				ofEndShape();
 
 				ofSetColor(40);
 				ofSetLineWidth(1.5f);
 				ofNoFill();
 
-				(*pInterior)[i].shape.draw();
+				shape.draw();
 
 				// draw room name and area
 				float area = roundf((*pInterior)[i].getArea() * 10) / 10;
-				ofPoint p = (*pInterior)[i].shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
+				ofPoint p = shape.getCentroid2D() + ofPoint(-5, -10) / ratio;
 				ofDrawBitmapString((*pInterior)[i].pRoom->code + "\n" + ofToString(area) + " m2", p);
 			}
 		}

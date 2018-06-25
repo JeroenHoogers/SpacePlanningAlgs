@@ -129,7 +129,7 @@ vector<InteriorRoom> SplitInteriorEvolver::optimizeInterior(int treeIndex)
 			splits.clear();
 
 			// create splits
-			for (int j = 0; j < pGenotype->genes.size(); j += 2)
+			for (int j = 0; j < pSplitAxisGT->genes.size(); j++)
 			{
 				splits.push_back(
 					Split(
