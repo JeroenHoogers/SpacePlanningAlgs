@@ -181,6 +181,37 @@ void ExteriorEvolver::generate(vector<int> selection)
 }
 
 //--------------------------------------------------------------
+void ExteriorEvolver::drawDebug(ofPoint p, int tile)
+{
+	int index = candidates[tile];
+
+	// draw debug
+	if (index >= geneticAlgorithm.population.size())
+		return;
+
+	string debugString = "";
+
+	vector<float>& gt = geneticAlgorithm.population[index].genes;
+	
+	debugString += "floats: \n";
+
+	for (int i = 0; i < gt.size(); i++)
+	{
+		debugString += ofToString(i) + ":\t" + ofToString(gt[i]) +  "\n";
+	}
+
+	vector<bool>& gt2 = extrusionSelectionAlgorithm.population[index].genes;
+	debugString += "bools: \n";
+	
+	for (int i = 0; i < gt2.size(); i++)
+	{
+		debugString += ofToString(i) + ":\t" + ofToString(gt2[i]) + "\n";
+	}
+
+	ofDrawBitmapStringHighlight(debugString, p);
+}
+
+//--------------------------------------------------------------
 Building* ExteriorEvolver::getBuildingAt(int tile)
 {
 	if (tile < candidates.size())

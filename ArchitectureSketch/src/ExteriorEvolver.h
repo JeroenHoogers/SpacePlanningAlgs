@@ -22,5 +22,7 @@ public:
 	bool isBuildingValid(Building& building);
 
 	Building* getBuildingAt(int tile);
+
+	void drawDebug(ofPoint p, int tile);
 };
 
