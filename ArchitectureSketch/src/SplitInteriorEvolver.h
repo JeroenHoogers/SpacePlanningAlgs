@@ -128,6 +128,8 @@ private:
 
 	vector<vector<InteriorRoom>> interiors;
 
+	int m_selected = 0;
+
 public:
 	// TODO: allow multiple floors
 	ofPolyline floorshape;
@@ -141,6 +143,8 @@ public:
 	vector<InteriorRoom>* getInteriorAt(int tile);
 
 	void generate(vector<int> selection);
+
+	vector<InteriorRoom> topology(int treeIndex);
 
 	vector<InteriorRoom> optimizeInterior(int treeIndex);
 
@@ -159,5 +163,7 @@ public:
 	void orderLeaves(SplitTreeNode* root);
 
 	void drawDebug(ofPoint p, int tile) override;
+
+	virtual int getSelectedTiles();
 };
 

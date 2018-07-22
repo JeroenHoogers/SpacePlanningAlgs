@@ -22,7 +22,7 @@ void SplitInteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	splits = nRooms - 1;
 
 	// evolve a binary tree with #rooms leafs and #splits interior nodes
-	roomOptimizationAlgorithm.setup(100, splits * 2, 0.1f, 0.4f);
+	roomOptimizationAlgorithm.setup(150, splits * 2, 0.1f, 0.4f);
 	
 	// TODO: initialize properly using leaves and splits
 	geneticTreeAlgorithm.setup(tiles, splits + nRooms);
@@ -81,6 +81,94 @@ void SplitInteriorEvolver::optimizeInteriors()
 	//}
 
 	//gen++;
+}
+
+// REMOVE
+//--------------------------------------------------------------
+vector<InteriorRoom> SplitInteriorEvolver::topology(int treeIndex)
+{
+	roomOptimizationAlgorithm.generateRandomPopulation();
+
+	vector<Split> splits;
+	vector<Split> optimalSplits;
+	//optimizationGenerations = 1;
+
+	// TODO: store all fitness values together with the splits in order to perform a better selection
+	// generate next generation
+	roomOptimizationAlgorithm.generateOffspring();
+
+	// convert
+	float totalFitness = 0;
+	//fitnesses.clear();
+	splits.clear();
+
+	float maxfitness = -1.0f;
+	int optimalIndex = -1;
+
+	//Genotype<float>* pGenotype;
+	const Genotype<bool>* pSplitAxisGT = &splitAxisAlgorithm.population[treeIndex];
+
+
+	//pGenotype = &roomOptimizationAlgorithm.population[i];
+
+	//// DEBUG: REMOVE LATER
+	//for (int j = 0; j < pGenotype->genes.size(); j++)
+	//{
+	//	pGenotype->genes[j] = 0.5f;
+	//}
+
+	splits.clear();
+
+	// create splits
+	for (int j = 0; j < pSplitAxisGT->genes.size(); j++)
+	{
+		splits.push_back(
+			Split(
+				0.5f,								// position
+																// TODO: get axis from binary genome
+				pSplitAxisGT->genes[j] ? 0 : 1
+
+				//fminf(floorf(pGenotype->genes[j+1] * 2.0), 1.0)		// axis
+			)
+		);
+	}
+
+	// compute fitness
+	//float fitness = computeInteriorFitness(splits, treeIndex);
+	//totalFitness += fitness;
+
+	//pGenotype->fitness = fitness;
+
+	//			fitnesses.push_back(fitness);
+
+	// find the best best individual of the last generation
+	//if (fitness > maxfitness)
+	//{
+	//	maxfitness = fitness;
+
+	//	optimalIndex = i;
+		optimalSplits = splits;
+	//}
+
+
+	//if (treeIndex == 0)
+	//{
+	//	cout << "gen: " << gen << ", total fitness: " << totalFitness << ", highest fitness:" << maxfitness << endl;
+	//}
+
+	// TODO: select fittest 2 individuals
+	//roomOptimizationAlgorithm.select(optimalIndex);
+
+	//roomOptimizationAlgorithm.selectByFitness(fitnesses);
+
+	// done with evolution, pick the genome with the highest fitness as our optimal room division
+	//SplitTreeNode* root = constructTestTree();
+
+	// create phenotype
+	vector<InteriorRoom> interior;
+	generateRooms(optimalSplits, trees[treeIndex], floorshape, interior);
+
+	return interior;
 }
 
 //--------------------------------------------------------------
@@ -272,6 +360,8 @@ bool SplitInteriorEvolver::checkAdjacency(const InteriorRoom& r1, const Interior
 //--------------------------------------------------------------
 void SplitInteriorEvolver::generate(vector<int> selection)
 {
+	m_selected = selection.size();
+
 	// find selected indices
 	for (int i = 0; i < selection.size(); i++)
 	{
@@ -611,4 +701,10 @@ SplitTreeNode* SplitInteriorEvolver::constructTestTree2()
 	lclc->rightChild = lclcrc;
 
 	return root;
+}
+
+//--------------------------------------------------------------
+int SplitInteriorEvolver::getSelectedTiles()
+{
+	return m_selected;
 }

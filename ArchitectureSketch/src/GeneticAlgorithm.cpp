@@ -503,7 +503,7 @@ void GeneticAlgorithm<T>::crossover(vector<T>* offspring1, vector<T>* offspring2
 		// crossover genes independently
 		//		useOtherGene = ofRandom(1) < probability;
 
-		// crossover genes
+		// uniform crossover
 		if (ofRandom(1) < 0.5f)
 		{
 			// do crossover

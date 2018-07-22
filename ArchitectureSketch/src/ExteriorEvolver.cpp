@@ -20,7 +20,7 @@ void ExteriorEvolver::setup(int _tiles, ArchitectureProgram* _pProgram)
 	maxExtrusions = 6;
 	int baseVars = 4;
 
-	geneticAlgorithm.setup(1000, baseVars + maxExtrusions * 4, 0.25f, 0.4f);
+	geneticAlgorithm.setup(1000, baseVars + maxExtrusions * 4, 0.2f, 0.4f);
 	extrusionSelectionAlgorithm.setup(1000, maxExtrusions * 2, 0.15f, 0.4f);
 
 	buildings.clear();
@@ -53,6 +53,8 @@ void ExteriorEvolver::generate(vector<int> selection)
 
 	//massModels.clear();
 	bool done = false;
+
+	m_selected = selection.size();
 
 	// find selected indices
 	for (int i = 0; i < selection.size(); i++)
@@ -273,4 +275,10 @@ bool ExteriorEvolver::isBuildingValid(Building& building)
 	}
 
 	return true;
+}
+
+//--------------------------------------------------------------
+int ExteriorEvolver::getSelectedTiles()
+{
+	return m_selected;
 }

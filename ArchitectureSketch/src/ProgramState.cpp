@@ -140,8 +140,6 @@ void ProgramState::drawSiteLayout()
 
 		ofSetColor(190);
 
-
-
 		ofSetLineWidth(2);
 		ofDrawLine(0, y, 400, y);
 
@@ -211,6 +209,4 @@ void ProgramState::acceptButtonPressed()
 
 	// change state to architecture
 	changeState(ArchitectureState_StateName);
-
-
 }

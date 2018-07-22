@@ -309,7 +309,7 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 			break;
 		}
 	}
-	
+
 	// draw the tile that corresponds to the current step
 	switch (currentStep)
 	{
@@ -325,6 +325,15 @@ void ArchitectureState::drawTile(ofRectangle viewport, int tileIndex)
 	default:
 		break;
 	}
+
+	if (tileIndex < pCurrentEvolver->getSelectedTiles())
+	{
+		ofNoFill();
+		ofSetColor(50);
+		ofSetLineWidth(7.5f);
+		ofDrawRectangle(viewport.x + 1, viewport.y + 1, viewport.width - 2, viewport.height - 2);
+	}
+	ofSetLineWidth(1.f);
 }
 
 //--------------------------------------------------------------

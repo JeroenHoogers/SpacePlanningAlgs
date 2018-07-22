@@ -10,6 +10,8 @@ private:
 	vector<Building> buildings;
 	int maxExtrusions;
 
+	int m_selected = 0;
+
 public:
 
 	ExteriorEvolver();
@@ -24,5 +26,7 @@ public:
 	Building* getBuildingAt(int tile);
 
 	void drawDebug(ofPoint p, int tile);
+
+	virtual int getSelectedTiles();
 };
 

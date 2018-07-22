@@ -25,5 +25,7 @@ public:
 	virtual void generate(vector<int> selection) = 0;
 
 	virtual void drawDebug(ofPoint p, int tile) {};
+
+	virtual int getSelectedTiles() = 0;
 };
 

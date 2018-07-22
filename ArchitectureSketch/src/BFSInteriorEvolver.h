@@ -277,6 +277,7 @@ private:
 
 	vector<vector<InteriorRoom>> interiors;
 
+	int m_selected = 0;
 
 public:
 
@@ -319,5 +320,7 @@ public:
 	void generateRooms(FloorGrid& floorgrid, vector<InteriorRoom>& rooms);
 
 	void drawDebug(ofPoint p, int tile) override;
+
+	int getSelectedTiles() override;
 };
 

@@ -13,7 +13,12 @@ DebugState::~DebugState()
 //--------------------------------------------------------------
 void DebugState::stateEnter()
 {
-
+	polygon = getSharedData().building.floorShapes[1];
+	for (int i = 0; i < polygon.size(); i++)
+	{
+		polygon[i] += ofPoint(15,15);
+		polygon[i] *= 20;
+	}
 }
 
 //--------------------------------------------------------------
@@ -21,7 +26,6 @@ void DebugState::stateExit()
 {
 
 }
-
 
 //--------------------------------------------------------------
 void DebugState::setup()
@@ -37,38 +41,38 @@ void DebugState::setup()
 	polygon.addVertex(ofPoint(20, 500));
 	polygon.close();
 
-	ofRectangle bb = polygon.getBoundingBox();
+	//ofRectangle bb = polygon.getBoundingBox();
 
-	for (int i = 0; i < polygon.size(); i++)
-	{
-		int prev = polygon.getWrappedIndex(i - 1);
-		int next = polygon.getWrappedIndex(i + 1);
+	//for (int i = 0; i < polygon.size(); i++)
+	//{
+	//	int prev = polygon.getWrappedIndex(i - 1);
+	//	int next = polygon.getWrappedIndex(i + 1);
 
-		ofVec2f v1 = polygon[i] - polygon[prev];
-		ofVec2f v2 = polygon[next] - polygon[i];
+	//	ofVec2f v1 = polygon[i] - polygon[prev];
+	//	ofVec2f v2 = polygon[next] - polygon[i];
 
-		float angle = v1.angle(v2);
-		if (angle < 0)
-		{
-			rays.push_back(LineSegment(polygon[prev], polygon[i] + v1 * 5.0f));
-			rays.push_back(LineSegment(polygon[next], polygon[i] - v2 * 5.0f));
+	//	float angle = v1.angle(v2);
+	//	if (angle < 0)
+	//	{
+	//		rays.push_back(LineSegment(polygon[prev], polygon[i] + v1 * 5.0f));
+	//		rays.push_back(LineSegment(polygon[next], polygon[i] - v2 * 5.0f));
 
-			// create x-split
-			defaultSplits.push_back(
-				Split((polygon[i].x - bb.getMinX()) / bb.getWidth(), 0)
-			);
+	//		// create x-split
+	//		defaultSplits.push_back(
+	//			Split((polygon[i].x - bb.getMinX()) / bb.getWidth(), 0)
+	//		);
 
-			// create y-split
-			defaultSplits.push_back(
-				Split((polygon[i].y - bb.getMinY()) / bb.getHeight(), 1)
-			);
-		}
+	//		// create y-split
+	//		defaultSplits.push_back(
+	//			Split((polygon[i].y - bb.getMinY()) / bb.getHeight(), 1)
+	//		);
+	//	}
 
-		//	rays.push_back(LineSegment(ofPoint(50, 50), ofPoint(500, 500)));
-		//	rays.push_back(LineSegment(ofPoint(200, 50), ofPoint(100, 400)));
-	}
+	//	//	rays.push_back(LineSegment(ofPoint(50, 50), ofPoint(500, 500)));
+	//	//	rays.push_back(LineSegment(ofPoint(200, 50), ofPoint(100, 400)));
+	//}
 
-	constructGrid();
+	//constructGrid();
 }
 
 void DebugState::constructGrid()
@@ -154,42 +158,44 @@ void DebugState::draw()
 
 	ofPushMatrix();
 	{
-		//ofTranslate(20, 20);
+		//ofScale(8,8);
+		ofTranslate(20, 20);
 
-	//	ofDrawCircle(rays[1].v2, 3);
-
-		ofSetColor(20);
-		ofPoint intersection;
-		//if (IntersectionHelper::intersectRayLineSegment(
-		//	rays[0].v1, rays[0].v2 - rays[0].v1, 
-		//	rays[1].v1, rays[1].v2, 
-		//	&intersection))
-		//{
-		//	ofDrawCircle(intersection, 4);
-		//}
-
-		//ofPolyline left;
-		//ofPolyline right;
-		//IntersectionHelper::splitPolygon(polygon, rays[0].v1, rays[0].v2 - rays[0].v1, &left, &right);
 		
-		for (int i = 0; i < grid.cells.size(); i++)
-		{
-			ofFill();
-			ofSetColor(200);
+	////	ofDrawCircle(rays[1].v2, 3);
 
-			if (grid.cells[i].inside)
-				ofSetColor(120);
+	//	ofSetColor(20);
+	//	ofPoint intersection;
+	//	//if (IntersectionHelper::intersectRayLineSegment(
+	//	//	rays[0].v1, rays[0].v2 - rays[0].v1, 
+	//	//	rays[1].v1, rays[1].v2, 
+	//	//	&intersection))
+	//	//{
+	//	//	ofDrawCircle(intersection, 4);
+	//	//}
 
-			ofRect(grid.cells[i].rect);
+	//	//ofPolyline left;
+	//	//ofPolyline right;
+	//	//IntersectionHelper::splitPolygon(polygon, rays[0].v1, rays[0].v2 - rays[0].v1, &left, &right);
+	//	
+	//	for (int i = 0; i < grid.cells.size(); i++)
+	//	{
+	//		ofFill();
+	//		ofSetColor(200);
 
-			ofNoFill();
-			ofSetColor(0, 200, 200);
-			ofRect(grid.cells[i].rect);
-		}
+	//		if (grid.cells[i].inside)
+	//			ofSetColor(120);
 
-		ofFill();
-		ofSetColor(200,0,0);
-		ofRect(grid.getCellAt(2, 0).rect);
+	//		ofRect(grid.cells[i].rect);
+
+	//		ofNoFill();
+	//		ofSetColor(0, 200, 200);
+	//		ofRect(grid.cells[i].rect);
+	//	}
+
+	//	ofFill();
+	//	ofSetColor(200,0,0);
+	//	ofRect(grid.getCellAt(2, 0).rect);
 
 		ofNoFill();
 
@@ -198,13 +204,13 @@ void DebugState::draw()
 
 		polygon.draw();
 
-		ofSetColor(0, 0, 255);
-		ofSetLineWidth(2.0f);
-		for (size_t i = 0; i < rays.size(); i++)
-		{
-			ofDrawLine(rays[i].v1, rays[i].v2);
-			ofDrawCircle(rays[i].v1, 3);
-		}
+	//	ofSetColor(0, 0, 255);
+	//	ofSetLineWidth(2.0f);
+	//	for (size_t i = 0; i < rays.size(); i++)
+	//	{
+	//		ofDrawLine(rays[i].v1, rays[i].v2);
+	//		ofDrawCircle(rays[i].v1, 3);
+	//	}
 
 
 		//ofSetColor(0, 0, 255);
@@ -227,37 +233,37 @@ void DebugState::draw()
 		//ofDrawBitmapString(ofToString(lleft.getArea()), lleft.getCentroid2D());
 		//ofDrawBitmapString(ofToString(lright.getArea()), lright.getCentroid2D());
 
-		//// generate straight skeleton
-		//vector<LineSegment> arcs;
+		// generate straight skeleton
+		vector<LineSegment> arcs;
 
-		//SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
+		SSAlgOutput straightSkeleton = StraightSkeleton::CreateSkeleton(polygon, steps);
 
-		//// unpack tuple
-		//std::tie(arcs, faces) = straightSkeleton;
+		// unpack tuple
+		std::tie(arcs, faces) = straightSkeleton;
 
-		//skeleton = arcs;
+		skeleton = arcs;
 
-		//ofSetLineWidth(2);
-		//ofSetColor(20, 20, 200);
-		//ofNoFill();
+		ofSetLineWidth(2);
+		ofSetColor(20, 20, 200);
+		ofNoFill();
 
-		//for (size_t i = 0; i < skeleton.size(); i++)
+		for (size_t i = 0; i < skeleton.size(); i++)
+		{
+			ofLine(skeleton[i].v1.x, skeleton[i].v1.y, skeleton[i].v2.x, skeleton[i].v2.y);
+		}
+
+		ofSetColor(200, 40, 40);
+		ofFill();
+		//for (size_t i = 0; i < faces.size(); i++)
 		//{
-		//	ofLine(skeleton[i].v1.x, skeleton[i].v1.y, skeleton[i].v2.x, skeleton[i].v2.y);
+		//	faces[3].draw();
 		//}
 
-		//ofSetColor(200, 40, 40);
-		//ofFill();
-		////for (size_t i = 0; i < faces.size(); i++)
-		////{
-		////	faces[3].draw();
-		////}
-
-		//
-		////faces[2].draw();
-		////faces[4].draw();
-		////faces[0].draw();
-		////faces[3].draw();
+		
+		//faces[2].draw();
+		//faces[4].draw();
+		//faces[0].draw();
+		//faces[3].draw();
 
 		//ofNoFill();
 	}
@@ -289,30 +295,30 @@ void DebugState::mousePressed(int x, int y, int button)
 //--------------------------------------------------------------
 void DebugState::mouseDragged(int x, int y, int button)
 {
-	ofPoint mousePos = ofPoint(x, y);
-	//// drag vertices
-	//for (size_t i = 0; i < polygon.size(); i++)
+	//ofPoint mousePos = ofPoint(x, y);
+	////// drag vertices
+	////for (size_t i = 0; i < polygon.size(); i++)
+	////{
+	////	if (polygon[i].distance(mousePos) < 15.0f)
+	////	{
+	////		polygon[i] = mousePos;
+	////		break;
+	////	}
+	////}
+
+
+	//for (size_t i = 0; i < rays.size(); i++)
 	//{
-	//	if (polygon[i].distance(mousePos) < 15.0f)
+	//	if (rays[i].v1.distance(mousePos) < 20.0f)
 	//	{
-	//		polygon[i] = mousePos;
+	//		rays[i].v1 = mousePos;
+	//		break;
+	//	}
+
+	//	if (rays[i].v2.distance(mousePos) < 20.0f)
+	//	{
+	//		rays[i].v2 = mousePos;
 	//		break;
 	//	}
 	//}
-
-
-	for (size_t i = 0; i < rays.size(); i++)
-	{
-		if (rays[i].v1.distance(mousePos) < 20.0f)
-		{
-			rays[i].v1 = mousePos;
-			break;
-		}
-
-		if (rays[i].v2.distance(mousePos) < 20.0f)
-		{
-			rays[i].v2 = mousePos;
-			break;
-		}
-	}
 }

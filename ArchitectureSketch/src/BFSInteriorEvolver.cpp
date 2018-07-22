@@ -649,6 +649,8 @@ bool BFSInteriorEvolver::checkAdjacency(const InteriorRoom& r1, const InteriorRo
 //--------------------------------------------------------------
 void BFSInteriorEvolver::generate(vector<int> selection)
 {
+	m_selected = selection.size();
+
 	// find selected indices
 	for (int i = 0; i < selection.size(); i++)
 	{
@@ -821,3 +823,9 @@ void BFSInteriorEvolver::drawDebug(ofPoint p, int tile)
 //		//rooms.insert(rooms.end(), roomsRight.begin(), roomsRight.end());
 //	}
 //}
+
+//--------------------------------------------------------------
+int BFSInteriorEvolver::getSelectedTiles()
+{
+	return m_selected;
+}
