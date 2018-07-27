@@ -384,6 +384,26 @@ vector<bool> GeneticAlgorithm<bool>::generateRandomDna()
 
 //--------------------------------------------------------------
 template <>
+vector<int> GeneticAlgorithm<int>::generateRandomDna()
+{
+	// permutation of random dna
+	vector<int> genes = vector<int>();
+
+	// initialize as an ordered list
+	for (size_t i = 0; i < numGenes; i++)
+	{
+		genes.push_back(i);
+	}
+
+	// randomly shuffle the list
+	random_shuffle(genes.begin(), genes.end());
+
+	return genes;
+}
+
+
+//--------------------------------------------------------------
+template <>
 void GeneticAlgorithm<float>::mutate(vector<float>* genes)
 {
 	//vector<float> genotype;
@@ -430,6 +450,34 @@ void GeneticAlgorithm<bool>::mutate(vector<bool>* genes)
 			{
 				(*genes)[i] = ofRandom(1) < randomBias;
 			}
+		}
+	}
+}
+
+//--------------------------------------------------------------
+template <>
+void GeneticAlgorithm<int>::mutate(vector<int>* genes)
+{
+	// permutation mutation
+	bool mutateGene = false;
+
+	for (size_t i = 0; i < genes->size(); i++)
+	{
+		// mutate this gene with probability equal to the mutation rate
+		mutateGene = ofRandom(1) < mutationRate;
+
+		if (mutateGene)
+		{
+			// if the bias is default, perform ordinary mutation
+			int j = ofRandom(1) * genes->size();
+
+			if (j >= genes->size())
+				j = genes->size() - 1;
+
+			// swap elements
+			int temp = (*genes)[i];
+			(*genes)[i] = (*genes)[j];
+			(*genes)[j] = temp;
 		}
 	}
 }
@@ -487,6 +535,60 @@ vector<T> GeneticAlgorithm<T>::rouletteSelection(float totalFitness)
 	}
 
 	return vector<T>();
+}
+
+//--------------------------------------------------------------
+template<>
+void GeneticAlgorithm<int>::crossover(vector<int>* offspring1, vector<int>* offspring2)
+{
+	// permutation crossover 
+
+	// Cycle Crossover (CX)
+	// proposed by: I. M. Oliver, D. J. Smith, and J. R. C. Holland. 
+	// paper: “A study of permutation crossover operators on the traveling salesman problem”
+	if (offspring1->size() != offspring2->size())
+		return;
+
+	vector<int> p1 = *offspring1;
+	vector<int> p2 = *offspring2;
+
+	bool swap = false;
+	vector<bool> visited(offspring1->size(), false);
+
+	for (int i = 0; i < visited.size(); i++)
+	{
+		if (!visited[i])
+		{
+			bool completed = false;
+			int j = i;
+
+			// complete cycle
+			while (!completed) {
+				// copy values to offspring
+				if (swap) {
+					(*offspring1)[j] = p2[j];
+					(*offspring2)[j] = p1[j];
+				}
+				else {
+					(*offspring1)[j] = p1[j];
+					(*offspring2)[j] = p2[j];
+				}
+
+				// update j by finding the value of p1 in p2[j]
+				for (int k = 0; k < p1.size(); k++) {
+					if (p1[k] == p2[j]) {
+						j = k;
+						break;
+					}
+				}
+
+				if (visited[j])
+					completed = true;
+			}
+
+			swap = !swap;
+		}
+	}
 }
 
 
@@ -622,3 +724,4 @@ void GeneticAlgorithm<T>::crossover(vector<T>* offspring1, vector<T>* offspring2
 
 template class GeneticAlgorithm<float>;
 template class GeneticAlgorithm<bool>;
+template class GeneticAlgorithm<int>;

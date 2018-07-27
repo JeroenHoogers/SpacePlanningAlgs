@@ -94,6 +94,12 @@ vector<float> GeneticAlgorithm<float>::generateRandomDna();
 template <>
 vector<bool> GeneticAlgorithm<bool>::generateRandomDna();
 
+template<>
+vector<int> GeneticAlgorithm<int>::generateRandomDna();
+
+// specialized crossover methods
+template<>
+virtual void GeneticAlgorithm<int>::crossover(vector<int>* offspring1, vector<int>* offspring2);
 
 // specialized mutation methods
 template <>
@@ -101,3 +107,6 @@ virtual void GeneticAlgorithm<float>::mutate(vector<float>* genotype);
 
 template <>
 virtual void GeneticAlgorithm<bool>::mutate(vector<bool>* genotype);
+
+template<>
+virtual void GeneticAlgorithm<int>::mutate(vector<int>* genotype);
